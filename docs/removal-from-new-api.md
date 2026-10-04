@@ -8,7 +8,7 @@ removal on its own branch/commit so unrelated changes are preserved.
 ## 0. Verify the standalone project first
 
 ```bash
-cd model-check
+cd ModelsExam
 go mod tidy && go vet ./... && go test ./...
 cd web && bun install && bun run typecheck && bun run test && bun run build && cd ..
 make build && ./modelsexam          # open http://localhost:8080, run a Claude and an OpenAI check

@@ -2,7 +2,9 @@
 
 > Give any model API an exam. Open-source, independent conformance and authenticity tests for Anthropic Claude, OpenAI-compatible and image model endpoints.
 
-[![CI](https://github.com/modelsell/model-check/actions/workflows/ci.yml/badge.svg)](https://github.com/modelsell/model-check/actions/workflows/ci.yml)
+[![CI](https://github.com/modelsell/ModelsExam/actions/workflows/ci.yml/badge.svg)](https://github.com/modelsell/ModelsExam/actions/workflows/ci.yml)
+
+Live demo: [modelsexam.com](https://modelsexam.com/)
 
 Standalone model-authenticity and protocol-conformance checker for **Anthropic Claude**
 (`/v1/messages`) and **OpenAI-compatible** (`/v1/chat/completions`, `/v1/responses`, …) endpoints.
@@ -19,8 +21,8 @@ unchanged, the platform glue (users, channels, relay adaptors) is gone.
 Requires Go 1.25.1 or newer and Bun 1.3.14 or newer. Frontend tests also require Node.js 24.
 
 ```bash
-git clone https://github.com/modelsell/model-check.git
-cd model-check
+git clone https://github.com/modelsell/ModelsExam.git
+cd ModelsExam
 go mod download
 make build                  # bun install + build web + go build  -> ./modelsexam
 ./modelsexam               # http://localhost:8080

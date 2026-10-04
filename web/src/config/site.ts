@@ -19,4 +19,4 @@ For commercial licensing, please contact support@quantumnous.com
 // Site-wide settings that a maintainer edits by hand.
 
 // Public source repository, linked from the site footer.
-export const REPO_URL = 'https://github.com/modelsell/model-check'
+export const REPO_URL = 'https://github.com/modelsell/ModelsExam'
