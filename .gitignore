@@ -1,0 +1,25 @@
+/data/
+/model-check
+/modelsexam
+/web/node_modules/
+/web/dist/*
+!/web/dist/.gitkeep
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+.env*
+!.env.example
+/web/dist-static/
+
+# Local credentials, logs, editor files and operational notes.
+*.pem
+*.key
+*.p12
+*.log
+*.bak
+.DS_Store
+.idea/
+.vscode/
+/docs/claude-check-channel-diagnosis-2026-09-14.md

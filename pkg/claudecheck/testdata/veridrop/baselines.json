@@ -1,0 +1,95 @@
+{
+  "source_url": "https://github.com/canarybyte/veridrop/tree/16feef72ad76d154c3ae6b4c0917319597fc1888",
+  "commit": "16feef72ad76d154c3ae6b4c0917319597fc1888",
+  "license": "AGPL-3.0",
+  "snapshots": [
+    {
+      "model": "claude-haiku-4-5",
+      "response_model": "claude-haiku-4-5-20251001",
+      "collected_at": "2026-04-27T11:10:16.054468Z",
+      "file": "claude-haiku-4-5_full.json",
+      "sha256": "02f2a5271ea3e6565902beffd5c0a113b4fdd880d5f66affaeb65821979283b2",
+      "pdf_identifier": "MAGIC-7F3K-VERIFY-CLAUDE-RELAY-DETECTOR",
+      "tool_name": "get_weather",
+      "tool_city": "Tokyo",
+      "tool_unit": "celsius",
+      "integrity_input_tokens": 27,
+      "integrity_output_tokens": 18,
+      "integrity_stream_input_tokens": 27,
+      "integrity_stream_output_tokens": 18,
+      "consistency_runs": 3,
+      "consistency_output_tokens": [
+        52,
+        47,
+        52
+      ],
+      "consistency_cv": 0.047
+    },
+    {
+      "model": "claude-opus-4-6",
+      "response_model": "claude-opus-4-6",
+      "collected_at": "2026-04-27T15:49:40.102928Z",
+      "file": "claude-opus-4-6_full.json",
+      "sha256": "05ffcd4b40b0b87a9374a3a307ff4ece033ab85fd5873661ef31c0f8461f4e37",
+      "pdf_identifier": "MAGIC-7F3K-VERIFY-CLAUDE-RELAY-DETECTOR",
+      "tool_name": "get_weather",
+      "tool_city": "Tokyo",
+      "tool_unit": "celsius",
+      "integrity_input_tokens": 27,
+      "integrity_output_tokens": 13,
+      "integrity_stream_input_tokens": 27,
+      "integrity_stream_output_tokens": 13,
+      "consistency_runs": 3,
+      "consistency_output_tokens": [
+        56,
+        56,
+        56
+      ],
+      "consistency_cv": 0.0
+    },
+    {
+      "model": "claude-opus-4-7",
+      "response_model": "claude-opus-4-7",
+      "collected_at": "2026-04-27T11:09:38.624110Z",
+      "file": "claude-opus-4-7_full.json",
+      "sha256": "e345cdcd6f1726d39ae99456d1cf506b644789190c5ad46fdc72615e5ecd4cbe",
+      "pdf_identifier": "MAGIC-7F3K-VERIFY-CLAUDE-RELAY-DETECTOR",
+      "tool_name": "get_weather",
+      "tool_city": "Tokyo",
+      "tool_unit": "celsius",
+      "integrity_input_tokens": 44,
+      "integrity_output_tokens": 18,
+      "integrity_stream_input_tokens": 44,
+      "integrity_stream_output_tokens": 18,
+      "consistency_runs": 3,
+      "consistency_output_tokens": [
+        63,
+        65,
+        63
+      ],
+      "consistency_cv": 0.015
+    },
+    {
+      "model": "claude-sonnet-4-6",
+      "response_model": "claude-sonnet-4-6",
+      "collected_at": "2026-04-27T11:10:03.358994Z",
+      "file": "claude-sonnet-4-6_full.json",
+      "sha256": "c30d8ae3f8938ce42d95c4c744713585384e05516dc5d65cd82f1dffbeb2b7c4",
+      "pdf_identifier": "MAGIC-7F3K-VERIFY-CLAUDE-RELAY-DETECTOR",
+      "tool_name": "get_weather",
+      "tool_city": "Tokyo",
+      "tool_unit": "celsius",
+      "integrity_input_tokens": 27,
+      "integrity_output_tokens": 13,
+      "integrity_stream_input_tokens": 27,
+      "integrity_stream_output_tokens": 13,
+      "consistency_runs": 3,
+      "consistency_output_tokens": [
+        52,
+        52,
+        50
+      ],
+      "consistency_cv": 0.018
+    }
+  ]
+}

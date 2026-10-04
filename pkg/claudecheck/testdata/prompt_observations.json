@@ -1,0 +1,494 @@
+[
+  {
+    "id": "observation-1",
+    "version": 10,
+    "model": "claude-opus-5",
+    "token_audit": {
+      "version": 4,
+      "prompt": [
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r1",
+          "expected": null,
+          "actual": 15,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "global.anthropic.claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r1",
+          "expected": null,
+          "actual": 981,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r1",
+          "expected": null,
+          "actual": 45,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r2",
+          "expected": null,
+          "actual": 15,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r2",
+          "expected": null,
+          "actual": 981,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r2",
+          "expected": null,
+          "actual": 45,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        },
+        {
+          "response_model": "global.anthropic.claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r3",
+          "expected": null,
+          "actual": 15,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r3",
+          "expected": null,
+          "actual": 981,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r3",
+          "expected": null,
+          "actual": 45,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        }
+      ],
+      "cache": []
+    }
+  },
+  {
+    "id": "observation-2",
+    "version": 10,
+    "model": "claude-opus-5",
+    "token_audit": {
+      "version": 4,
+      "prompt": [
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r1",
+          "expected": null,
+          "actual": 15,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r1",
+          "expected": null,
+          "actual": 981,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r1",
+          "expected": null,
+          "actual": 45,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r2",
+          "expected": null,
+          "actual": 15,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r2",
+          "expected": null,
+          "actual": 981,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r2",
+          "expected": null,
+          "actual": 45,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r3",
+          "expected": null,
+          "actual": 15,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r3",
+          "expected": null,
+          "actual": 981,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r3",
+          "expected": null,
+          "actual": 45,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        }
+      ],
+      "cache": []
+    }
+  },
+  {
+    "id": "observation-3",
+    "version": 10,
+    "model": "claude-opus-5",
+    "token_audit": {
+      "version": 4,
+      "prompt": [
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r1",
+          "expected": null,
+          "actual": 26,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r1",
+          "expected": null,
+          "actual": 992,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r1",
+          "expected": null,
+          "actual": 56,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r2",
+          "expected": null,
+          "actual": 26,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r2",
+          "expected": null,
+          "actual": 992,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r2",
+          "expected": null,
+          "actual": 56,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d",
+          "prompt_profile": "6d62004b1aa163299d14502121495405b67e6331a3f7c4b392326eef4d782999",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "floor_a_r3",
+          "expected": null,
+          "actual": 26,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "12e6ed824817ad210c21276bb82ccdd40a21230284d5ce268fce1a7a481f321d"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27",
+          "prompt_profile": "ed238bf3e7c498c0c9c59b4c92b08d95c20761a9f4466d76a7095927f0adca72",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "long_r3",
+          "expected": null,
+          "actual": 992,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "1d1c3fb18253ca9780744f363e4ff50a3c071a44dcd221cafecfc0b0305f7b27"
+        },
+        {
+          "response_model": "claude-opus-5",
+          "client_profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff",
+          "prompt_profile": "c8009a47a6d522ba7b047850e171e482fe1ecd9a3248a2cad8cf029735b83be1",
+          "model": "claude-opus-5",
+          "behavior": {
+            "score": 100,
+            "code": "prompt_answer_matched"
+          },
+          "id": "system_canary_r3",
+          "expected": null,
+          "actual": 56,
+          "difference": null,
+          "score": null,
+          "code": "count_unavailable",
+          "profile": "f84bfce5b04cc2f6b1bd4a064cc375c2edb2c316d4728aba6c5de4869faed1ff"
+        }
+      ],
+      "cache": []
+    }
+  }
+]

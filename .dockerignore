@@ -1,0 +1,17 @@
+.git
+model-check
+modelsexam
+web/node_modules
+web/dist
+web/dist-static
+data
+*.db
+*.db-*
+.env*
+*.pem
+*.key
+*.p12
+*.log
+*.bak
+.DS_Store
+docs

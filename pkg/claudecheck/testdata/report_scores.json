@@ -1,0 +1,2214 @@
+[
+  {
+    "name": "empty modern report remains unscored",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": []
+    },
+    "score": null
+  },
+  {
+    "name": "empty legacy report remains unscored",
+    "report": {
+      "version": 1,
+      "checks": [],
+      "samples": []
+    },
+    "score": null
+  },
+  {
+    "name": "legacy identity evidence is not scored",
+    "report": {
+      "version": 3,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "model_echo",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": null
+  },
+  {
+    "name": "legacy PDF and tool aliases count as protocol",
+    "report": {
+      "version": 3,
+      "checks": [
+        {
+          "id": "veridrop_pdf",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "veridrop_tool",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "veridrop_integrity",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 50
+  },
+  {
+    "name": "legacy v1 basic protocol can be scored",
+    "report": {
+      "version": 1,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 100
+  },
+  {
+    "name": "v6 consistency pass earns identity score",
+    "report": {
+      "version": 6,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 100
+  },
+  {
+    "name": "model echo alone does not prove consistency",
+    "report": {
+      "version": 6,
+      "checks": [
+        {
+          "id": "model_echo",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": null
+  },
+  {
+    "name": "model echo mismatch retains zero",
+    "report": {
+      "version": 6,
+      "checks": [
+        {
+          "id": "model_echo",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 0
+  },
+  {
+    "name": "mismatch overrides consistency pass",
+    "report": {
+      "version": 6,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "model_echo",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 50
+  },
+  {
+    "name": "inconclusive identity does not dilute protocol",
+    "report": {
+      "version": 6,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "inconclusive",
+          "code": "fixture"
+        },
+        {
+          "id": "model_echo",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 100
+  },
+  {
+    "name": "identity finds first duplicate like frontend",
+    "report": {
+      "version": 6,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "model_consistency",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 100
+  },
+  {
+    "name": "benchmark uses only six core questions",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 1,
+        "items": [
+          {
+            "id": "digit_count",
+            "correct": true
+          },
+          {
+            "id": "boolean_count",
+            "correct": true
+          },
+          {
+            "id": "python_alias",
+            "correct": true
+          },
+          {
+            "id": "javascript_queue",
+            "correct": true
+          },
+          {
+            "id": "zh_constraint",
+            "correct": true
+          },
+          {
+            "id": "context_retrieval",
+            "correct": false
+          },
+          {
+            "id": "mod_product",
+            "correct": false
+          },
+          {
+            "id": "unknown",
+            "correct": false
+          }
+        ]
+      }
+    },
+    "score": 83
+  },
+  {
+    "name": "partial benchmark uses measured booleans only",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 1,
+        "items": [
+          {
+            "id": "digit_count",
+            "correct": true
+          },
+          {
+            "id": "boolean_count",
+            "correct": false
+          },
+          {
+            "id": "python_alias",
+            "correct": null
+          },
+          {
+            "id": "unknown",
+            "correct": false
+          }
+        ]
+      }
+    },
+    "score": 50
+  },
+  {
+    "name": "unknown benchmark version is not assessed",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": [],
+      "benchmark": {
+        "version": 2,
+        "items": [
+          {
+            "id": "digit_count",
+            "correct": false
+          }
+        ]
+      }
+    },
+    "score": 100
+  },
+  {
+    "name": "non core and missing benchmark evidence stay unscored",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 1,
+        "items": [
+          {
+            "id": "digit_count",
+            "correct": null
+          },
+          {
+            "id": "mod_product",
+            "correct": true
+          }
+        ]
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "four assessed dimensions match report screenshot",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "tool",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "stream",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": [],
+      "benchmark": {
+        "version": 1,
+        "items": [
+          {
+            "id": "digit_count",
+            "correct": true
+          }
+        ]
+      },
+      "token_audit": {
+        "version": 7,
+        "prompt": [],
+        "cache": [],
+        "cache_assessment": {
+          "score": 100
+        },
+        "prompt_assessment": {
+          "score": null
+        }
+      }
+    },
+    "score": 92
+  },
+  {
+    "name": "five dimension mean gives equal weight to each dimension",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "tool",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "stream",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": [],
+      "benchmark": {
+        "version": 1,
+        "items": [
+          {
+            "id": "digit_count",
+            "correct": true
+          },
+          {
+            "id": "boolean_count",
+            "correct": true
+          },
+          {
+            "id": "python_alias",
+            "correct": false
+          }
+        ]
+      },
+      "token_audit": {
+        "version": 7,
+        "prompt": [],
+        "cache": [],
+        "prompt_assessment": {
+          "score": 85
+        },
+        "cache_assessment": {
+          "score": 49
+        }
+      }
+    },
+    "score": 74
+  },
+  {
+    "name": "v1 ignores later assessment objects",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 1,
+        "prompt": [
+          {
+            "score": 100
+          }
+        ],
+        "cache": [
+          {
+            "score": 0
+          }
+        ],
+        "prompt_assessment": {
+          "score": 0
+        },
+        "cache_assessment": {
+          "score": 100
+        }
+      }
+    },
+    "score": 50
+  },
+  {
+    "name": "v2 missing prompt assessment uses row scores",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 2,
+        "prompt": [
+          {
+            "score": 60
+          }
+        ],
+        "cache": [
+          {
+            "score": 100
+          }
+        ]
+      }
+    },
+    "score": 80
+  },
+  {
+    "name": "v2 present unscored prompt assessment suppresses row scores",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": [],
+      "token_audit": {
+        "version": 2,
+        "prompt": [
+          {
+            "score": 100
+          }
+        ],
+        "cache": [],
+        "prompt_assessment": {
+          "score": null
+        }
+      }
+    },
+    "score": 0
+  },
+  {
+    "name": "v3 prompt zero overrides rows and cache still averages rows",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 3,
+        "prompt": [
+          {
+            "score": 100
+          }
+        ],
+        "cache": [
+          {
+            "score": 99
+          },
+          {
+            "score": 100
+          }
+        ],
+        "prompt_assessment": {
+          "score": 0
+        },
+        "cache_assessment": {
+          "score": 0
+        }
+      }
+    },
+    "score": 50
+  },
+  {
+    "name": "v4 missing cache assessment suppresses row scores",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 4,
+        "prompt": [],
+        "cache": [
+          {
+            "score": 100
+          }
+        ]
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "v4 unscored cache assessment suppresses row scores",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 4,
+        "prompt": [],
+        "cache": [
+          {
+            "score": 100
+          }
+        ],
+        "cache_assessment": {
+          "score": null
+        }
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "modern assessment scores override row means",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 7,
+        "prompt": [
+          {
+            "score": 20
+          }
+        ],
+        "cache": [
+          {
+            "score": 100
+          }
+        ],
+        "prompt_assessment": {
+          "score": 99
+        },
+        "cache_assessment": {
+          "score": 50
+        }
+      }
+    },
+    "score": 75
+  },
+  {
+    "name": "fractional row means round before dimension mean",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 1,
+        "prompt": [
+          {
+            "score": 0
+          },
+          {
+            "score": 1
+          }
+        ],
+        "cache": [
+          {
+            "score": 0
+          },
+          {
+            "score": 0
+          }
+        ]
+      }
+    },
+    "score": 1
+  },
+  {
+    "name": "protocol mean rounds before dimension mean",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "stream",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "tool",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": [],
+      "token_audit": {
+        "version": 1,
+        "prompt": [
+          {
+            "score": 0
+          }
+        ],
+        "cache": []
+      }
+    },
+    "score": 34
+  },
+  {
+    "name": "negative and null row scores are excluded",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 1,
+        "prompt": [
+          {
+            "score": -1
+          },
+          {
+            "score": null
+          },
+          {
+            "score": 0
+          },
+          {
+            "score": 100
+          }
+        ],
+        "cache": []
+      }
+    },
+    "score": 50
+  },
+  {
+    "name": "negative assessment score is unmeasurable",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 7,
+        "prompt": [],
+        "cache": [],
+        "prompt_assessment": {
+          "score": -1
+        },
+        "cache_assessment": {
+          "score": 100
+        }
+      }
+    },
+    "score": 100
+  },
+  {
+    "name": "unselected plan does not discard measured protocol results",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "pdf",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": [],
+      "plan": [
+        {
+          "id": "pdf",
+          "stage": "capabilities",
+          "kind": "assertion",
+          "selected": false
+        }
+      ]
+    },
+    "score": 50
+  },
+  {
+    "name": "unmeasured protocol statuses are excluded",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "stream",
+          "status": "skipped",
+          "code": "fixture"
+        },
+        {
+          "id": "tool",
+          "status": "inconclusive",
+          "code": "fixture"
+        },
+        {
+          "id": "vision",
+          "status": "error",
+          "code": "fixture"
+        },
+        {
+          "id": "pdf",
+          "status": "info",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 100
+  },
+  {
+    "name": "Bedrock and other boundary evidence never lowers score",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "bedrock_web_search",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "bedrock_web_fetch",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "bedrock_error_validation",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "error_validation",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "zero_output",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "thinking",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "signature_replay",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "source",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "aws_usage",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "performance_sampling",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "prompt_integrity",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "cache",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 100
+  },
+  {
+    "name": "only boundary evidence has no score",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "bedrock_web_search",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "bedrock_web_fetch",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "bedrock_error_validation",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "error_validation",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "zero_output",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "thinking",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "signature_replay",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "source",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "aws_usage",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "performance_sampling",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "prompt_integrity",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "cache",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": null
+  },
+  {
+    "name": "every protocol whitelist member participates",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "stream",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "tool",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "structured_tool",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "vision",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "pdf",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "max_tokens",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "stop_sequence",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 50
+  },
+  {
+    "name": "empty audit arrays remain unscored",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 7,
+        "prompt": [],
+        "cache": []
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "null optional reports remain unscored",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": null,
+      "benchmark": null
+    },
+    "score": null
+  },
+  {
+    "name": "assessment can score without per row evidence",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "token_audit": {
+        "version": 7,
+        "prompt": [],
+        "cache": [],
+        "prompt_assessment": {
+          "score": 40
+        },
+        "cache_assessment": {
+          "score": 60
+        }
+      }
+    },
+    "score": 50
+  },
+  {
+    "name": "all measured zero dimensions retain zero",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "fail",
+          "code": "fixture"
+        }
+      ],
+      "samples": [],
+      "benchmark": {
+        "version": 1,
+        "items": [
+          {
+            "id": "digit_count",
+            "correct": false
+          }
+        ]
+      },
+      "token_audit": {
+        "version": 7,
+        "prompt": [],
+        "cache": [],
+        "prompt_assessment": {
+          "score": 0
+        },
+        "cache_assessment": {
+          "score": 0
+        }
+      }
+    },
+    "score": 0
+  },
+  {
+    "name": "cancellation preserves completed partial score",
+    "report": {
+      "version": 14,
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": [],
+      "cancelled": true,
+      "token_audit": {
+        "version": 7,
+        "prompt": [],
+        "cache": [],
+        "prompt_assessment": {
+          "score": null
+        },
+        "cache_assessment": {
+          "score": null
+        }
+      }
+    },
+    "score": 100
+  },
+  {
+    "name": "missing benchmark correctness remains unscored",
+    "report": {
+      "version": 14,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 1,
+        "items": [
+          {
+            "id": "digit_count"
+          }
+        ]
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "v2 partial capability uses earned score not correctness",
+    "report": {
+      "version": 15,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 2,
+        "items": [
+          {
+            "id": "json_extraction",
+            "score": 67,
+            "correct": false
+          },
+          {
+            "id": "json_types",
+            "score": 100,
+            "correct": true
+          }
+        ]
+      }
+    },
+    "score": 84
+  },
+  {
+    "name": "v2 zero is measured and unavailable case is omitted",
+    "report": {
+      "version": 15,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 2,
+        "items": [
+          {
+            "id": "tool_selection",
+            "score": 0,
+            "correct": false
+          },
+          {
+            "id": "tool_roundtrip",
+            "code": "probe_timeout",
+            "correct": null
+          }
+        ]
+      }
+    },
+    "score": 0
+  },
+  {
+    "name": "v2 correctness alone does not fabricate a score",
+    "report": {
+      "version": 15,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 2,
+        "items": [
+          {
+            "id": "digit_count",
+            "correct": true
+          }
+        ]
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "v2 scores outside range and unknown items are ignored",
+    "report": {
+      "version": 15,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 2,
+        "items": [
+          {
+            "id": "json_types",
+            "score": 101
+          },
+          {
+            "id": "instruction_format",
+            "score": -1
+          },
+          {
+            "id": "unknown",
+            "score": 100
+          }
+        ]
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "v2 duplicate items use first item even if unscored",
+    "report": {
+      "version": 15,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 2,
+        "items": [
+          {
+            "id": "json_types",
+            "score": null
+          },
+          {
+            "id": "json_types",
+            "score": 100
+          },
+          {
+            "id": "json_extraction",
+            "score": 0
+          },
+          {
+            "id": "json_extraction",
+            "score": 100
+          }
+        ]
+      }
+    },
+    "score": 0
+  },
+  {
+    "name": "v2 ability participates in report five dimension average",
+    "report": {
+      "version": 15,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass"
+        }
+      ],
+      "samples": [],
+      "benchmark": {
+        "version": 2,
+        "items": [
+          {
+            "id": "tool_roundtrip",
+            "score": 25
+          }
+        ]
+      }
+    },
+    "score": 63
+  },
+  {
+    "name": "v3 retired six questions cannot affect score",
+    "report": {
+      "version": 16,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 3,
+        "items": [
+          {
+            "id": "digit_count",
+            "score": 100,
+            "correct": true
+          },
+          {
+            "id": "boolean_count",
+            "score": 100,
+            "correct": true
+          },
+          {
+            "id": "python_alias",
+            "score": 100,
+            "correct": true
+          },
+          {
+            "id": "javascript_queue",
+            "score": 100,
+            "correct": true
+          },
+          {
+            "id": "zh_constraint",
+            "score": 100,
+            "correct": true
+          },
+          {
+            "id": "context_retrieval",
+            "score": 100,
+            "correct": true
+          }
+        ]
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "v3 scores only latest questions and preserves partial credit",
+    "report": {
+      "version": 16,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 3,
+        "items": [
+          {
+            "id": "digit_count",
+            "score": 100
+          },
+          {
+            "id": "instruction_format",
+            "score": 50
+          },
+          {
+            "id": "json_types",
+            "score": 100
+          }
+        ]
+      }
+    },
+    "score": 75
+  },
+  {
+    "name": "v3 unavailable result stays unscored even if correct is set",
+    "report": {
+      "version": 16,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 3,
+        "items": [
+          {
+            "id": "tool_roundtrip",
+            "correct": true,
+            "code": "probe_timeout"
+          }
+        ]
+      }
+    },
+    "score": null
+  },
+  {
+    "name": "v3 all latest questions give measured zero",
+    "report": {
+      "version": 16,
+      "checks": [],
+      "samples": [],
+      "benchmark": {
+        "version": 3,
+        "items": [
+          {
+            "id": "instruction_format",
+            "score": 0,
+            "correct": false
+          },
+          {
+            "id": "json_extraction",
+            "score": 0,
+            "correct": false
+          },
+          {
+            "id": "json_types",
+            "score": 0,
+            "correct": false
+          },
+          {
+            "id": "context_multihop",
+            "score": 0,
+            "correct": false
+          },
+          {
+            "id": "tool_selection",
+            "score": 0,
+            "correct": false
+          },
+          {
+            "id": "tool_roundtrip",
+            "score": 0,
+            "correct": false
+          }
+        ]
+      }
+    },
+    "score": 0
+  },
+  {
+    "name": "v19 linear usage token growth is protocol evidence",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 324
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 1524
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ]
+    },
+    "score": 100
+  },
+  {
+    "name": "v19 constant usage token counts are measured zero",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ]
+    },
+    "score": 0
+  },
+  {
+    "name": "v19 uneven usage slopes receive partial credit",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 324
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 624
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ]
+    },
+    "score": 31
+  },
+  {
+    "name": "v19 incomplete usage never invents a score",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 324
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 1524
+          }
+        }
+      ]
+    },
+    "score": null
+  },
+  {
+    "name": "v19 negative cache cannot be hidden by positive input",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54,
+            "cache_read_input_tokens": -1
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 324
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 1524
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ]
+    },
+    "score": null
+  },
+  {
+    "name": "v19 summed usage exceeding JS safe integer is unscored",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 9007199254740991,
+            "cache_creation_input_tokens": 1
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 324
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 1524
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ]
+    },
+    "score": null
+  },
+  {
+    "name": "v19 zero total input is unavailable for nonempty text",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 0
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 270
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 1470
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ]
+    },
+    "score": null
+  },
+  {
+    "name": "v18 history does not acquire a new usage score",
+    "report": {
+      "version": 18,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ]
+    },
+    "score": null
+  },
+  {
+    "name": "v19 stale usage check status cannot override samples",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [
+        {
+          "id": "usage_token_integrity",
+          "status": "pass",
+          "code": "usage_consistent"
+        }
+      ],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ]
+    },
+    "score": 0
+  },
+  {
+    "name": "v19 fixed multiplier requires a baseline to detect",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 27
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 162
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 762
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 1054
+          }
+        }
+      ]
+    },
+    "score": 100
+  },
+  {
+    "name": "v19 selected usage baseline bounds growth score",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused",
+        "baseline_id": "chosen",
+        "baseline_type": " AWS "
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 324
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 1524
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ],
+      "baselines": [
+        {
+          "id": "chosen",
+          "type": "aws",
+          "model": "global.anthropic.claude-opus-5",
+          "version": 19,
+          "samples": [
+            {
+              "probe": "usage_tokens_en_30",
+              "http_status": 200,
+              "valid_response": true,
+              "request_profile": "profile-0",
+              "usage": {
+                "input_tokens": 94
+              }
+            },
+            {
+              "probe": "usage_tokens_en_300",
+              "http_status": 200,
+              "valid_response": true,
+              "request_profile": "profile-1",
+              "usage": {
+                "input_tokens": 724
+              }
+            },
+            {
+              "probe": "usage_tokens_en_1500",
+              "http_status": 200,
+              "valid_response": true,
+              "request_profile": "profile-2",
+              "usage": {
+                "input_tokens": 3524
+              }
+            },
+            {
+              "probe": "usage_tokens_zh_1000",
+              "http_status": 200,
+              "valid_response": true,
+              "request_profile": "profile-3",
+              "usage": {
+                "input_tokens": 4034
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "score": 49
+  },
+  {
+    "name": "v19 usage joins protocol without a sixth score dimension",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused",
+        "baseline_id": "chosen",
+        "baseline_type": " AWS "
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [
+        {
+          "id": "basic",
+          "status": "pass"
+        },
+        {
+          "id": "model_consistency",
+          "status": "pass"
+        }
+      ],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 54
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 324
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 1524
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 2109
+          }
+        }
+      ],
+      "baselines": [
+        {
+          "id": "chosen",
+          "type": "aws",
+          "model": "global.anthropic.claude-opus-5",
+          "version": 19,
+          "samples": [
+            {
+              "probe": "usage_tokens_en_30",
+              "http_status": 200,
+              "valid_response": true,
+              "request_profile": "profile-0",
+              "usage": {
+                "input_tokens": 94
+              }
+            },
+            {
+              "probe": "usage_tokens_en_300",
+              "http_status": 200,
+              "valid_response": true,
+              "request_profile": "profile-1",
+              "usage": {
+                "input_tokens": 724
+              }
+            },
+            {
+              "probe": "usage_tokens_en_1500",
+              "http_status": 200,
+              "valid_response": true,
+              "request_profile": "profile-2",
+              "usage": {
+                "input_tokens": 3524
+              }
+            },
+            {
+              "probe": "usage_tokens_zh_1000",
+              "http_status": 200,
+              "valid_response": true,
+              "request_profile": "profile-3",
+              "usage": {
+                "input_tokens": 4034
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "score": 88
+  },
+  {
+    "name": "v19 usage sums input and both cache counters",
+    "report": {
+      "version": 19,
+      "model": "claude-opus-5",
+      "options": {
+        "suite": "focused"
+      },
+      "plan": [
+        {
+          "id": "usage_token_integrity",
+          "selected": true
+        }
+      ],
+      "checks": [],
+      "samples": [
+        {
+          "probe": "usage_tokens_en_30",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-0",
+          "usage": {
+            "input_tokens": 10,
+            "cache_creation_input_tokens": 20,
+            "cache_read_input_tokens": 24
+          }
+        },
+        {
+          "probe": "usage_tokens_en_300",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-1",
+          "usage": {
+            "input_tokens": 10,
+            "cache_creation_input_tokens": 20,
+            "cache_read_input_tokens": 294
+          }
+        },
+        {
+          "probe": "usage_tokens_en_1500",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-2",
+          "usage": {
+            "input_tokens": 10,
+            "cache_creation_input_tokens": 20,
+            "cache_read_input_tokens": 1494
+          }
+        },
+        {
+          "probe": "usage_tokens_zh_1000",
+          "http_status": 200,
+          "valid_response": true,
+          "request_profile": "profile-3",
+          "usage": {
+            "input_tokens": 10,
+            "cache_creation_input_tokens": 20,
+            "cache_read_input_tokens": 2079
+          }
+        }
+      ]
+    },
+    "score": 100
+  }
+]

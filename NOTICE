@@ -1,0 +1,12 @@
+ModelsExam
+Licensed under the GNU Affero General Public License v3.0 (see LICENSE).
+
+Upstream: the check engines (pkg/claudecheck, pkg/openaicheck) were extracted from the
+new-api project, which is also AGPL-3.0. Original copyright notices from that code are retained
+in the file headers and must be preserved in derivative works.
+
+Non-affiliation: ModelsExam is an independent project. It is not affiliated with, endorsed by or
+sponsored by Anthropic, OpenAI, Amazon Web Services or any other model provider. Claude, Anthropic,
+OpenAI, GPT, AWS and Amazon Bedrock are trademarks of their respective owners and are used only to
+describe the services that are tested. A "conformant" badge reports what this tool observed in one
+run; it is not an official certification by any provider.
