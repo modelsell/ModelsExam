@@ -63,13 +63,16 @@ import {
   modelCheckOptions,
   type ModelCheckForm,
 } from '../lib/form'
+import type { CheckPrefill } from '../lib/link-prefill'
 import type { CheckTarget } from '../types'
 import { CheckAdvancedOptions } from './check-advanced-options'
 import { CheckModelSelect } from './check-model-select'
+import { KeyFieldHint } from './key-field-hint'
 
 export function CheckForm(props: {
   channel?: Channel
   initialModel?: string
+  prefill?: CheckPrefill
   busy: boolean
   onStart: (target: CheckTarget) => Promise<void>
   onCancel: () => void
@@ -77,7 +80,10 @@ export function CheckForm(props: {
 }) {
   const { t } = useTranslation()
   const [advancedOpen, setAdvancedOpen] = useState(false)
-  const [source, setSource] = useState<ClaudeSource>('relay')
+  const prefill = props.prefill
+  const [source, setSource] = useState<ClaudeSource>(() =>
+    prefill?.base_url ? sourceOfEndpoint(prefill.base_url) : 'relay'
+  )
   const baselines = useBaselines()
   const channel = props.channel
   const models =
@@ -88,10 +94,13 @@ export function CheckForm(props: {
   const form = useForm<ModelCheckForm>({
     resolver: zodResolver(modelCheckSchema),
     defaultValues: {
-      mode: channel ? 'channel' : 'endpoint',
-      base_url: channel?.type === 14 ? channel.base_url || '' : '',
-      key: '',
+      mode: channel && !prefill?.base_url ? 'channel' : 'endpoint',
+      base_url:
+        prefill?.base_url ??
+        (channel?.type === 14 ? channel.base_url || '' : ''),
+      key: prefill?.key ?? '',
       model:
+        prefill?.model ||
         props.initialModel ||
         channel?.test_model ||
         models.find((model) => model.includes('claude')) ||
@@ -105,7 +114,7 @@ export function CheckForm(props: {
       benchmark: true,
       performance: true,
       prompt_audit: false,
-      bedrock: false,
+      bedrock: !!prefill?.base_url && sourceOfEndpoint(prefill.base_url) === 'aws',
       performance_tolerance: 25,
       baseline_id: '',
       baseline_type: '',
@@ -360,9 +369,7 @@ export function CheckForm(props: {
                     aria-invalid={!!form.formState.errors.key}
                     {...form.register('key')}
                   />
-                  <FieldDescription>
-                    {t('Used for this session only; excluded from reports.')}
-                  </FieldDescription>
+                  <KeyFieldHint value={watchedKey} prefilled={prefill?.key} />
                   {form.formState.errors.key && (
                     <FieldError>{t('Enter a valid API key')}</FieldError>
                   )}

@@ -1089,6 +1089,8 @@
     "Chat basics": "Chat basics",
     "Check records": "Журнал проверок",
     "Public records of the latest 100 checks.": "Публичный журнал последних 100 проверок.",
-    "The latest 100 checks and reports, visible to everyone.": "Последние 100 проверок и отчётов, доступные всем."
+    "The latest 100 checks and reports, visible to everyone.": "Последние 100 проверок и отчётов, доступные всем.",
+    "Filled in from the link:": "Заполнено из ссылки:",
+    "Filled in from the link. Review the details, then press Start check.": "Заполнено из ссылки. Проверьте данные и запустите проверку."
   }
 }

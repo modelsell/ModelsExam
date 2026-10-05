@@ -1089,6 +1089,8 @@
     "Chat basics": "Chat basics",
     "Check records": "検査記録",
     "Public records of the latest 100 checks.": "直近 100 件の検査記録を公開しています。",
-    "The latest 100 checks and reports, visible to everyone.": "直近 100 件の検査とレポートを誰でも閲覧できます。"
+    "The latest 100 checks and reports, visible to everyone.": "直近 100 件の検査とレポートを誰でも閲覧できます。",
+    "Filled in from the link:": "リンクから入力済み：",
+    "Filled in from the link. Review the details, then press Start check.": "リンクの内容を入力しました。内容を確認してから「チェック開始」を押してください。"
   }
 }

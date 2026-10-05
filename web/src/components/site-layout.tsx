@@ -155,6 +155,7 @@ export function SiteLayout(props: { current: RouteName; children: ReactNode }) {
             <Link to='/#get-badge' className={navLink}>{t('Get your badge')}</Link>
             <Link to='/records' className={navLink}>{t('Check records')}</Link>
             <Link to='/method' className={navLink}>{t('Method and independence')}</Link>
+            <Link to='/integrate' className={navLink}>{t('Relay integration')}</Link>
             {REPO_URL && (
               <a href={REPO_URL} className={navLink} rel='noopener noreferrer'>
                 {t('Source code')}

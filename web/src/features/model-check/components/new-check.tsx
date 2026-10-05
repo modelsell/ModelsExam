@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Suspense, lazy, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
@@ -26,11 +26,13 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
+import { Link } from '@/lib/router'
 import { getChannel } from '@/features/channels/api'
 import { ImageCheck } from '../image/components/image-check'
 import { OpenAICheck } from '../openai/components/openai-check'
 import type { CheckTarget } from '../types'
 import { useModelCheck } from '../use-model-check'
+import { hasCredentials, type CheckPrefill } from '../lib/link-prefill'
 import { CheckForm } from './check-form'
 import { CheckHeroIntro } from './check-landing'
 
@@ -40,6 +42,7 @@ const CheckReportDrawer = lazy(() => import('./check-report-drawer').then((m) =>
 export function NewCheck(props: {
   channelId?: number
   initialModel?: string
+  prefill?: CheckPrefill
   onSelectReport: (id: string | undefined) => void
   onSignIn?: () => void
 }) {
@@ -48,7 +51,17 @@ export function NewCheck(props: {
   const channelId =
     (user?.role ?? 0) >= ROLE.ADMIN ? props.channelId : undefined
   const run = useModelCheck()
-  const [provider, setProvider] = useState<'claude' | 'openai' | 'image'>('claude')
+  const prefill = props.prefill
+  const fromLink = !!prefill && hasCredentials(prefill)
+  const [provider, setProvider] = useState<'claude' | 'openai' | 'image'>(
+    prefill?.provider ?? 'claude'
+  )
+  // A link that fills in the form lands on the form, not the hero.
+  useEffect(() => {
+    if (fromLink) document.getElementById('new-check')?.scrollIntoView()
+  }, [fromLink])
+  const claudePrefill =
+    (prefill?.provider ?? 'claude') === 'claude' ? prefill : undefined
   const [openAIBusy, setOpenAIBusy] = useState(false)
   const [imageBusy, setImageBusy] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
@@ -108,6 +121,15 @@ export function NewCheck(props: {
             <p className='text-muted-foreground text-sm leading-6'>
               {t('Choose the protocol your endpoint speaks.')}
             </p>
+            <p className='text-muted-foreground text-xs leading-5'>
+              {t('Run an API relay? Link your users here with the Base URL, key and model already filled in.')}{' '}
+              <Link
+                to='/integrate'
+                className='text-foreground underline underline-offset-4 hover:no-underline'
+              >
+                {t('Relay integration')}
+              </Link>
+            </p>
           </div>
           <div
             role='radiogroup'
@@ -144,6 +166,13 @@ export function NewCheck(props: {
               )
             })}
           </div>
+          {fromLink && (
+            <Alert>
+              <AlertDescription>
+                {t('Filled in from the link. Review the details, then press Start check.')}
+              </AlertDescription>
+            </Alert>
+          )}
           <div className={provider === 'claude' ? 'contents' : 'hidden'}>
             {channel.isError && (
               <Alert variant='destructive'>
@@ -160,6 +189,7 @@ export function NewCheck(props: {
               <CheckForm
                 channel={channel.data}
                 initialModel={props.initialModel}
+                prefill={claudePrefill}
                 busy={run.busy}
                 onStart={start}
                 onCancel={run.cancel}
@@ -193,6 +223,7 @@ export function NewCheck(props: {
             className={provider === 'openai' ? 'flex flex-col gap-4' : 'hidden'}
           >
             <OpenAICheck
+              prefill={prefill?.provider === 'openai' ? prefill : undefined}
               onSelectReport={props.onSelectReport}
               onBusyChange={setOpenAIBusy}
               onSignIn={props.onSignIn}
@@ -202,6 +233,7 @@ export function NewCheck(props: {
             className={provider === 'image' ? 'flex flex-col gap-4' : 'hidden'}
           >
             <ImageCheck
+              prefill={prefill?.provider === 'image' ? prefill : undefined}
               onSelectReport={props.onSelectReport}
               onBusyChange={setImageBusy}
               onSignIn={props.onSignIn}

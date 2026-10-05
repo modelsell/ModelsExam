@@ -9,7 +9,7 @@ import (
 const tpl = `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="robots" content="noindex"><title>Old</title><meta name="description" content="old"></head><body><div id="root"></div></body></html>`
 
 func TestLookup(t *testing.T) {
-	for _, path := range []string{"/", "/get-badge", "/baselines", "/records", "/method"} {
+	for _, path := range []string{"/", "/get-badge", "/baselines", "/records", "/method", "/integrate"} {
 		p, ok := Lookup(path)
 		if !ok || p.NoIndex {
 			t.Fatalf("%s: ok=%v noindex=%v", path, ok, p.NoIndex)
@@ -209,7 +209,7 @@ func TestFallbackCarriesRealContent(t *testing.T) {
 	if strings.Contains(out, "<b>One</b>") {
 		t.Fatal("record text must be escaped")
 	}
-	for _, path := range []string{"/get-badge", "/baselines", "/method"} {
+	for _, path := range []string{"/get-badge", "/baselines", "/method", "/integrate"} {
 		pg, _ := Lookup(path)
 		if len(pg.Sections) == 0 {
 			t.Fatalf("%s has no body content", path)

@@ -26,6 +26,7 @@ export type RouteName =
   | 'model'
   | 'models'
   | 'method'
+  | 'integrate'
   | 'notfound'
 
 export type Route = { name: RouteName; id?: string }
@@ -36,6 +37,7 @@ export const ROUTE_PATHS = {
   baselines: '/baselines',
   getbadge: '/get-badge',
   method: '/method',
+  integrate: '/integrate',
   models: '/models',
 } as const
 
@@ -46,7 +48,7 @@ export function parseRoute(pathname: string, search = ''): Route {
   const legacy = new URLSearchParams(search).get('history_id')
   if (legacy) return { name: 'report', id: legacy }
   const path = pathname.replace(/\/+$/, '') || '/'
-  for (const name of ['home', 'records', 'baselines', 'getbadge', 'method', 'models'] as const) {
+  for (const name of ['home', 'records', 'baselines', 'getbadge', 'method', 'integrate', 'models'] as const) {
     if (ROUTE_PATHS[name] === path) return { name }
   }
   const site = /^\/sites\/([A-Za-z0-9.-]+)$/.exec(path)

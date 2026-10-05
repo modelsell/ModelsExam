@@ -22,21 +22,23 @@ import { BoardGrid } from '@/features/model-check/components/board-table'
 import { FaqSection } from '@/features/model-check/components/faq-section'
 import { StatsStrip } from '@/features/model-check/components/stats-strip'
 import { Link } from '@/lib/router'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BadgeSection } from '@/features/model-check/components/badge-section'
 import { BaselinesSection } from '@/features/model-check/components/baselines-section'
 import { CheckHistory } from '@/features/model-check/components/check-history'
 import { PromisesSection } from '@/features/model-check/components/promises-section'
 import { NewCheck } from '@/features/model-check/components/new-check'
+import { consumePrefill } from '@/features/model-check/lib/link-prefill'
 
 const open = (id: string | undefined) => navigate(id ? reportPath(id) : '/records')
 
 export function HomePage() {
   const { t } = useTranslation()
-  const initialModel = new URLSearchParams(window.location.search).get('model') ?? undefined
+  const [prefill] = useState(consumePrefill)
   return (
     <>
-      <NewCheck initialModel={initialModel} onSelectReport={open} />
+      <NewCheck prefill={prefill} onSelectReport={open} />
       <StatsStrip />
       <div className='mx-auto flex max-w-6xl flex-col gap-16 px-4 py-14 sm:px-6 sm:py-20'>
         <section aria-labelledby='boards-title' id='boards' className='scroll-mt-20'>

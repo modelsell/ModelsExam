@@ -61,6 +61,14 @@ export function seoFor(route: Route, t: Translate): Seo {
         ),
         noindex: false,
       }
+    case 'integrate':
+      return {
+        title: `${t('Relay integration')} | ${SITE_NAME}`,
+        description: t(
+          'Link your users to ModelsExam with the Base URL, key and model already filled in. They review the form and start the check themselves.'
+        ),
+        noindex: false,
+      }
     case 'getbadge':
       return {
         title: `${t('Get your badge')} | ${SITE_NAME}`,

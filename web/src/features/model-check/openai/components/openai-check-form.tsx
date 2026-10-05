@@ -53,11 +53,14 @@ import {
   type OpenAICheckForm,
 } from '../lib/form'
 import type { OpenAICheckTarget } from '../types'
+import { KeyFieldHint } from '../../components/key-field-hint'
+import type { CheckPrefill } from '../../lib/link-prefill'
 import { OpenAIAdvancedOptions } from './openai-advanced-options'
 
 
 export function OpenAICheckFormCard(props: {
   initialModel?: string
+  prefill?: CheckPrefill
   busy: boolean
   onStart: (target: OpenAICheckTarget) => Promise<void>
   onCancel: () => void
@@ -68,9 +71,9 @@ export function OpenAICheckFormCard(props: {
   const form = useForm<OpenAICheckForm>({
     resolver: zodResolver(openAICheckSchema),
     defaultValues: {
-      base_url: '',
-      key: '',
-      model: props.initialModel ?? '',
+      base_url: props.prefill?.base_url ?? '',
+      key: props.prefill?.key ?? '',
+      model: props.prefill?.model ?? props.initialModel ?? '',
       suite: 'standard',
       responses: false,
       vision: false,
@@ -146,9 +149,10 @@ export function OpenAICheckFormCard(props: {
                 aria-invalid={!!errors.key}
                 {...form.register('key')}
               />
-              <FieldDescription>
-                {t('Used for this session only; excluded from reports.')}
-              </FieldDescription>
+              <KeyFieldHint
+                value={form.watch('key')}
+                prefilled={props.prefill?.key}
+              />
               {errors.key && (
                 <FieldError>{t('Enter a valid API key')}</FieldError>
               )}

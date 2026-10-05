@@ -26,6 +26,7 @@ import { useLegacyReportRedirect, useRoute } from './lib/router'
 import { HomePage } from './pages/home-page'
 
 const BaselinesPage = lazy(() => import('./pages/baselines-page').then((m) => ({ default: m.BaselinesPage })))
+const IntegratePage = lazy(() => import('./pages/integrate-page').then((m) => ({ default: m.IntegratePage })))
 const GetBadgePage = lazy(() => import('./pages/get-badge-page').then((m) => ({ default: m.GetBadgePage })))
 const ModelPage = lazy(() => import('./pages/model-page').then((m) => ({ default: m.ModelPage })))
 const MethodPage = lazy(() => import('./pages/method-page').then((m) => ({ default: m.MethodPage })))
@@ -93,6 +94,9 @@ function Shell() {
       break
     case 'method':
       page = <MethodPage />
+      break
+    case 'integrate':
+      page = <IntegratePage />
       break
     default:
       page = <NotFoundPage />

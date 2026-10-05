@@ -1089,6 +1089,8 @@
     "Chat basics": "Chat basics",
     "Check records": "Lịch sử kiểm tra",
     "Public records of the latest 100 checks.": "Công khai 100 lần kiểm tra gần nhất.",
-    "The latest 100 checks and reports, visible to everyone.": "100 lần kiểm tra và báo cáo gần nhất, ai cũng xem được."
+    "The latest 100 checks and reports, visible to everyone.": "100 lần kiểm tra và báo cáo gần nhất, ai cũng xem được.",
+    "Filled in from the link:": "Đã điền từ liên kết:",
+    "Filled in from the link. Review the details, then press Start check.": "Đã điền từ liên kết. Hãy kiểm tra thông tin rồi bấm Bắt đầu kiểm tra."
   }
 }

@@ -12,7 +12,7 @@ import (
 // They can be written to disk once and served by any web server or CDN; every
 // other route (records, models, sites, reports) is dynamic and stays with the
 // Go server.
-var StaticPaths = []string{"/", "/baselines", "/get-badge", "/method"}
+var StaticPaths = []string{"/", "/baselines", "/get-badge", "/method", "/integrate"}
 
 // StaticFile is one generated file, Path relative to the site root.
 type StaticFile struct {

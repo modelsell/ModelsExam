@@ -15,6 +15,7 @@ var nav = []Link{
 	{"/records", "检测记录"},
 	{"/get-badge", "获取徽章"},
 	{"/method", "方法与独立性"},
+	{"/integrate", "中转站接入"},
 }
 
 // FAQ is shown on the home page and published as FAQPage structured data.
@@ -137,6 +138,26 @@ var pages = []Page{
 			}},
 			{Heading: "怎么计分", Body: []string{"分数只统计计分断言：100 分表示所有计分检查通过（符合），80 到 99 分为基本符合，低于 80 分为建议核对。提前停止的检测没有结论。观测项和来源验证结果不会改变徽章。"}},
 			{Heading: "独立性", Body: []string{"ModelsExam 是独立的开源项目（AGPL-3.0），与 Anthropic、OpenAI、亚马逊云科技没有关联。结果描述的是某个端点和模型在检测时刻的表现，不是排名、认证或背书。"}},
+		},
+	},
+	{
+		Path:        "/integrate",
+		Title:       "中转站接入：一个链接带用户去检测 API | " + siteName,
+		Description: "API 中转站可以在控制台放一个链接，把 Base URL、Key 和模型预先填进 ModelsExam 检测表单，用户核对后自己开始检测。Key 放在 # 后面，不会发给服务器。",
+		H1:          "中转站接入",
+		Lead:        "在你的控制台加一个「去 ModelsExam 检测」链接：用户点开后，检测表单里的 Base URL、Key 和模型已经填好，核对无误后由用户自己点击开始检测。",
+		Sections: []Section{
+			{Heading: "链接格式", Body: []string{"https://modelsexam.com/#type=claude&base_url=<Base URL>&key=<API Key>&model=<模型>。参数放在 # 后面，浏览器不会把它们发给服务器；也支持 ?base_url=… 查询参数。每个值都要做 URL 编码。"}, Items: []string{
+				"type：claude、openai 或 image，打开哪种检测，默认 claude。",
+				"base_url：你的 API 地址，可以带 /v1 后缀。",
+				"key：用户的 API Key，页面上以掩码显示。",
+				"model：要检测的模型，用户仍可改选。",
+			}},
+			{Heading: "Key 与隐私", Items: []string{
+				"页面读取链接后立即从地址栏移除 Base URL 和 Key，不会留在浏览历史里。",
+				"不会自动开始检测，必须由用户点击「开始检测」。",
+				"Key 只用于这一次检测，不写入报告或公开记录。",
+			}},
 		},
 	},
 }

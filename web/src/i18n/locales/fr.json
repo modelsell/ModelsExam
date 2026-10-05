@@ -1089,6 +1089,8 @@
     "Chat basics": "Chat basics",
     "Check records": "Historique des vérifications",
     "Public records of the latest 100 checks.": "Historique public des 100 dernières vérifications.",
-    "The latest 100 checks and reports, visible to everyone.": "Les 100 dernières vérifications et rapports, visibles par tous."
+    "The latest 100 checks and reports, visible to everyone.": "Les 100 dernières vérifications et rapports, visibles par tous.",
+    "Filled in from the link:": "Rempli depuis le lien :",
+    "Filled in from the link. Review the details, then press Start check.": "Rempli depuis le lien. Vérifiez les informations, puis lancez la vérification."
   }
 }

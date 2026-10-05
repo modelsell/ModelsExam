@@ -23,7 +23,7 @@ import { seoFor } from './seo'
 const t = (k: string) => k
 
 test('public pages are indexable and have a description', () => {
-  for (const name of ['home', 'records', 'baselines', 'getbadge', 'method'] as const) {
+  for (const name of ['home', 'records', 'baselines', 'getbadge', 'method', 'integrate'] as const) {
     const seo = seoFor({ name }, t)
     assert.equal(seo.noindex, false, name)
     assert.ok(seo.title.includes('ModelsExam'), name)
@@ -37,7 +37,7 @@ test('reports and unknown paths are noindex', () => {
 })
 
 test('titles are unique per page', () => {
-  const names = ['home', 'records', 'baselines', 'getbadge', 'method', 'report'] as const
+  const names = ['home', 'records', 'baselines', 'getbadge', 'method', 'integrate', 'report'] as const
   const titles = names.map((name) => seoFor({ name }, t).title)
   assert.equal(new Set(titles).size, titles.length)
 })

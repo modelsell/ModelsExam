@@ -18,6 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { CheckPrefill } from '../../lib/link-prefill'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { CheckReportDrawer } from '../../components/check-report-drawer'
@@ -30,6 +31,7 @@ export function ImageCheck(props: {
   onSelectReport?: (id: string | undefined) => void
   onBusyChange?: (busy: boolean) => void
   onSignIn?: () => void
+  prefill?: CheckPrefill
 }) {
   const { t } = useTranslation()
   const run = useImageCheck()
@@ -47,6 +49,7 @@ export function ImageCheck(props: {
   return (
     <>
       <ImageCheckFormCard
+        prefill={props.prefill}
         busy={run.busy}
         onStart={start}
         onCancel={run.cancel}

@@ -33,6 +33,8 @@ test('parses the known pages', () => {
   assert.deepEqual(parseRoute('/baselines'), { name: 'baselines' })
   assert.deepEqual(parseRoute('/sponsors'), { name: 'notfound' })
   assert.deepEqual(parseRoute('/method'), { name: 'method' })
+  assert.deepEqual(parseRoute('/integrate'), { name: 'integrate' })
+  assert.equal(routePath({ name: 'integrate' }), '/integrate')
 })
 
 test('parses a report path and round-trips it', () => {

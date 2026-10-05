@@ -55,10 +55,13 @@ import {
   type ImageCheckForm,
 } from '../lib/form'
 import type { ImageCheckTarget } from '../types'
+import { KeyFieldHint } from '../../components/key-field-hint'
+import type { CheckPrefill } from '../../lib/link-prefill'
 
 
 export function ImageCheckFormCard(props: {
   initialModel?: string
+  prefill?: CheckPrefill
   busy: boolean
   onStart: (target: ImageCheckTarget) => Promise<void>
   onCancel: () => void
@@ -69,10 +72,10 @@ export function ImageCheckFormCard(props: {
   const form = useForm<ImageCheckForm>({
     resolver: zodResolver(imageCheckSchema),
     defaultValues: {
-      base_url: '',
-      key: '',
+      base_url: props.prefill?.base_url ?? '',
+      key: props.prefill?.key ?? '',
       verify_key: '',
-      model: props.initialModel ?? 'gpt-image-2',
+      model: props.prefill?.model ?? props.initialModel ?? 'gpt-image-2',
       suite: 'standard',
       provenance: false,
       baseline: false,
@@ -147,9 +150,10 @@ export function ImageCheckFormCard(props: {
                 aria-invalid={!!errors.key}
                 {...form.register('key')}
               />
-              <FieldDescription>
-                {t('Used for this session only; excluded from reports.')}
-              </FieldDescription>
+              <KeyFieldHint
+                value={form.watch('key')}
+                prefilled={props.prefill?.key}
+              />
               {errors.key && (
                 <FieldError>{t('Enter a valid API key')}</FieldError>
               )}
