@@ -1,6 +1,6 @@
 // Package store persists check reports and comparison baselines. There are no
-// user accounts: every report is public, and a random per-browser owner ID only
-// gates remark edits.
+// user accounts: a random per-browser owner ID decides who may list, open and
+// annotate a report. Reports are never listed or served to anyone else.
 package store
 
 import (
@@ -29,7 +29,7 @@ const (
 	MaxBaselineBytes = 32 << 10
 	BaselineLimit    = 50
 	ScoreVersion     = 1
-	// PublicRecordLimit caps the public record list; older rows stay in the database.
+	// PublicRecordLimit caps a browser's record list; older rows stay in the database.
 	PublicRecordLimit = 100
 )
 
@@ -157,6 +157,7 @@ func (s *Store) recoverStale(ctx context.Context) error {
 }
 
 type ListQuery struct {
+	OwnerID   string // required: only this browser's runs are listed
 	ModelName string
 	Status    string
 	Page      int
@@ -167,7 +168,10 @@ func (s *Store) ListRuns(ctx context.Context, q ListQuery) ([]Run, int64, error)
 	if err := s.recoverStale(ctx); err != nil {
 		return nil, 0, err
 	}
-	tx := s.db.WithContext(ctx).Model(&Run{})
+	if q.OwnerID == "" {
+		return []Run{}, 0, nil
+	}
+	tx := s.db.WithContext(ctx).Model(&Run{}).Where("owner_id = ?", q.OwnerID)
 	if q.ModelName != "" {
 		tx = tx.Where("model_name LIKE ?", "%"+q.ModelName+"%")
 	}
@@ -178,7 +182,7 @@ func (s *Store) ListRuns(ctx context.Context, q ListQuery) ([]Run, int64, error)
 	if err := tx.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	// Only the most recent PublicRecordLimit records are ever shown.
+	// Only the most recent PublicRecordLimit records of a browser are shown.
 	if total > PublicRecordLimit {
 		total = PublicRecordLimit
 	}
@@ -300,17 +304,6 @@ func (s *Store) GetBaseline(ctx context.Context, id string) (*Baseline, error) {
 	return &row, err
 }
 
-// ListIndexableRuns returns completed runs that have a site name, newest
-// first, for the sitemap and the public record lists. Only the columns those
-// need are filled.
-func (s *Store) ListIndexableRuns(ctx context.Context, limit int) ([]Run, error) {
-	runs := []Run{}
-	err := s.db.WithContext(ctx).Select("id", "updated_at", "started_at", "channel_name", "site_description", "model_name", "endpoint", "transport", "score").
-		Where("status = ? AND channel_name <> ''", "completed").
-		Order("started_at DESC, id DESC").Limit(limit).Find(&runs).Error
-	return runs, err
-}
-
 // ListCompletedByDomain returns the newest completed, scored runs whose
 // endpoint mentions domain. The match is a coarse SQL filter; the caller
 // checks the endpoint host exactly.
@@ -320,77 +313,4 @@ func (s *Store) ListCompletedByDomain(ctx context.Context, domain string, limit 
 		Where("status = ? AND score IS NOT NULL AND (endpoint LIKE ? OR endpoint LIKE ?)", "completed", "%://"+domain+"%", "%."+domain+"%").
 		Order("started_at DESC, id DESC").Limit(limit).Find(&runs).Error
 	return runs, err
-}
-
-// indexable limits a query to runs that may be listed publicly and indexed:
-// completed, with a site name that was read from the tested site.
-func indexable(tx *gorm.DB) *gorm.DB {
-	return tx.Where("status = ? AND channel_name <> ''", "completed")
-}
-
-// ListIndexablePage returns one page (1-based) of indexable runs, newest
-// first, with the total count. Report bodies are not loaded.
-func (s *Store) ListIndexablePage(ctx context.Context, page, size int) ([]Run, int64, error) {
-	tx := indexable(s.db.WithContext(ctx).Model(&Run{}))
-	var total int64
-	if err := tx.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-	if page < 1 {
-		page = 1
-	}
-	runs := []Run{}
-	err := tx.Omit("report_json").Order("started_at DESC, id DESC").Offset((page - 1) * size).Limit(size).Find(&runs).Error
-	return runs, total, err
-}
-
-// ListIndexableByModel returns indexable runs of exactly one model name.
-func (s *Store) ListIndexableByModel(ctx context.Context, model string, limit int) ([]Run, error) {
-	runs := []Run{}
-	err := indexable(s.db.WithContext(ctx).Model(&Run{})).Where("model_name = ?", model).
-		Omit("report_json").Order("started_at DESC, id DESC").Limit(limit).Find(&runs).Error
-	return runs, err
-}
-
-// ListIndexableBySite returns indexable runs whose endpoint mentions host. The
-// match is a coarse SQL filter; the caller checks the endpoint host exactly.
-func (s *Store) ListIndexableBySite(ctx context.Context, host string, limit int) ([]Run, error) {
-	runs := []Run{}
-	err := indexable(s.db.WithContext(ctx).Model(&Run{})).Where("endpoint LIKE ?", "%://"+host+"%").
-		Omit("report_json").Order("started_at DESC, id DESC").Limit(limit).Find(&runs).Error
-	return runs, err
-}
-
-// ModelCount is a model name with how many indexable runs it has.
-type ModelCount struct {
-	Model string
-	N     int64
-}
-
-// TopIndexableModels returns the model names with the most indexable runs.
-func (s *Store) TopIndexableModels(ctx context.Context, limit int) ([]ModelCount, error) {
-	out := []ModelCount{}
-	err := indexable(s.db.WithContext(ctx).Model(&Run{})).Where("model_name <> ''").
-		Select("model_name AS model, COUNT(*) AS n").Group("model_name").
-		Order("n DESC, model_name ASC").Limit(limit).Scan(&out).Error
-	return out, err
-}
-
-// ListScoredRuns returns the newest completed runs that have a score and a
-// site name (the same public-listing rule as the record lists), with
-// only the columns the boards and the site directory need.
-func (s *Store) ListScoredRuns(ctx context.Context, limit int) ([]Run, error) {
-	runs := []Run{}
-	err := s.db.WithContext(ctx).Model(&Run{}).
-		Select("id", "channel_name", "model_name", "endpoint", "transport", "score", "started_at").
-		Where("status = ? AND score IS NOT NULL AND model_name <> '' AND channel_name <> ''", "completed").
-		Order("started_at DESC, id DESC").Limit(limit).Find(&runs).Error
-	return runs, err
-}
-
-// CountCompleted returns how many runs completed.
-func (s *Store) CountCompleted(ctx context.Context) (int64, error) {
-	var n int64
-	err := s.db.WithContext(ctx).Model(&Run{}).Where("status = ?", "completed").Count(&n).Error
-	return n, err
 }

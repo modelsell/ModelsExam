@@ -23,7 +23,7 @@ export function RecordsPage() {
   const { t } = useTranslation()
   return (
     <div className='mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16'>
-      <h1 className='sr-only'>{t('Public check records')}</h1>
+      <h1 className='sr-only'>{t('My check records')}</h1>
       <CheckHistory />
     </div>
   )

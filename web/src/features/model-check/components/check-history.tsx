@@ -60,7 +60,6 @@ import {
   getCheckHistoryReport,
 } from '../api'
 import { reportRemark } from '../lib/report-remark'
-import { modelPath } from '@/lib/route'
 import { siteLabel } from '../lib/site-label'
 import { sourceOfEndpoint } from '../lib/claude-source'
 import { SourceBadge } from './source-badge'
@@ -157,10 +156,10 @@ export function CheckHistory(props: { initialModel?: string }) {
             id='check-history-title'
             className='font-serif text-2xl font-semibold tracking-tight sm:text-3xl'
           >
-            {t('Check records')}
+            {t('My check records')}
           </h2>
           <p className='text-muted-foreground text-sm leading-6'>
-            {t('Public records of the latest 100 checks.')}
+            {t('Only checks run from this browser. Nobody else can see them.')}
           </p>
         </div>
         <p className='text-muted-foreground flex items-center gap-2 text-xs'>
@@ -174,9 +173,9 @@ export function CheckHistory(props: { initialModel?: string }) {
       </header>
       <Card>
         <CardHeader className='sr-only'>
-          <CardTitle>{t('Check records')}</CardTitle>
+          <CardTitle>{t('My check records')}</CardTitle>
           <CardDescription>
-            {t('The latest 100 checks and reports, visible to everyone.')}
+            {t('Your latest 100 checks from this browser. Other people cannot see or open them.')}
           </CardDescription>
         </CardHeader>
         <CardContent className='flex flex-col gap-4'>
@@ -282,16 +281,7 @@ export function CheckHistory(props: { initialModel?: string }) {
                         className='mr-2 align-middle'
                       />
                     )}
-                    {modelPath(item.model) ? (
-                      <Link
-                        to={modelPath(item.model)!}
-                        className='underline-offset-4 hover:underline'
-                      >
-                        {item.model}
-                      </Link>
-                    ) : (
-                      item.model
-                    )}
+                    {item.model}
                   </TableCell>
                   <TableCell
                     className='max-w-64 truncate text-xs'

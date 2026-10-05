@@ -38,7 +38,6 @@ type Server struct {
 	claudeSlots chan struct{}
 	openaiSlots chan struct{}
 	imageSlots  chan struct{}
-	snaps       snapCache
 }
 
 const ownerCookie = "mc_owner"

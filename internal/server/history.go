@@ -49,7 +49,7 @@ func (s *Server) listHistory(c *gin.Context) {
 		c.JSON(400, gin.H{"success": false, "message": "Invalid model name"})
 		return
 	}
-	rows, total, err := s.cfg.Store.ListRuns(c.Request.Context(), store.ListQuery{ModelName: name, Status: status, Page: page, PageSize: size})
+	rows, total, err := s.cfg.Store.ListRuns(c.Request.Context(), store.ListQuery{OwnerID: ownerID(c), ModelName: name, Status: status, Page: page, PageSize: size})
 	if err != nil {
 		c.JSON(500, gin.H{"success": false, "message": "Failed to load check history"})
 		return
@@ -114,7 +114,8 @@ func (s *Server) getHistory(c *gin.Context) {
 		return
 	}
 	run, err := s.cfg.Store.GetRun(c.Request.Context(), id)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// A report belongs to the browser that ran it; to anyone else it does not exist.
+	if errors.Is(err, gorm.ErrRecordNotFound) || (err == nil && run.OwnerID != ownerID(c)) {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Check report not found"})
 		return
 	}
@@ -203,7 +204,7 @@ func (s *Server) createBaseline(c *gin.Context) {
 		return
 	}
 	run, err := s.cfg.Store.GetRun(c.Request.Context(), input.ReportID)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, gorm.ErrRecordNotFound) || (err == nil && run.OwnerID != ownerID(c)) {
 		c.JSON(404, gin.H{"success": false, "message": "Check report not found"})
 		return
 	}

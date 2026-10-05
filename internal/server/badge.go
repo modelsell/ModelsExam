@@ -38,7 +38,10 @@ func (s *Server) badgeResult(c *gin.Context, domain string) (badge.Result, bool)
 	for _, r := range runs {
 		items = append(items, badge.Run{ID: r.ID, Model: r.ModelName, Transport: r.Transport, Endpoint: r.Endpoint, Score: r.Score, StartedAt: r.StartedAt})
 	}
-	return badge.Pick(items, domain, time.Now()), true
+	res := badge.Pick(items, domain, time.Now())
+	// Reports are private to the browser that ran them; a badge shows only the verdict.
+	res.ReportID = ""
+	return res, true
 }
 
 // badgeJSON answers a browser only when its Origin is a page of the badge's

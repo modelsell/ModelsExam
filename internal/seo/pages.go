@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-// RecordsPerPage is the page size of the public record list. The server and
-// the sitemap both rely on it.
-const RecordsPerPage = 30
-
 var modelPlaceholder = Page{
 	Title:       "Model results | " + siteName,
 	Description: "ModelsExam check results for one model.",
@@ -191,29 +187,6 @@ func itemList(site string, recs []Record) string {
 		list = append(list, map[string]any{"@type": "ListItem", "position": i + 1, "url": site + "/reports/" + rec.ID, "name": rec.Site + " " + rec.Model})
 	}
 	return ld(map[string]any{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": list})
-}
-
-// RecordsPage is one page of the public record list. Page 1 is /records;
-// later pages are /records?page=N, each canonical to itself, linked with
-// prev/next so crawlers can walk the whole list.
-func RecordsPage(site string, page, totalPages int, recs []Record) Page {
-	p, _ := Lookup("/records")
-	p.Records, p.MaxRecords = recs, len(recs)
-	p.RecordsHead = "检测记录"
-	if page > 1 {
-		p.Canonical = fmt.Sprintf("/records?page=%d", page)
-		p.Title = fmt.Sprintf("检测记录 第 %d 页 | %s", page, siteName)
-		p.Description = cut(p.Description, 280) + fmt.Sprintf("（第 %d 页）", page)
-		p.Prev = "/records"
-		if page > 2 {
-			p.Prev = fmt.Sprintf("/records?page=%d", page-1)
-		}
-	}
-	if page < totalPages {
-		p.Next = fmt.Sprintf("/records?page=%d", page+1)
-	}
-	p.JSONLD = []string{itemList(site, recs)}
-	return p
 }
 
 // SitePage lists every public check of one website. It is the page a search

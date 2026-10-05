@@ -23,8 +23,6 @@ export type RouteName =
   | 'baselines'
   | 'getbadge'
   | 'site'
-  | 'model'
-  | 'models'
   | 'method'
   | 'integrate'
   | 'notfound'
@@ -38,7 +36,6 @@ export const ROUTE_PATHS = {
   getbadge: '/get-badge',
   method: '/method',
   integrate: '/integrate',
-  models: '/models',
 } as const
 
 // Pure URL parsing, kept free of React so it can be unit tested. The server
@@ -48,13 +45,11 @@ export function parseRoute(pathname: string, search = ''): Route {
   const legacy = new URLSearchParams(search).get('history_id')
   if (legacy) return { name: 'report', id: legacy }
   const path = pathname.replace(/\/+$/, '') || '/'
-  for (const name of ['home', 'records', 'baselines', 'getbadge', 'method', 'integrate', 'models'] as const) {
+  for (const name of ['home', 'records', 'baselines', 'getbadge', 'method', 'integrate'] as const) {
     if (ROUTE_PATHS[name] === path) return { name }
   }
   const site = /^\/sites\/([A-Za-z0-9.-]+)$/.exec(path)
   if (site) return { name: 'site', id: site[1].toLowerCase() }
-  const model = /^\/models\/([A-Za-z0-9][A-Za-z0-9._:-]{0,199})$/.exec(path)
-  if (model) return { name: 'model', id: model[1] }
   const match = /^\/reports\/([^/]+)$/.exec(path)
   if (match) {
     try {
@@ -70,16 +65,9 @@ export function reportPath(id: string): string {
   return `/reports/${encodeURIComponent(id)}`
 }
 
-// Page of a model name, or null when the name cannot be a URL path (the server
-// builds the same pages only for such names).
-export function modelPath(model: string): string | null {
-  return /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/.test(model) ? `/models/${model}` : null
-}
-
 export function routePath(route: Route): string {
   if (route.name === 'report' && route.id) return reportPath(route.id)
   if (route.name === 'site' && route.id) return `/sites/${route.id}`
-  if (route.name === 'model' && route.id) return `/models/${route.id}`
   if (route.name === 'notfound') return '/'
   return ROUTE_PATHS[route.name as keyof typeof ROUTE_PATHS] ?? '/'
 }

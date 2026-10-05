@@ -28,9 +28,7 @@ import { HomePage } from './pages/home-page'
 const BaselinesPage = lazy(() => import('./pages/baselines-page').then((m) => ({ default: m.BaselinesPage })))
 const IntegratePage = lazy(() => import('./pages/integrate-page').then((m) => ({ default: m.IntegratePage })))
 const GetBadgePage = lazy(() => import('./pages/get-badge-page').then((m) => ({ default: m.GetBadgePage })))
-const ModelPage = lazy(() => import('./pages/model-page').then((m) => ({ default: m.ModelPage })))
 const MethodPage = lazy(() => import('./pages/method-page').then((m) => ({ default: m.MethodPage })))
-const ModelsPage = lazy(() => import('./pages/models-page').then((m) => ({ default: m.ModelsPage })))
 const NotFoundPage = lazy(() => import('./pages/not-found-page').then((m) => ({ default: m.NotFoundPage })))
 const RecordsPage = lazy(() => import('./pages/records-page').then((m) => ({ default: m.RecordsPage })))
 const ReportPage = lazy(() => import('./pages/report-page').then((m) => ({ default: m.ReportPage })))
@@ -55,11 +53,11 @@ function Shell() {
       serverRenderedHead = false
       return
     }
-    // Report, site and model pages get their head tags from the server, which
+    // Report and site pages get their head tags from the server, which
     // knows whether the page has anything to index; the app only keeps the
     // title in step and never overrides the robots tag.
     if (route.name === 'report') return
-    if (route.name === 'site' || route.name === 'model') {
+    if (route.name === 'site') {
       document.title = seoFor(route, t).title
       return
     }
@@ -85,12 +83,6 @@ function Shell() {
       break
     case 'site':
       page = <SitePage domain={route.id ?? ''} />
-      break
-    case 'model':
-      page = <ModelPage model={route.id ?? ''} />
-      break
-    case 'models':
-      page = <ModelsPage />
       break
     case 'method':
       page = <MethodPage />

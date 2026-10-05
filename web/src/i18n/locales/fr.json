@@ -1088,9 +1088,23 @@
     "Copy Markdown": "Copy Markdown",
     "Chat basics": "Chat basics",
     "Check records": "Historique des vérifications",
-    "Public records of the latest 100 checks.": "Historique public des 100 dernières vérifications.",
-    "The latest 100 checks and reports, visible to everyone.": "Les 100 dernières vérifications et rapports, visibles par tous.",
     "Filled in from the link:": "Rempli depuis le lien :",
-    "Filled in from the link. Review the details, then press Start check.": "Rempli depuis le lien. Vérifiez les informations, puis lancez la vérification."
+    "Filled in from the link. Review the details, then press Start check.": "Rempli depuis le lien. Vérifiez les informations, puis lancez la vérification.",
+    "My check records": "Mes vérifications",
+    "Back to my check records": "Retour à mes vérifications",
+    "Only checks run from this browser. Nobody else can see them.": "Uniquement les vérifications lancées depuis ce navigateur. Personne d’autre ne peut les voir.",
+    "Your latest 100 checks from this browser. Other people cannot see or open them.": "Vos 100 dernières vérifications depuis ce navigateur. Les autres ne peuvent ni les voir ni les ouvrir.",
+    "Check records are private to the browser that ran them. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.": "Les vérifications sont privées au navigateur qui les a lancées. Les résultats décrivent l’endpoint et le modèle testés au moment de l’exécution ; ce ne sont ni des classements, ni des certifications, ni des recommandations.",
+    "Check records run from this browser. They are private and not shown to anyone else.": "Les vérifications lancées depuis ce navigateur. Elles sont privées et ne sont montrées à personne d’autre.",
+    "Shows the verdict of your latest check. The report itself stays private.": "Affiche le verdict de votre dernière vérification. Le rapport lui-même reste privé.",
+    "Enter your domain and copy the code for your site. The badge shows the verdict of your latest check; the report itself stays private.": "Saisissez votre domaine et copiez le code pour votre site. Le badge affiche le verdict de votre dernière vérification ; le rapport reste privé.",
+    "It shows only the verdict, never the report. Nobody, including you, can edit the result.": "Il n’affiche que le verdict, jamais le rapport. Personne, vous compris, ne peut modifier le résultat.",
+    "Visitors can see that your API was examined, what it scored and when. The mark is not something you type in: it is read from the latest check of your endpoint.": "Les visiteurs voient que votre API a été examinée, son score et la date. La marque n’est pas saisie à la main : elle provient de la dernière vérification de votre endpoint.",
+    "Open source. Private records.": "Open source. Vérifications privées.",
+    "The code is AGPL-3.0. Check records stay with the browser that ran them and are never published.": "Le code est sous AGPL-3.0. Les vérifications restent liées au navigateur qui les a lancées et ne sont jamais publiées.",
+    "The report is visible only in the browser that ran the check.": "Le rapport n’est visible que dans le navigateur qui a lancé la vérification.",
+    "The key is used only for that check and is never written into reports. Check records are visible only to the browser that ran them.": "La clé ne sert qu’à cette vérification et n’est jamais écrite dans les rapports. Les vérifications ne sont visibles que par le navigateur qui les a lancées.",
+    "Once your endpoint has a completed check, you can show its latest result with a badge.": "Une fois qu’une vérification de votre endpoint est terminée, vous pouvez afficher son dernier résultat avec un badge.",
+    "This report was not found. Reports can only be opened in the browser that ran the check.": "Rapport introuvable. Un rapport ne peut être ouvert que dans le navigateur qui a lancé la vérification."
   }
 }

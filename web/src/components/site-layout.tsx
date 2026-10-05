@@ -109,10 +109,9 @@ export function SiteLayout(props: { current: RouteName; children: ReactNode }) {
           </Link>
           <nav className='flex min-w-0 items-center gap-3 text-sm sm:gap-6' aria-label={t('Main')}>
             {item('home', '/#new-check', t('Start check'), 'lg')}
-            {item('models', '/models', t('Model boards'))}
             {item('baselines', '/baselines', t('Official baselines'), 'lg')}
             {item('getbadge', '/#get-badge', t('Get your badge'), 'lg')}
-            {item('records', '/records', t('Check records'), 'lg')}
+            {item('records', '/records', t('My check records'), 'lg')}
             {item('method', '/method', t('Method and independence'), 'lg')}
             <ThemeToggle />
             <select
@@ -140,7 +139,7 @@ export function SiteLayout(props: { current: RouteName; children: ReactNode }) {
             </p>
             <p className='max-w-xl text-xs leading-5 text-muted-foreground'>
               {t(
-                'Check records are public. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.'
+                'Check records are private to the browser that ran them. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.'
               )}
             </p>
             <p className='max-w-xl text-xs leading-5 text-muted-foreground'>
@@ -150,10 +149,9 @@ export function SiteLayout(props: { current: RouteName; children: ReactNode }) {
             </p>
           </div>
           <nav aria-label={t('Footer')} className='flex flex-col gap-2 text-sm sm:items-end'>
-            <Link to='/models' className={navLink}>{t('Model boards')}</Link>
             <Link to='/baselines' className={navLink}>{t('Official baselines')}</Link>
             <Link to='/#get-badge' className={navLink}>{t('Get your badge')}</Link>
-            <Link to='/records' className={navLink}>{t('Check records')}</Link>
+            <Link to='/records' className={navLink}>{t('My check records')}</Link>
             <Link to='/method' className={navLink}>{t('Method and independence')}</Link>
             <Link to='/integrate' className={navLink}>{t('Relay integration')}</Link>
             {REPO_URL && (

@@ -58,17 +58,19 @@ All under `/api`, JSON, `Cache-Control: no-store`.
 | POST | `/model_check` | Claude check (`{base_url,key,model,…options,remark?}`); `Accept: text/event-stream` streams progress |
 | POST | `/model_check/openai` | OpenAI check, same shape |
 | POST | `/model_check/image` | image check (`{base_url,key,model,suite,provenance?,baseline?,verify_key?,remark?}`); `verify_key` is an official OpenAI key sent only to the Verify host |
-| GET | `/model_check/history` | public "Check records" list, **latest 100 only** (`page`, `page_size`, `model`, `status`); older rows stay in the DB but are never listed |
-| GET | `/model_check/history/:id` | report detail (+`markdown` for OpenAI and image) |
+| GET | `/model_check/history` | this browser's "My check records" list (owner cookie), **latest 100 only** (`page`, `page_size`, `model`, `status`); older rows stay in the DB but are never listed |
+| GET | `/model_check/history/:id` | report detail (+`markdown` for OpenAI and image); 404 unless the owner cookie matches |
 | PATCH | `/model_check/history/:id/remark` | only the browser that ran the check (owner cookie) |
 | GET/POST | `/model_check/baselines` | shared comparison baselines (Claude) |
 
 ## Behaviour you should know about
 
-- **Public history.** Every report is listed to every visitor, including the endpoint host and model
-  name. Do not point this at a deployment where endpoints are confidential. Keys are redacted, but the
-  base URL is not.
-- **Shared baselines.** Any visitor can promote a completed Claude report to a baseline, and baselines
+- **Private history.** A report is listed and served only to the browser that ran it, identified by a
+  random `mc_owner` cookie (no accounts). Clearing cookies or switching browsers loses access; the rows
+  stay in the database. There are no public record lists, model boards, stats or report sitemap
+  entries. Site badges still show the verdict (tier, score, date) of the newest check of a domain, from
+  any visitor, but never link to the report.
+- **Shared baselines.** Any visitor can promote a completed Claude report they ran to a baseline, and baselines
   are used for everyone's comparisons, so they can be polluted. Put the service behind auth or a
   reverse-proxy allow-list if that matters, or remove `POST /baselines`.
 - **No cross-user isolation** beyond the owner cookie (a random UUID, not authentication).

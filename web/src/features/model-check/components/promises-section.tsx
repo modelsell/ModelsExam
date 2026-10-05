@@ -44,8 +44,8 @@ export function PromisesSection() {
       ),
     },
     {
-      title: t('Open source. Public results.'),
-      body: t('The code is AGPL-3.0 and every record is public.'),
+      title: t('Open source. Private records.'),
+      body: t('The code is AGPL-3.0. Check records stay with the browser that ran them and are never published.'),
     },
   ]
   return (

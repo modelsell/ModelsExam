@@ -27,7 +27,7 @@ import { ReportBadge } from './report-badge'
 export function BadgeSection() {
   const { t } = useTranslation()
   const facts = [
-    t('Shows your latest check result and links to the public report behind it.'),
+    t('Shows the verdict of your latest check. The report itself stays private.'),
     t('Served only to pages on your own domain, so it cannot be borrowed.'),
     t('Expires after 30 days. A badge you do not renew says so.'),
   ]
@@ -43,7 +43,7 @@ export function BadgeSection() {
           </h2>
           <p className='text-muted-foreground max-w-xl text-sm leading-6'>
             {t(
-              'Visitors can see that your API was examined, what it scored and when. The mark is not something you type in: it is read from your public check records.'
+              'Visitors can see that your API was examined, what it scored and when. The mark is not something you type in: it is read from the latest check of your endpoint.'
             )}
           </p>
           <figure className='bg-card flex flex-col gap-4 rounded-lg border p-5'>

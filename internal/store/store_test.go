@@ -25,7 +25,7 @@ func newRun(owner, status string) *Run {
 		ReportJSON: `{"id":"x","remark":"old"}`}
 }
 
-func TestRunLifecycleAndPublicList(t *testing.T) {
+func TestRunLifecycleAndOwnerList(t *testing.T) {
 	s, ctx := open(t), context.Background()
 	a, b := newRun("owner-a", "running"), newRun("owner-b", "completed")
 	for _, r := range []*Run{a, b} {
@@ -33,10 +33,13 @@ func TestRunLifecycleAndPublicList(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	// Reports are listed platform-wide, regardless of owner.
-	rows, total, err := s.ListRuns(ctx, ListQuery{Page: 1, PageSize: 20})
-	if err != nil || total != 2 || len(rows) != 2 {
+	// Each browser lists only its own reports; no owner lists nothing.
+	rows, total, err := s.ListRuns(ctx, ListQuery{OwnerID: "owner-a", Page: 1, PageSize: 20})
+	if err != nil || total != 1 || len(rows) != 1 || rows[0].ID != a.ID {
 		t.Fatalf("list: %v total=%d rows=%d", err, total, len(rows))
+	}
+	if rows, total, err := s.ListRuns(ctx, ListQuery{Page: 1, PageSize: 20}); err != nil || total != 0 || len(rows) != 0 {
+		t.Fatalf("list without owner: %v total=%d rows=%d", err, total, len(rows))
 	}
 	// Finalize the running row; a late checkpoint afterwards must be rejected.
 	a.Status = "completed"
@@ -116,7 +119,7 @@ func TestListRunsShowsOnlyLatest100(t *testing.T) {
 	}
 	seen, newest := 0, int64(0)
 	for page := 1; page <= 6; page++ {
-		rows, total, err := s.ListRuns(ctx, ListQuery{Page: page, PageSize: 20})
+		rows, total, err := s.ListRuns(ctx, ListQuery{OwnerID: "o", Page: page, PageSize: 20})
 		if err != nil || total != 100 {
 			t.Fatalf("page %d: total=%d err=%v", page, total, err)
 		}

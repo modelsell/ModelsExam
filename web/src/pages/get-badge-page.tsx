@@ -30,7 +30,7 @@ export function GetBadgePage() {
         </h1>
         <p className='text-muted-foreground max-w-2xl text-sm leading-6'>
           {t(
-            'Enter your domain and copy the code for your site. The badge shows your latest check result and links to the public report behind it.'
+            'Enter your domain and copy the code for your site. The badge shows the verdict of your latest check; the report itself stays private.'
           )}
         </p>
       </header>

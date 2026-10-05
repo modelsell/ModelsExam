@@ -23,7 +23,7 @@ import { seoFor } from './seo'
 const t = (k: string) => k
 
 test('public pages are indexable and have a description', () => {
-  for (const name of ['home', 'records', 'baselines', 'getbadge', 'method', 'integrate'] as const) {
+  for (const name of ['home', 'baselines', 'getbadge', 'method', 'integrate'] as const) {
     const seo = seoFor({ name }, t)
     assert.equal(seo.noindex, false, name)
     assert.ok(seo.title.includes('ModelsExam'), name)
@@ -31,7 +31,8 @@ test('public pages are indexable and have a description', () => {
   }
 })
 
-test('reports and unknown paths are noindex', () => {
+test('private records, reports and unknown paths are noindex', () => {
+  assert.equal(seoFor({ name: 'records' }, t).noindex, true)
   assert.equal(seoFor({ name: 'report', id: 'x' }, t).noindex, true)
   assert.equal(seoFor({ name: 'notfound' }, t).noindex, true)
 })

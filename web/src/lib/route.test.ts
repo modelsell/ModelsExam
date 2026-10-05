@@ -18,11 +18,11 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { modelPath, parseRoute, reportPath, routePath } from './route'
+import { parseRoute, reportPath, routePath } from './route'
 
-test('parses the model boards page', () => {
-  assert.deepEqual(parseRoute('/models'), { name: 'models' })
-  assert.equal(routePath({ name: 'models' }), '/models')
+test('model boards are gone with the public records', () => {
+  assert.deepEqual(parseRoute('/models'), { name: 'notfound' })
+  assert.deepEqual(parseRoute('/models/claude-sonnet-4-5'), { name: 'notfound' })
   assert.deepEqual(parseRoute('/guides'), { name: 'notfound' })
   assert.deepEqual(parseRoute('/sites'), { name: 'notfound' })
 })
@@ -57,13 +57,4 @@ test('unknown paths and bad encodings are not found', () => {
   assert.deepEqual(parseRoute('/nope'), { name: 'notfound' })
   assert.deepEqual(parseRoute('/reports/%E0%A4%A'), { name: 'notfound' })
   assert.deepEqual(parseRoute('/reports/a/b'), { name: 'notfound' })
-})
-
-test('model pages parse and round-trip', () => {
-  assert.deepEqual(parseRoute('/models/claude-sonnet-4-5'), { name: 'model', id: 'claude-sonnet-4-5' })
-  assert.deepEqual(parseRoute('/models/anthropic.claude-x-v1:0'), { name: 'model', id: 'anthropic.claude-x-v1:0' })
-  assert.equal(routePath({ name: 'model', id: 'gpt-4o' }), '/models/gpt-4o')
-  assert.deepEqual(parseRoute('/models/a/b'), { name: 'notfound' })
-  assert.equal(modelPath('gpt-4o'), '/models/gpt-4o')
-  assert.equal(modelPath('vendor/model'), null)
 })

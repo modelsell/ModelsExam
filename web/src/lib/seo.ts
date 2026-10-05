@@ -47,11 +47,11 @@ export function seoFor(route: Route, t: Translate): Seo {
       }
     case 'records':
       return {
-        title: `${t('Check records')} | ${SITE_NAME}`,
+        title: `${t('My check records')} | ${SITE_NAME}`,
         description: t(
-          'Public list of recent ModelsExam check records with a conformance badge for each run.'
+          'Check records run from this browser. They are private and not shown to anyone else.'
         ),
-        noindex: false,
+        noindex: true,
       }
     case 'method':
       return {
@@ -82,22 +82,6 @@ export function seoFor(route: Route, t: Translate): Seo {
         title: `${t('Site badge')} | ${SITE_NAME}`,
         description: t('The latest ModelsExam check result for a website.'),
         noindex: true,
-      }
-    case 'model':
-      return {
-        title: `${route.id ?? ''} ${t('model check results')} | ${SITE_NAME}`,
-        description: t(
-          'Public check records for this model name, across relays and official endpoints. Each record is one check of one endpoint at one moment; it is not a ranking.'
-        ),
-        noindex: false,
-      }
-    case 'models':
-      return {
-        title: `${t('Model boards')} | ${SITE_NAME}`,
-        description: t(
-          'Latest dated check results for each model, newest result per site, best score first. Results, not endorsements.'
-        ),
-        noindex: false,
       }
     case 'report':
       return {

@@ -196,29 +196,3 @@ export async function fetchModelList(
     return { ok: false, code: 'unreachable' }
   }
 }
-
-export type BoardEntry = {
-  rank: number
-  report_id: string
-  site: string
-  host: string
-  score: number
-  tier: 'conformant' | 'mostly' | 'review'
-  source: 'official' | 'aws' | 'other'
-  checked_at: number
-  fresh: boolean
-}
-export type BoardData = { model: string; checks: number; entries: BoardEntry[] }
-export type StatsData = { checks: number; sites: number; models: number; last_checked_at: number }
-
-async function getData<T>(url: string): Promise<T> {
-  const { data } = await api.get<{ success: boolean; data: T }>(url)
-  if (!data.success) throw new Error('request failed')
-  return data.data
-}
-
-export const fetchStats = () => getData<StatsData>('/api/model_check/stats')
-export const fetchBoards = (limit: number, size: number) =>
-  getData<BoardData[]>(`/api/model_check/boards?limit=${limit}&size=${size}`)
-export const fetchBoard = (model: string, size = 10) =>
-  getData<BoardData>(`/api/model_check/boards/${encodeURIComponent(model)}?size=${size}`)

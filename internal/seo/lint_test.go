@@ -34,8 +34,7 @@ func lintPages(t *testing.T) []Page {
 	recs := []Record{RecordOf(named)}
 	out := append([]Page{}, pages...)
 	out = append(out, ReportPage(lintSite, named), SitePage(lintSite, "relay.example.com", recs),
-		ModelPage(lintSite, "claude-sonnet-4-5", recs, []BoardRow{{Rank: 1, Site: "Relay One", Host: "relay.example.com", Score: 100, Verdict: "符合", Source: "其他", Date: "2026-10-01", ReportID: named.ID, Fresh: true}}),
-		RecordsPage(lintSite, 1, 2, recs), RecordsPage(lintSite, 2, 2, recs))
+		ModelPage(lintSite, "claude-sonnet-4-5", recs, []BoardRow{{Rank: 1, Site: "Relay One", Host: "relay.example.com", Score: 100, Verdict: "符合", Source: "其他", Date: "2026-10-01", ReportID: named.ID, Fresh: true}}))
 	return out
 }
 

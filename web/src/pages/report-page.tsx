@@ -29,9 +29,9 @@ import { ReportDetail } from '@/features/model-check/components/report-detail'
 import { siteLabel } from '@/features/model-check/lib/site-label'
 import { badgeTier } from '@/features/model-check/lib/badge'
 
-// One stored report on its own page, at /reports/<id>. The address is the
-// share link, and for completed runs with a site name it is also indexed:
-// the tested site's name and description become the page title and summary.
+// One stored report on its own page, at /reports/<id>. Reports are private:
+// the server serves one only to the browser that ran the check, and the page
+// is never indexed.
 export function ReportPage({ id }: { id: string }) {
   const { t, i18n } = useTranslation()
   const userId = useAuthStore((state) => state.auth.user?.id)
@@ -46,7 +46,6 @@ export function ReportPage({ id }: { id: string }) {
   const site = run ? siteLabel(run) : undefined
 
   useEffect(() => {
-    const indexable = run?.status === 'completed' && !!run.channel_name?.trim()
     const tier = run ? badgeTier(run.status, run.score) : undefined
     const result =
       run && tier && tier !== 'incomplete' && tier !== 'running' && run.score != null
@@ -61,7 +60,7 @@ export function ReportPage({ id }: { id: string }) {
         description: site
           ? `${site.description ? `${site.description} ` : ''}${t('ModelsExam check result for')}${result}`.trim()
           : t('A single ModelsExam check report.'),
-        noindex: !indexable,
+        noindex: true,
       },
       i18n.resolvedLanguage ?? 'en'
     )
@@ -71,13 +70,13 @@ export function ReportPage({ id }: { id: string }) {
     <div className='mx-auto flex max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6 sm:py-14'>
       <p className='text-sm'>
         <Link to='/records' className='text-muted-foreground hover:text-foreground underline underline-offset-4'>
-          {t('Back to check records')}
+          {t('Back to my check records')}
         </Link>
       </p>
       {detail.isPending && <Skeleton className='h-80 rounded-xl' />}
       {detail.isError && (
         <Alert variant='destructive'>
-          <AlertDescription>{t('Failed to load check report')}</AlertDescription>
+          <AlertDescription>{t('This report was not found. Reports can only be opened in the browser that ran the check.')}</AlertDescription>
         </Alert>
       )}
       {run && site && (

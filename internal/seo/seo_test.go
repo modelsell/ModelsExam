@@ -9,11 +9,15 @@ import (
 const tpl = `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="robots" content="noindex"><title>Old</title><meta name="description" content="old"></head><body><div id="root"></div></body></html>`
 
 func TestLookup(t *testing.T) {
-	for _, path := range []string{"/", "/get-badge", "/baselines", "/records", "/method", "/integrate"} {
+	for _, path := range []string{"/", "/get-badge", "/baselines", "/method", "/integrate"} {
 		p, ok := Lookup(path)
 		if !ok || p.NoIndex {
 			t.Fatalf("%s: ok=%v noindex=%v", path, ok, p.NoIndex)
 		}
+	}
+	// Check records are private to each browser: the page exists but is never indexed.
+	if p, ok := Lookup("/records"); !ok || !p.NoIndex {
+		t.Fatalf("/records: ok=%v noindex=%v", ok, p.NoIndex)
 	}
 	p, ok := Lookup("/reports/abc-123")
 	if !ok || !p.NoIndex || p.Path != "/reports/abc-123" {
@@ -98,7 +102,7 @@ func TestSiteURL(t *testing.T) {
 
 func TestSitemapAndRobots(t *testing.T) {
 	sm := string(Sitemap("https://modelsexam.com", nil))
-	if strings.Count(sm, "<loc>") != len(pages) || strings.Contains(sm, "/reports") {
+	if strings.Count(sm, "<loc>") != indexablePages() || strings.Contains(sm, "/reports") || strings.Contains(sm, "/records") {
 		t.Fatalf("sitemap: %s", sm)
 	}
 	rb := string(Robots("https://modelsexam.com"))
@@ -140,23 +144,8 @@ func TestReportPageIndexRules(t *testing.T) {
 
 func TestSitemapIncludesReports(t *testing.T) {
 	sm := string(Sitemap("https://modelsexam.com", []Entry{{Path: "/reports/r1", LastMod: 1791100000000}, {Path: "/reports/r%202"}}))
-	if !strings.Contains(sm, "<loc>https://modelsexam.com/reports/r1</loc>") || !strings.Contains(sm, "/reports/r%202") || !strings.Contains(sm, "<lastmod>2026-") || strings.Count(sm, "<loc>") != len(pages)+2 {
+	if !strings.Contains(sm, "<loc>https://modelsexam.com/reports/r1</loc>") || !strings.Contains(sm, "/reports/r%202") || !strings.Contains(sm, "<lastmod>2026-") || strings.Count(sm, "<loc>") != indexablePages()+2 {
 		t.Fatal(sm)
-	}
-}
-
-func TestRecordsPagination(t *testing.T) {
-	recs := []Record{{ID: "a", Site: "A", Model: "m"}}
-	p2 := RecordsPage("https://modelsexam.com", 2, 3, recs)
-	out := string(Render([]byte(tpl), "https://modelsexam.com", p2))
-	for _, want := range []string{`rel="canonical" href="https://modelsexam.com/records?page=2"`, `rel="prev" href="https://modelsexam.com/records"`, `rel="next" href="https://modelsexam.com/records?page=3"`, `<a href="/records?page=3" rel="next">`, "ItemList"} {
-		if !strings.Contains(out, want) {
-			t.Fatalf("missing %q in %s", want, out)
-		}
-	}
-	p1 := RecordsPage("https://modelsexam.com", 1, 3, recs)
-	if p1.Canonical != "" || p1.Prev != "" || p1.Next != "/records?page=2" {
-		t.Fatalf("%+v", p1)
 	}
 }
 
@@ -246,4 +235,14 @@ func TestBoardsAndFAQ(t *testing.T) {
 	if len(mp.Boards) != 1 || mp.NoIndex {
 		t.Fatal("model page board")
 	}
+}
+
+func indexablePages() int {
+	n := 0
+	for _, p := range pages {
+		if !p.NoIndex {
+			n++
+		}
+	}
+	return n
 }

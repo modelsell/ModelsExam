@@ -169,7 +169,7 @@ export function BadgeProtection() {
         <li>{t('It is built from the newest completed check whose endpoint is on your domain or a subdomain.')}</li>
         <li>{t('The script and the data are served only to pages on your domain, so another site cannot load your badge.')}</li>
         <li>{t('It expires 30 days after the check and then reads “Check expired” until you check again.')}</li>
-        <li>{t('It always links to the public report. Nobody, including you, can edit the result.')}</li>
+        <li>{t('It shows only the verdict, never the report. Nobody, including you, can edit the result.')}</li>
       </ul>
       <p className='text-muted-foreground text-xs leading-5'>
         {t('A copied screenshot cannot be prevented; the visible domain and the report link are how a visitor checks it.')}
