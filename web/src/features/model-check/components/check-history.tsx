@@ -159,7 +159,7 @@ export function CheckHistory(props: { initialModel?: string }) {
             {t('My check records')}
           </h2>
           <p className='text-muted-foreground text-sm leading-6'>
-            {t('Only checks run from this browser. Nobody else can see them.')}
+            {t('Only checks run from this browser. Nobody else can see this list.')}
           </p>
         </div>
         <p className='text-muted-foreground flex items-center gap-2 text-xs'>
@@ -175,7 +175,7 @@ export function CheckHistory(props: { initialModel?: string }) {
         <CardHeader className='sr-only'>
           <CardTitle>{t('My check records')}</CardTitle>
           <CardDescription>
-            {t('Your latest 100 checks from this browser. Other people cannot see or open them.')}
+            {t('Your latest 100 checks from this browser. Other people cannot see this list; a report opens only for people you share its link with.')}
           </CardDescription>
         </CardHeader>
         <CardContent className='flex flex-col gap-4'>

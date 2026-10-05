@@ -1065,8 +1065,6 @@
     "Show the result on your site": "在你的網站展示結果",
     "My check records": "我的檢測記錄",
     "Back to my check records": "返回我的檢測記錄",
-    "Only checks run from this browser. Nobody else can see them.": "僅顯示從目前瀏覽器發起的檢測，其他人無法查看。",
-    "Your latest 100 checks from this browser. Other people cannot see or open them.": "目前瀏覽器最近 100 次檢測，其他人無法查看或開啟。",
     "Check records are private to the browser that ran them. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.": "檢測記錄僅對發起檢測的瀏覽器可見。結果描述的是檢測當時所測的端點與模型，不是排名、認證或背書。",
     "Check records run from this browser. They are private and not shown to anyone else.": "從目前瀏覽器發起的檢測記錄。記錄私有，不會向任何其他人展示。",
     "Shows the verdict of your latest check. The report itself stays private.": "顯示你最近一次檢測的結論，檢測報告本身不公開。",
@@ -1075,9 +1073,11 @@
     "Visitors can see that your API was examined, what it scored and when. The mark is not something you type in: it is read from the latest check of your endpoint.": "訪客可以看到你的 API 接受過檢測、得了多少分以及檢測時間。徽章不是手動填寫的，而是讀取你端點最近一次檢測的結果。",
     "Open source. Private records.": "開源，記錄私有。",
     "The code is AGPL-3.0. Check records stay with the browser that ran them and are never published.": "程式碼採用 AGPL-3.0。檢測記錄只屬於發起檢測的瀏覽器，從不公開。",
-    "The report is visible only in the browser that ran the check.": "報告只在發起檢測的瀏覽器中可見。",
-    "The key is used only for that check and is never written into reports. Check records are visible only to the browser that ran them.": "Key 只用於這一次檢測，不會寫入報告。檢測記錄只有發起檢測的瀏覽器能看到。",
     "Once your endpoint has a completed check, you can show its latest result with a badge.": "你的端點完成檢測後，可以用徽章展示最近一次結果。",
-    "This report was not found. Reports can only be opened in the browser that ran the check.": "找不到此報告。報告只能在發起檢測的瀏覽器中開啟。"
+    "This report was not found. Check that the link is complete.": "找不到此報告，請檢查連結是否完整。",
+    "The report is listed only in the browser that ran the check. Share its link to show it to others.": "報告只出現在發起檢測的瀏覽器的記錄裡，想給別人看就分享報告連結。",
+    "The key is used only for that check and is never written into reports. Check records are listed only in the browser that ran them.": "Key 只用於這一次檢測，不會寫入報告。檢測記錄只出現在發起檢測的瀏覽器裡。",
+    "Only checks run from this browser. Nobody else can see this list.": "僅顯示從目前瀏覽器發起的檢測，其他人看不到這個列表。",
+    "Your latest 100 checks from this browser. Other people cannot see this list; a report opens only for people you share its link with.": "目前瀏覽器最近 100 次檢測。其他人看不到這個列表，只有拿到報告連結的人才能開啟報告。"
   }
 }

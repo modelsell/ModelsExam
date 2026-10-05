@@ -1092,8 +1092,6 @@
     "Filled in from the link. Review the details, then press Start check.": "Đã điền từ liên kết. Hãy kiểm tra thông tin rồi bấm Bắt đầu kiểm tra.",
     "My check records": "Bản kiểm tra của tôi",
     "Back to my check records": "Quay lại bản kiểm tra của tôi",
-    "Only checks run from this browser. Nobody else can see them.": "Chỉ các lần kiểm tra chạy từ trình duyệt này. Người khác không thể xem.",
-    "Your latest 100 checks from this browser. Other people cannot see or open them.": "100 lần kiểm tra gần nhất của bạn từ trình duyệt này. Người khác không thể xem hay mở.",
     "Check records are private to the browser that ran them. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.": "Bản kiểm tra chỉ hiển thị với trình duyệt đã chạy nó. Kết quả mô tả endpoint và mô hình tại thời điểm kiểm tra; không phải xếp hạng, chứng nhận hay xác nhận.",
     "Check records run from this browser. They are private and not shown to anyone else.": "Các bản kiểm tra chạy từ trình duyệt này. Chúng là riêng tư và không hiển thị cho ai khác.",
     "Shows the verdict of your latest check. The report itself stays private.": "Hiển thị kết luận của lần kiểm tra gần nhất. Bản báo cáo vẫn được giữ riêng tư.",
@@ -1102,9 +1100,11 @@
     "Visitors can see that your API was examined, what it scored and when. The mark is not something you type in: it is read from the latest check of your endpoint.": "Khách truy cập thấy API của bạn đã được kiểm tra, điểm số và thời gian. Dấu này không do bạn nhập: nó được đọc từ lần kiểm tra gần nhất của endpoint.",
     "Open source. Private records.": "Mã nguồn mở. Bản ghi riêng tư.",
     "The code is AGPL-3.0. Check records stay with the browser that ran them and are never published.": "Mã nguồn theo AGPL-3.0. Bản kiểm tra gắn với trình duyệt đã chạy nó và không bao giờ được công bố.",
-    "The report is visible only in the browser that ran the check.": "Báo cáo chỉ hiển thị trong trình duyệt đã chạy kiểm tra.",
-    "The key is used only for that check and is never written into reports. Check records are visible only to the browser that ran them.": "Khóa chỉ dùng cho lần kiểm tra đó và không bao giờ được ghi vào báo cáo. Bản kiểm tra chỉ hiển thị với trình duyệt đã chạy nó.",
     "Once your endpoint has a completed check, you can show its latest result with a badge.": "Khi endpoint của bạn có một lần kiểm tra hoàn tất, bạn có thể hiển thị kết quả gần nhất bằng huy hiệu.",
-    "This report was not found. Reports can only be opened in the browser that ran the check.": "Không tìm thấy báo cáo. Báo cáo chỉ mở được trong trình duyệt đã chạy kiểm tra."
+    "This report was not found. Check that the link is complete.": "Không tìm thấy báo cáo. Hãy kiểm tra liên kết có đầy đủ không.",
+    "The report is listed only in the browser that ran the check. Share its link to show it to others.": "Báo cáo chỉ xuất hiện trong danh sách của trình duyệt đã chạy kiểm tra. Hãy chia sẻ liên kết để người khác xem.",
+    "The key is used only for that check and is never written into reports. Check records are listed only in the browser that ran them.": "Khóa chỉ dùng cho lần kiểm tra đó và không bao giờ được ghi vào báo cáo. Bản kiểm tra chỉ được liệt kê trong trình duyệt đã chạy nó.",
+    "Only checks run from this browser. Nobody else can see this list.": "Chỉ các lần kiểm tra chạy từ trình duyệt này. Người khác không thấy danh sách này.",
+    "Your latest 100 checks from this browser. Other people cannot see this list; a report opens only for people you share its link with.": "100 lần kiểm tra gần nhất từ trình duyệt này. Người khác không thấy danh sách này; báo cáo chỉ mở được với người bạn gửi liên kết."
   }
 }

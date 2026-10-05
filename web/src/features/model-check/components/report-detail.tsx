@@ -16,7 +16,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard'
 import { ImageCheckReportView } from '../image/components/image-check-report'
 import { imageHistoryState, isImageHistory } from '../image/lib/history-state'
 import { OpenAICheckReportView } from '../openai/components/openai-check-report'
@@ -27,10 +30,11 @@ import type { HistoryDetail } from '../types'
 import { CheckReport } from './check-report'
 import { ReportBadge } from './report-badge'
 
-// A stored report: the badge for this run and the full report for the
-// protocol that produced it. Reports are private, so there is no share link.
+// A stored report: the badge for this run, a link to share it, and the full
+// report for the protocol that produced it.
 export function ReportDetail({ detail }: { detail: HistoryDetail }) {
   const { t } = useTranslation()
+  const { copyToClipboard } = useCopyToClipboard()
   return (
     <div className='flex flex-col gap-6'>
       <div className='bg-card flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border p-4'>
@@ -44,6 +48,16 @@ export function ReportDetail({ detail }: { detail: HistoryDetail }) {
             'This badge covers this run only. Observations and provenance results do not change it.'
           )}
         </p>
+        <Button
+          size='sm'
+          variant='outline'
+          onClick={() => {
+            void copyToClipboard(window.location.href)
+            toast.success(t('Link copied'))
+          }}
+        >
+          {t('Copy link to this report')}
+        </Button>
       </div>
       {isImageHistory(detail) ? (
         <ImageCheckReportView

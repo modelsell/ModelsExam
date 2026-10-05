@@ -76,7 +76,7 @@ export function ReportPage({ id }: { id: string }) {
       {detail.isPending && <Skeleton className='h-80 rounded-xl' />}
       {detail.isError && (
         <Alert variant='destructive'>
-          <AlertDescription>{t('This report was not found. Reports can only be opened in the browser that ran the check.')}</AlertDescription>
+          <AlertDescription>{t('This report was not found. Check that the link is complete.')}</AlertDescription>
         </Alert>
       )}
       {run && site && (

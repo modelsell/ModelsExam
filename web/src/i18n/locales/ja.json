@@ -1092,8 +1092,6 @@
     "Filled in from the link. Review the details, then press Start check.": "リンクの内容を入力しました。内容を確認してから「チェック開始」を押してください。",
     "My check records": "自分の検査記録",
     "Back to my check records": "自分の検査記録に戻る",
-    "Only checks run from this browser. Nobody else can see them.": "このブラウザーで実行した検査のみを表示します。他の人は見られません。",
-    "Your latest 100 checks from this browser. Other people cannot see or open them.": "このブラウザーでの直近 100 件の検査です。他の人は閲覧も開くこともできません。",
     "Check records are private to the browser that ran them. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.": "検査記録は実行したブラウザーだけが見られます。結果は実行時点のエンドポイントとモデルを示すもので、ランキング・認証・推奨ではありません。",
     "Check records run from this browser. They are private and not shown to anyone else.": "このブラウザーで実行した検査記録です。非公開で、他の誰にも表示されません。",
     "Shows the verdict of your latest check. The report itself stays private.": "最新の検査の判定を表示します。レポート自体は非公開のままです。",
@@ -1102,9 +1100,11 @@
     "Visitors can see that your API was examined, what it scored and when. The mark is not something you type in: it is read from the latest check of your endpoint.": "訪問者は API が検査されたこと、そのスコアと日時を確認できます。マークは手入力ではなく、エンドポイントの最新の検査から読み取られます。",
     "Open source. Private records.": "オープンソース。記録は非公開。",
     "The code is AGPL-3.0. Check records stay with the browser that ran them and are never published.": "コードは AGPL-3.0 です。検査記録は実行したブラウザーにのみ紐づき、公開されることはありません。",
-    "The report is visible only in the browser that ran the check.": "レポートは検査を実行したブラウザーでのみ表示されます。",
-    "The key is used only for that check and is never written into reports. Check records are visible only to the browser that ran them.": "キーはその検査にのみ使われ、レポートには書き込まれません。検査記録は実行したブラウザーだけが見られます。",
     "Once your endpoint has a completed check, you can show its latest result with a badge.": "エンドポイントの検査が完了したら、最新の結果をバッジで表示できます。",
-    "This report was not found. Reports can only be opened in the browser that ran the check.": "このレポートは見つかりません。レポートは検査を実行したブラウザーでのみ開けます。"
+    "This report was not found. Check that the link is complete.": "このレポートは見つかりません。リンクが完全か確認してください。",
+    "The report is listed only in the browser that ran the check. Share its link to show it to others.": "レポートは検査を実行したブラウザーの記録にのみ表示されます。他の人に見せるにはリンクを共有してください。",
+    "The key is used only for that check and is never written into reports. Check records are listed only in the browser that ran them.": "キーはその検査にのみ使われ、レポートには書き込まれません。検査記録は実行したブラウザーにのみ一覧表示されます。",
+    "Only checks run from this browser. Nobody else can see this list.": "このブラウザーで実行した検査のみを表示します。この一覧は他の人には見えません。",
+    "Your latest 100 checks from this browser. Other people cannot see this list; a report opens only for people you share its link with.": "このブラウザーでの直近 100 件の検査です。この一覧は他の人には見えず、レポートはリンクを共有した相手だけが開けます。"
   }
 }

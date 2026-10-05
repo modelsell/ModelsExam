@@ -1092,8 +1092,6 @@
     "Filled in from the link. Review the details, then press Start check.": "Заполнено из ссылки. Проверьте данные и запустите проверку.",
     "My check records": "Мои проверки",
     "Back to my check records": "Назад к моим проверкам",
-    "Only checks run from this browser. Nobody else can see them.": "Только проверки, запущенные из этого браузера. Никто другой их не видит.",
-    "Your latest 100 checks from this browser. Other people cannot see or open them.": "Ваши последние 100 проверок из этого браузера. Другие не могут их видеть или открывать.",
     "Check records are private to the browser that ran them. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.": "Записи проверок видны только браузеру, который их запустил. Результаты описывают эндпоинт и модель на момент проверки; это не рейтинг, не сертификация и не рекомендация.",
     "Check records run from this browser. They are private and not shown to anyone else.": "Проверки, запущенные из этого браузера. Они приватны и никому больше не показываются.",
     "Shows the verdict of your latest check. The report itself stays private.": "Показывает итог вашей последней проверки. Сам отчёт остаётся приватным.",
@@ -1102,9 +1100,11 @@
     "Visitors can see that your API was examined, what it scored and when. The mark is not something you type in: it is read from the latest check of your endpoint.": "Посетители видят, что ваш API проверен, какой балл и когда. Отметку нельзя вписать вручную: она берётся из последней проверки вашего эндпоинта.",
     "Open source. Private records.": "Открытый код. Приватные записи.",
     "The code is AGPL-3.0. Check records stay with the browser that ran them and are never published.": "Код под лицензией AGPL-3.0. Записи проверок остаются за браузером, который их запустил, и никогда не публикуются.",
-    "The report is visible only in the browser that ran the check.": "Отчёт виден только в браузере, который запустил проверку.",
-    "The key is used only for that check and is never written into reports. Check records are visible only to the browser that ran them.": "Ключ используется только для этой проверки и не записывается в отчёты. Записи проверок видны только браузеру, который их запустил.",
     "Once your endpoint has a completed check, you can show its latest result with a badge.": "Когда у вашего эндпоинта есть завершённая проверка, можно показать её результат значком.",
-    "This report was not found. Reports can only be opened in the browser that ran the check.": "Отчёт не найден. Отчёт можно открыть только в браузере, который запустил проверку."
+    "This report was not found. Check that the link is complete.": "Отчёт не найден. Проверьте, что ссылка полная.",
+    "The report is listed only in the browser that ran the check. Share its link to show it to others.": "Отчёт виден в списке только того браузера, который запустил проверку. Чтобы показать его другим, поделитесь ссылкой.",
+    "The key is used only for that check and is never written into reports. Check records are listed only in the browser that ran them.": "Ключ используется только для этой проверки и не записывается в отчёты. Записи проверок видны в списке только того браузера, который их запустил.",
+    "Only checks run from this browser. Nobody else can see this list.": "Только проверки, запущенные из этого браузера. Никто другой не видит этот список.",
+    "Your latest 100 checks from this browser. Other people cannot see this list; a report opens only for people you share its link with.": "Ваши последние 100 проверок из этого браузера. Другие не видят этот список; отчёт откроют только те, с кем вы поделились ссылкой."
   }
 }

@@ -1,6 +1,7 @@
 // Package store persists check reports and comparison baselines. There are no
-// user accounts: a random per-browser owner ID decides who may list, open and
-// annotate a report. Reports are never listed or served to anyone else.
+// user accounts: a random per-browser owner ID decides whose list a report is
+// in and who may annotate it. Anyone with a report's ID (its share link) may
+// open it, but reports are never listed publicly.
 package store
 
 import (

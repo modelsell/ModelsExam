@@ -114,8 +114,9 @@ func (s *Server) getHistory(c *gin.Context) {
 		return
 	}
 	run, err := s.cfg.Store.GetRun(c.Request.Context(), id)
-	// A report belongs to the browser that ran it; to anyone else it does not exist.
-	if errors.Is(err, gorm.ErrRecordNotFound) || (err == nil && run.OwnerID != ownerID(c)) {
+	// Reports are listed only to the browser that ran them, but the random
+	// report ID works as a share link: anyone who has it may open the report.
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Check report not found"})
 		return
 	}

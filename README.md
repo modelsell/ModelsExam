@@ -59,15 +59,16 @@ All under `/api`, JSON, `Cache-Control: no-store`.
 | POST | `/model_check/openai` | OpenAI check, same shape |
 | POST | `/model_check/image` | image check (`{base_url,key,model,suite,provenance?,baseline?,verify_key?,remark?}`); `verify_key` is an official OpenAI key sent only to the Verify host |
 | GET | `/model_check/history` | this browser's "My check records" list (owner cookie), **latest 100 only** (`page`, `page_size`, `model`, `status`); older rows stay in the DB but are never listed |
-| GET | `/model_check/history/:id` | report detail (+`markdown` for OpenAI and image); 404 unless the owner cookie matches |
+| GET | `/model_check/history/:id` | report detail (+`markdown` for OpenAI and image); open to anyone with the report id (the share link) |
 | PATCH | `/model_check/history/:id/remark` | only the browser that ran the check (owner cookie) |
 | GET/POST | `/model_check/baselines` | shared comparison baselines (Claude) |
 
 ## Behaviour you should know about
 
-- **Private history.** A report is listed and served only to the browser that ran it, identified by a
-  random `mc_owner` cookie (no accounts). Clearing cookies or switching browsers loses access; the rows
-  stay in the database. There are no public record lists, model boards, stats or report sitemap
+- **Private history, shareable reports.** A report is listed only to the browser that ran it, identified
+  by a random `mc_owner` cookie (no accounts). Its `/reports/<id>` link (a random UUID) opens for anyone
+  it is shared with, and report pages are `noindex`. Clearing cookies or switching browsers removes
+  reports from your list, but their links keep working; the rows stay in the database. There are no public record lists, model boards, stats or report sitemap
   entries. Site badges still show the verdict (tier, score, date) of the newest check of a domain, from
   any visitor, but never link to the report.
 - **Shared baselines.** Any visitor can promote a completed Claude report they ran to a baseline, and baselines
