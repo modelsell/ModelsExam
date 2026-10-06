@@ -1,6 +1,6 @@
 # ModelsExam
 
-> Give any model API an exam. Open-source, independent conformance and authenticity tests for Anthropic Claude, OpenAI-compatible and image model endpoints.
+> Give any model API an exam. Open-source, independent conformance and authenticity tests for Anthropic Claude, OpenAI-compatible, native Gemini and image model endpoints.
 
 [![CI](https://github.com/modelsell/ModelsExam/actions/workflows/ci.yml/badge.svg)](https://github.com/modelsell/ModelsExam/actions/workflows/ci.yml)
 
@@ -57,9 +57,10 @@ All under `/api`, JSON, `Cache-Control: no-store`.
 |---|---|---|
 | POST | `/model_check` | Claude check (`{base_url,key,model,…options,remark?}`); `Accept: text/event-stream` streams progress |
 | POST | `/model_check/openai` | OpenAI check, same shape |
+| POST | `/model_check/gemini` | native Gemini check (`{base_url,key,model,suite,vision?,remark?}`); the key is sent as `x-goog-api-key` |
 | POST | `/model_check/image` | image check (`{base_url,key,model,suite,provenance?,baseline?,verify_key?,remark?}`); `verify_key` is an official OpenAI key sent only to the Verify host |
 | GET | `/model_check/history` | this browser's "My check records" list (owner cookie), **latest 100 only** (`page`, `page_size`, `model`, `status`); older rows stay in the DB but are never listed |
-| GET | `/model_check/history/:id` | report detail (+`markdown` for OpenAI and image); open to anyone with the report id (the share link) |
+| GET | `/model_check/history/:id` | report detail (+`markdown` for OpenAI, Gemini and image); open to anyone with the report id (the share link) |
 | PATCH | `/model_check/history/:id/remark` | only the browser that ran the check (owner cookie) |
 | GET/POST | `/model_check/baselines` | shared comparison baselines (Claude) |
 
@@ -91,6 +92,7 @@ internal/store       gorm models (runs, baselines)
 internal/ssrf        outbound client with dial-time IP validation
 pkg/claudecheck      Claude probes, scoring, baselines   (from new-api)
 pkg/openaicheck      OpenAI probes, scoring, markdown    (from new-api)
+pkg/geminicheck      native Gemini API probes (generateContent, SSE, countTokens), scoring, markdown
 pkg/imagecheck       image generation/edit probes, local pixel verification, provenance stage
 pkg/media            stdlib-only image inspection and synthetic fixtures
 pkg/provenance       OpenAI Verify (content_provenance_checks) client and verdict rules

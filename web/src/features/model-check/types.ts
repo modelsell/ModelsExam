@@ -248,7 +248,11 @@ export type CheckHistoryItem = {
   remark?: string | null
   score?: number | null
   endpoint: string
-  transport: ClaudeCheckReport['transport'] | 'openai_api' | 'image_api'
+  transport:
+    | ClaudeCheckReport['transport']
+    | 'openai_api'
+    | 'gemini_api'
+    | 'image_api'
   status: CheckHistoryStatus
   started_at: number
   updated_at: number

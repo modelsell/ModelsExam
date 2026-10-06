@@ -39,6 +39,7 @@ export function withSavedRemark(
   if (
     !report ||
     saved?.run.transport === 'openai_api' ||
+    saved?.run.transport === 'gemini_api' ||
     saved?.run.transport === 'image_api'
   )
     return report

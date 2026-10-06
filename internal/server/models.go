@@ -28,7 +28,7 @@ func (s *Server) listModels(c *gin.Context) {
 	}
 	input.Key = strings.TrimSpace(input.Key)
 	switch input.Kind {
-	case modellist.KindClaude, modellist.KindOpenAI, modellist.KindImage:
+	case modellist.KindClaude, modellist.KindOpenAI, modellist.KindImage, modellist.KindGemini:
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid request"})
 		return

@@ -163,6 +163,13 @@ export function CheckCoverage() {
       provenance: '—',
     },
     {
+      protocol: t('Gemini API (generateContent)'),
+      reaches: t('Google Gemini models and Gemini-native relays'),
+      endpoints:
+        '/v1beta/models/{model} · :generateContent · :streamGenerateContent · :countTokens',
+      provenance: '—',
+    },
+    {
       protocol: t('OpenAI Images'),
       reaches: t('gpt-image models and compatible image relays'),
       endpoints: '/v1/images/generations · /v1/images/edits',

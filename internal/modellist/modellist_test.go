@@ -103,3 +103,34 @@ func TestFetchSendsKeyAndMapsErrors(t *testing.T) {
 		t.Fatal("a redirect must not be followed")
 	}
 }
+
+func TestGeminiModelList(t *testing.T) {
+	for in, want := range map[string]string{
+		"https://generativelanguage.googleapis.com":                                                "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000",
+		"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent": "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000",
+		"https://relay.example/gemini/v1beta":                                                      "https://relay.example/gemini/v1beta/models?pageSize=1000",
+	} {
+		if got, err := GeminiModelsURL(in); err != nil || got != want {
+			t.Fatalf("%q -> %q %v, want %q", in, got, err, want)
+		}
+	}
+	var gotKey, gotAuth string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotKey, gotAuth = r.Header.Get("x-goog-api-key"), r.Header.Get("Authorization")
+		if gotKey != "AIza-good" {
+			w.WriteHeader(400)
+			w.Write([]byte(`{"error":{"code":400,"status":"INVALID_ARGUMENT","details":[{"reason":"API_KEY_INVALID"}]}}`))
+			return
+		}
+		w.Write([]byte(`{"models":[{"name":"models/gemini-2.5-flash"},{"name":"models/text-embedding-004"},{"name":"models/imagen-4.0-generate-001"},{"name":"models/gemma-3-27b-it"}]}`))
+	}))
+	defer srv.Close()
+	hc := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	res, err := Fetch(context.Background(), hc, nil, srv.URL, "AIza-good", KindGemini)
+	if err != nil || !reflect.DeepEqual(res.Models, []string{"gemma-3-27b-it", "gemini-2.5-flash"}) || gotAuth != "" {
+		t.Fatalf("%+v %v auth=%q", res, err, gotAuth)
+	}
+	if _, err := Fetch(context.Background(), hc, nil, srv.URL, "AIza-bad", KindGemini); Code(err) != "auth" {
+		t.Fatalf("want auth, got %v", err)
+	}
+}

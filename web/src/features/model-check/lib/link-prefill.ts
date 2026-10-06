@@ -22,7 +22,7 @@ For commercial licensing, please contact support@quantumnous.com
 // work too. Either way the values are removed from the address bar as soon as
 // they are read, so the key does not stay in history or get shared onwards.
 
-export type PrefillProvider = 'claude' | 'openai' | 'image'
+export type PrefillProvider = 'claude' | 'openai' | 'gemini' | 'image'
 
 export type CheckPrefill = {
   provider?: PrefillProvider
@@ -42,6 +42,8 @@ const PROVIDERS: Record<string, PrefillProvider> = {
   claude: 'claude',
   anthropic: 'claude',
   openai: 'openai',
+  gemini: 'gemini',
+  google: 'gemini',
   image: 'image',
   images: 'image',
 }

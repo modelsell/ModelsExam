@@ -158,7 +158,7 @@ export type BadgeData = {
   tier?: 'conformant' | 'mostly' | 'review'
   score?: number
   model?: string
-  protocol?: 'claude' | 'openai' | 'image'
+  protocol?: 'claude' | 'openai' | 'gemini' | 'image'
   report_id?: string
   /** Unix milliseconds. */
   checked_at?: number

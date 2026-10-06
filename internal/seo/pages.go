@@ -47,6 +47,8 @@ func protocolOf(transport string) string {
 		return "OpenAI-compatible (Chat Completions and Responses)"
 	case "image_api":
 		return "OpenAI Images"
+	case "gemini_api":
+		return "Gemini API (generateContent)"
 	default:
 		return "Anthropic Messages (Claude)"
 	}
@@ -55,7 +57,8 @@ func protocolOf(transport string) string {
 func sourceOf(endpoint, transport string) string {
 	h := strings.ToLower(hostOf(endpoint))
 	switch {
-	case transport == "openai_api" && h == "api.openai.com", h == "api.anthropic.com":
+	case transport == "openai_api" && h == "api.openai.com", h == "api.anthropic.com",
+		transport == "gemini_api" && h == "generativelanguage.googleapis.com":
 		return "Official API"
 	case strings.HasPrefix(h, "bedrock-mantle.") && strings.HasSuffix(h, ".api.aws"),
 		strings.HasPrefix(h, "bedrock-runtime.") && strings.HasSuffix(h, ".amazonaws.com"),

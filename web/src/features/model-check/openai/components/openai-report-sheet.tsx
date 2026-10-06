@@ -41,7 +41,10 @@ export function OpenAIReportSheet(props: {
       <style>{REPORT_SHEET_CSS}</style>
       <header className='mc-title'>
         <div>
-          <small>MODELSEXAM / OPENAI / v{report.version}</small>
+          <small>
+            MODELSEXAM / {report.provider === 'gemini' ? 'GEMINI' : 'OPENAI'} / v
+            {report.version}
+          </small>
           <h2>{t('Model check report')}</h2>
           <p>
             {report.model}
@@ -53,7 +56,8 @@ export function OpenAIReportSheet(props: {
         <div className='mc-status'>
           <p>{props.phaseLabel}</p>
           <small>{new Date(report.started_at).toLocaleString()}</small>
-          <small>{report.endpoint || 'OpenAI API'}</small>
+          <small>{report.endpoint ||
+              (report.provider === 'gemini' ? 'Gemini API' : 'OpenAI API')}</small>
         </div>
       </header>
       {props.running && (

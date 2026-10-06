@@ -28,6 +28,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 import { Link } from '@/lib/router'
 import { getChannel } from '@/features/channels/api'
+import { GeminiCheck } from '../gemini/components/gemini-check'
 import { ImageCheck } from '../image/components/image-check'
 import { OpenAICheck } from '../openai/components/openai-check'
 import type { CheckTarget } from '../types'
@@ -53,7 +54,7 @@ export function NewCheck(props: {
   const run = useModelCheck()
   const prefill = props.prefill
   const fromLink = !!prefill && hasCredentials(prefill)
-  const [provider, setProvider] = useState<'claude' | 'openai' | 'image'>(
+  const [provider, setProvider] = useState<'claude' | 'openai' | 'gemini' | 'image'>(
     prefill?.provider ?? 'claude'
   )
   // A link that fills in the form lands on the form, not the hero.
@@ -64,6 +65,7 @@ export function NewCheck(props: {
     (prefill?.provider ?? 'claude') === 'claude' ? prefill : undefined
   const [openAIBusy, setOpenAIBusy] = useState(false)
   const [imageBusy, setImageBusy] = useState(false)
+  const [geminiBusy, setGeminiBusy] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const channel = useQuery({
     queryKey: ['model-check-channel', user?.id, channelId],
@@ -99,13 +101,19 @@ export function NewCheck(props: {
       text: t('Streaming, tools, structured output and error shapes.'),
     },
     {
+      id: 'gemini' as const,
+      title: t('Gemini'),
+      protocol: t('Gemini API (generateContent)'),
+      text: t('Native candidates, SSE chunks, function calls, usageMetadata and countTokens.'),
+    },
+    {
       id: 'image' as const,
       title: t('Image generation'),
       protocol: t('OpenAI Images'),
       text: t('Pixel-verified output, edits and optional OpenAI Verify provenance.'),
     },
   ]
-  const locked = run.busy || openAIBusy || imageBusy
+  const locked = run.busy || openAIBusy || geminiBusy || imageBusy
   return (
     <section aria-labelledby='model-check-title'>
       <CheckHeroIntro />
@@ -134,7 +142,7 @@ export function NewCheck(props: {
           <div
             role='radiogroup'
             aria-label={t('Model provider')}
-            className='grid gap-3 sm:grid-cols-3'
+            className='grid gap-3 sm:grid-cols-2 lg:grid-cols-4'
           >
             {platforms.map((item) => {
               const selected = provider === item.id
@@ -226,6 +234,16 @@ export function NewCheck(props: {
               prefill={prefill?.provider === 'openai' ? prefill : undefined}
               onSelectReport={props.onSelectReport}
               onBusyChange={setOpenAIBusy}
+              onSignIn={props.onSignIn}
+            />
+          </div>
+          <div
+            className={provider === 'gemini' ? 'flex flex-col gap-4' : 'hidden'}
+          >
+            <GeminiCheck
+              prefill={prefill?.provider === 'gemini' ? prefill : undefined}
+              onSelectReport={props.onSelectReport}
+              onBusyChange={setGeminiBusy}
               onSignIn={props.onSignIn}
             />
           </div>

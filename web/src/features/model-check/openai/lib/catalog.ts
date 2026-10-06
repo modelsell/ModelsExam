@@ -16,7 +16,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-// Display metadata for the OpenAI checks. Values are i18n keys (English source
+// Display metadata for the OpenAI and native Gemini checks (their check ids
+// never collide, so one table labels both report kinds). Values are i18n keys (English source
 // text) and must be rendered through t(); they are registered in
 // src/i18n/static-keys.ts because they are looked up dynamically.
 
@@ -29,6 +30,12 @@ export const OPENAI_STAGES: ReadonlyArray<{ id: string; title: string }> = [
   { id: 'chat_structured', title: 'Chat structured output' },
   { id: 'chat_vision', title: 'Chat vision' },
   { id: 'responses', title: 'Responses API' },
+  { id: 'gemini_basic', title: 'generateContent basics' },
+  { id: 'gemini_inputs', title: 'Gemini input parameters' },
+  { id: 'gemini_stream', title: 'Gemini streaming' },
+  { id: 'gemini_tools', title: 'Gemini function calling' },
+  { id: 'gemini_structured', title: 'Gemini structured output' },
+  { id: 'gemini_vision', title: 'Gemini vision' },
   { id: 'protocol', title: 'Protocol and usage' },
   { id: 'reliability', title: 'Reliability observations' },
 ]
@@ -64,6 +71,29 @@ export const OPENAI_CHECK_TITLES: Record<string, string> = {
   responses_previous_id: 'previous_response_id',
   error_shape: 'Error response shape',
   usage_fields: 'Usage consistency',
+  gemini_model_get: 'Model resource',
+  gemini_basic: 'generateContent envelope',
+  gemini_system: 'System instruction',
+  gemini_max_tokens: 'maxOutputTokens',
+  gemini_stop: 'Stop sequences',
+  gemini_multi_turn: 'Multi-turn history',
+  gemini_params: 'Generation config accepted',
+  gemini_candidates: 'Multiple candidates',
+  gemini_thinking: 'Thought summaries',
+  gemini_stream: 'SSE streaming',
+  gemini_stream_usage: 'Streaming usageMetadata',
+  gemini_tool_call: 'Function call',
+  gemini_tool_choice: 'Forced function (ANY)',
+  gemini_tool_choice_none: 'Function calling NONE',
+  gemini_tool_roundtrip: 'Function call round trip',
+  gemini_parallel_tools: 'Parallel function calls',
+  gemini_tool_stream: 'Streaming function call',
+  gemini_json_mode: 'JSON MIME type',
+  gemini_json_schema: 'Response schema',
+  gemini_vision: 'Image input',
+  gemini_count_tokens: 'countTokens',
+  gemini_error_shape: 'Error response shape',
+  gemini_usage: 'usageMetadata consistency',
   model_consistency: 'Model name echo',
   performance: 'Latency',
 }
@@ -121,6 +151,42 @@ export const OPENAI_CHECK_DETAILS: Record<string, string> = {
     'Usage must be present, non-negative and total = input + output.',
   model_consistency:
     'The reported model must match the request, allowing dated snapshot suffixes.',
+  gemini_model_get:
+    'GET /v1beta/models/{model}: name, version, token limits and generateContent support.',
+  gemini_basic:
+    'Candidates with role model and parts, finishReason STOP, usageMetadata, modelVersion and responseId.',
+  gemini_system: 'systemInstruction must steer the reply.',
+  gemini_max_tokens:
+    'generationConfig.maxOutputTokens must end the reply with finishReason MAX_TOKENS.',
+  gemini_stop: 'Output must stop before the stop sequence.',
+  gemini_multi_turn: 'An earlier user / model turn must be remembered.',
+  gemini_params:
+    'temperature, topP, topK, candidateCount, seed, responseMimeType and safetySettings must be accepted.',
+  gemini_candidates: 'candidateCount=2 must return two indexed candidates.',
+  gemini_thinking:
+    'thinkingConfig.includeThoughts must return thought parts or thoughtsTokenCount.',
+  gemini_stream:
+    'streamGenerateContent?alt=sse: complete response chunks, one finishReason on the last, consistent responseId, no [DONE].',
+  gemini_stream_usage: 'The last streamed chunk must carry usageMetadata.',
+  gemini_tool_call:
+    'functionCall part with the exact name and object args, finishReason STOP.',
+  gemini_tool_choice:
+    'functionCallingConfig mode ANY with allowedFunctionNames must call that function.',
+  gemini_tool_choice_none: 'Mode NONE must answer in text without a functionCall.',
+  gemini_tool_roundtrip:
+    'Replaying the model turn (with thought signatures) and a functionResponse part must produce the answer.',
+  gemini_parallel_tools: 'One turn may return several functionCall parts.',
+  gemini_tool_stream: 'A streamed functionCall must arrive whole with exact args.',
+  gemini_json_mode: 'responseMimeType application/json must return a JSON object.',
+  gemini_json_schema:
+    'responseSchema must be matched in fields, types and values.',
+  gemini_vision: 'An inlineData PNG must be understood.',
+  gemini_count_tokens:
+    'countTokens totalTokens must equal promptTokenCount for the same contents.',
+  gemini_error_shape:
+    'An invalid request must return a 4xx with error.code, error.message and the matching error.status.',
+  gemini_usage:
+    'usageMetadata must be present and total = prompt + candidates + thoughts + tool-use prompt.',
   performance: 'Median and maximum latency, and streaming first-event time.',
 }
 
@@ -131,10 +197,10 @@ export const OPENAI_CODE_NOTES: Record<string, string> = {
   upstream_error: 'The upstream server returned an error (5xx).',
   timeout: 'The request timed out.',
   network_error: 'A network error stopped the request.',
-  request_rejected: 'The endpoint rejected an input that OpenAI accepts.',
-  invalid_response: 'The response does not match the OpenAI contract.',
+  request_rejected: 'The endpoint rejected an input that the official API accepts.',
+  invalid_response: 'The response does not match the official API contract.',
   accepted_invalid_request: 'An invalid request was accepted.',
-  error_shape_mismatch: 'The error body does not match the OpenAI shape.',
+  error_shape_mismatch: 'The error body does not match the official error shape.',
   not_requested: 'Not selected for this run.',
   run_stopped: 'Skipped because the baseline request was unavailable.',
   baseline_failed: 'Skipped because the Chat baseline request was rejected.',
@@ -176,6 +242,15 @@ export const OPENAI_CODE_NOTES: Record<string, string> = {
   stream_unexpected_output: 'The stream produced unexpected output.',
   conversation_state_lost: 'The conversation state was not kept.',
   first_request_invalid: 'The first request was invalid.',
+  generate_content_not_supported:
+    'The model does not list generateContent as supported.',
+  candidate_count_ignored: 'candidateCount was ignored.',
+  thoughts_missing: 'No thoughts were returned.',
+  json_mime_type_not_honored: 'The JSON MIME type was not honored.',
+  response_schema_not_honored: 'The response schema was not honored.',
+  missing_usage_metadata: 'No usageMetadata was streamed.',
+  count_differs_from_usage:
+    'countTokens differs from the reported promptTokenCount.',
 }
 
 export const OPENAI_CODE_CHIPS_LIMIT = 6

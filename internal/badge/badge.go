@@ -118,6 +118,8 @@ func protocolOf(transport string) string {
 		return "openai"
 	case "image_api":
 		return "image"
+	case "gemini_api":
+		return "gemini"
 	default:
 		return "claude"
 	}

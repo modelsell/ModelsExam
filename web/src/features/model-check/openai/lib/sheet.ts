@@ -30,16 +30,26 @@ export const OPENAI_DIMENSIONS: ReadonlyArray<{
   {
     id: 'chat',
     label: 'Chat basics',
-    stages: ['discovery', 'chat_basic', 'chat_inputs', 'chat_vision'],
+    stages: ['chat_basic', 'chat_inputs', 'chat_vision'],
   },
-  { id: 'stream', label: 'Streaming', stages: ['chat_stream'] },
-  { id: 'tools', label: 'Tool calling', stages: ['chat_tools'] },
-  { id: 'structured', label: 'Structured output', stages: ['chat_structured'] },
+  {
+    id: 'generate',
+    label: 'generateContent basics',
+    stages: ['gemini_basic', 'gemini_inputs', 'gemini_vision'],
+  },
+  { id: 'stream', label: 'Streaming', stages: ['chat_stream', 'gemini_stream'] },
+  { id: 'tools', label: 'Tool calling', stages: ['chat_tools', 'gemini_tools'] },
+  {
+    id: 'structured',
+    label: 'Structured output',
+    stages: ['chat_structured', 'gemini_structured'],
+  },
   { id: 'responses', label: 'Responses API', stages: ['responses'] },
+  // Model discovery is an observation, so it never moves a score.
   {
     id: 'protocol',
     label: 'Protocol and usage',
-    stages: ['protocol', 'reliability'],
+    stages: ['discovery', 'protocol', 'reliability'],
   },
 ]
 

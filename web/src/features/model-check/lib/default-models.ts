@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 // Models offered as one-click choices before (or without) a live list from the
 // endpoint. These are common names, not a claim about what any site serves.
-export type ModelKind = 'claude' | 'openai' | 'image'
+export type ModelKind = 'claude' | 'openai' | 'gemini' | 'image'
 
 export const DEFAULT_MODELS: Record<ModelKind, string[]> = {
   claude: [
@@ -29,6 +29,12 @@ export const DEFAULT_MODELS: Record<ModelKind, string[]> = {
     'claude-opus-4-1',
   ],
   openai: ['gpt-5', 'gpt-5-mini', 'gpt-4.1', 'gpt-4o', 'gpt-4o-mini'],
+  gemini: [
+    'gemini-3.8-flash',
+    'gemini-2.5-pro',
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+  ],
   image: ['gpt-image-2', 'gpt-image-1', 'gpt-image-1-mini'],
 }
 

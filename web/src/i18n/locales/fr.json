@@ -1015,10 +1015,7 @@
     "The upstream server returned an error (5xx).": "The upstream server returned an error (5xx).",
     "The request timed out.": "The request timed out.",
     "A network error stopped the request.": "A network error stopped the request.",
-    "The endpoint rejected an input that OpenAI accepts.": "The endpoint rejected an input that OpenAI accepts.",
-    "The response does not match the OpenAI contract.": "The response does not match the OpenAI contract.",
     "An invalid request was accepted.": "An invalid request was accepted.",
-    "The error body does not match the OpenAI shape.": "The error body does not match the OpenAI shape.",
     "Skipped because the baseline request was unavailable.": "Skipped because the baseline request was unavailable.",
     "Skipped because the Chat baseline request was rejected.": "Skipped because the Chat baseline request was rejected.",
     "The baseline request could not be completed.": "The baseline request could not be completed.",
@@ -1105,6 +1102,9 @@
     "The report is listed only in the browser that ran the check. Share its link to show it to others.": "Le rapport n’apparaît que dans le navigateur qui a lancé la vérification. Partagez son lien pour le montrer à d’autres.",
     "The key is used only for that check and is never written into reports. Check records are listed only in the browser that ran them.": "La clé ne sert qu’à cette vérification et n’est jamais écrite dans les rapports. Les vérifications n’apparaissent que dans le navigateur qui les a lancées.",
     "Only checks run from this browser. Nobody else can see this list.": "Uniquement les vérifications lancées depuis ce navigateur. Personne d’autre ne voit cette liste.",
-    "Your latest 100 checks from this browser. Other people cannot see this list; a report opens only for people you share its link with.": "Vos 100 dernières vérifications depuis ce navigateur. Personne d’autre ne voit cette liste ; un rapport ne s’ouvre que pour ceux à qui vous envoyez son lien."
+    "Your latest 100 checks from this browser. Other people cannot see this list; a report opens only for people you share its link with.": "Vos 100 dernières vérifications depuis ce navigateur. Personne d’autre ne voit cette liste ; un rapport ne s’ouvre que pour ceux à qui vous envoyez son lien.",
+    "The endpoint rejected an input that the official API accepts.": "The endpoint rejected an input that the official API accepts.",
+    "The response does not match the official API contract.": "The response does not match the official API contract.",
+    "The error body does not match the official error shape.": "The error body does not match the official error shape."
   }
 }

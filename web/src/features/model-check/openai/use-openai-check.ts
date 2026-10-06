@@ -24,9 +24,23 @@ import {
   INITIAL_OPENAI_RUN,
   interruptOpenAIRun,
 } from './lib/run-state'
-import type { OpenAICheckTarget, OpenAIRunState } from './types'
+import type {
+  OpenAICheckEvent,
+  OpenAICheckTarget,
+  OpenAIRunState,
+} from './types'
 
-export function useOpenAICheck() {
+export type CheckStream<Target> = (
+  target: Target,
+  signal: AbortSignal,
+  onEvent: (event: OpenAICheckEvent) => void
+) => Promise<void>
+
+// The native Gemini check streams the same events, so it reuses this hook
+// with its own request function.
+export function useOpenAICheck<Target = OpenAICheckTarget>(
+  stream: CheckStream<Target> = streamOpenAICheck as CheckStream<Target>
+) {
   const queryClient = useQueryClient()
   const [state, setState] = useState<OpenAIRunState>(INITIAL_OPENAI_RUN)
   const [elapsed, setElapsed] = useState(0)
@@ -40,7 +54,7 @@ export function useOpenAICheck() {
     }
   }, [])
 
-  async function start(target: OpenAICheckTarget): Promise<void> {
+  async function start(target: Target): Promise<void> {
     if (active.current) return
     const controller = new AbortController()
     active.current = controller
@@ -53,7 +67,7 @@ export function useOpenAICheck() {
     }, 250)
     // Credentials stay in this request and the form; nothing is cached or stored.
     try {
-      await streamOpenAICheck(target, controller.signal, (event) => {
+      await stream(target, controller.signal, (event) => {
         // The run is stored from its first event, so the list can show it.
         if (event.type === 'start')
           void queryClient.invalidateQueries({

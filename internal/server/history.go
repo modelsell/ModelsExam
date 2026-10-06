@@ -16,6 +16,7 @@ import (
 	"model-check/common"
 	"model-check/internal/store"
 	"model-check/pkg/claudecheck"
+	"model-check/pkg/geminicheck"
 	"model-check/pkg/imagecheck"
 	"model-check/pkg/openaicheck"
 )
@@ -82,6 +83,17 @@ func historyDetail(run *store.Run, owner string) (gin.H, bool) {
 			report.Cancelled = true
 		}
 		out["report"], out["markdown"] = report, openaicheck.Markdown(report)
+		return out, true
+	}
+	if run.Transport == geminiTransportName {
+		var report geminicheck.Report
+		if common.UnmarshalJsonStr(run.ReportJSON, &report) != nil {
+			return nil, false
+		}
+		if run.Status == "interrupted" {
+			report.Cancelled = true
+		}
+		out["report"], out["markdown"] = report, geminicheck.Markdown(report)
 		return out, true
 	}
 	if run.Transport == imageTransportName {

@@ -18,19 +18,17 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { t } from 'i18next'
 import { getCommonHeaders } from '@/lib/api'
-import { readOpenAIStream } from './lib/stream'
-import type {
-  OpenAICheckEvent,
-  OpenAICheckReport,
-  OpenAICheckTarget,
-} from './types'
+import { readOpenAIStream } from '../openai/lib/stream'
+import type { OpenAICheckEvent } from '../openai/types'
+import type { GeminiCheckTarget } from './types'
 
-export async function streamOpenAICheck(
-  target: OpenAICheckTarget,
+// Native Gemini checks stream the same progress events as OpenAI checks.
+export async function streamGeminiCheck(
+  target: GeminiCheckTarget,
   signal: AbortSignal,
   onEvent: (event: OpenAICheckEvent) => void
 ): Promise<void> {
-  const response = await fetch('/api/model_check/openai', {
+  const response = await fetch('/api/model_check/gemini', {
     method: 'POST',
     credentials: 'include',
     cache: 'no-store',
@@ -50,29 +48,4 @@ export async function streamOpenAICheck(
   }
   if (!response.body) throw new Error('Progress stream is unavailable')
   await readOpenAIStream(response.body, onEvent)
-}
-
-function saveBlob(content: string, type: string, name: string): void {
-  const url = URL.createObjectURL(new Blob([content], { type }))
-  const link = document.createElement('a')
-  link.href = url
-  link.download = name
-  link.click()
-  URL.revokeObjectURL(url)
-}
-
-// The report never contains the API key: the server redacts it before sending.
-export function downloadOpenAIReportJSON(report: OpenAICheckReport): void {
-  saveBlob(
-    JSON.stringify(report, null, 2),
-    'application/json',
-    `${report.provider}-check-${report.id}.json`
-  )
-}
-
-export function downloadOpenAIReportMarkdown(
-  report: OpenAICheckReport,
-  markdown: string
-): void {
-  saveBlob(markdown, 'text/markdown', `${report.provider}-check-${report.id}.md`)
 }

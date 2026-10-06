@@ -38,12 +38,13 @@ type Server struct {
 	claudeSlots chan struct{}
 	openaiSlots chan struct{}
 	imageSlots  chan struct{}
+	geminiSlots chan struct{}
 }
 
 const ownerCookie = "mc_owner"
 
 func New(cfg Config) *Server {
-	return &Server{cfg: cfg, claudeSlots: make(chan struct{}, 2), openaiSlots: make(chan struct{}, 2), imageSlots: make(chan struct{}, 2)}
+	return &Server{cfg: cfg, claudeSlots: make(chan struct{}, 2), openaiSlots: make(chan struct{}, 2), imageSlots: make(chan struct{}, 2), geminiSlots: make(chan struct{}, 2)}
 }
 
 func (s *Server) newClient() *ssrf.Client { return ssrf.New(s.cfg.AllowPrivate) }
@@ -68,6 +69,7 @@ func (s *Server) Handler() http.Handler {
 	checks.POST("", s.checkClaude)
 	checks.POST("/openai", s.checkOpenAI)
 	checks.POST("/image", s.checkImage)
+	checks.POST("/gemini", s.checkGemini)
 	checks.POST("/models", s.listModels)
 	checks.GET("/history", s.listHistory)
 	checks.GET("/history/:id", s.getHistory)

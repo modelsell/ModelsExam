@@ -23,7 +23,10 @@ import { interruptOpenAIRun } from './run-state'
 export function isOpenAIHistory(
   detail: HistoryDetail
 ): detail is OpenAIHistoryDetail {
-  return detail.run.transport === 'openai_api'
+  return (
+    detail.run.transport === 'openai_api' ||
+    detail.run.transport === 'gemini_api'
+  )
 }
 
 // A stored OpenAI run is shown by the same view as a live one. Reports saved

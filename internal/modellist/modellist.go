@@ -21,6 +21,7 @@ const (
 	KindClaude = "claude"
 	KindOpenAI = "openai"
 	KindImage  = "image"
+	KindGemini = "gemini"
 
 	maxBody    = 1 << 20
 	maxModels  = 500
@@ -76,10 +77,33 @@ func ModelsURL(raw string) (string, error) {
 	return u.String(), nil
 }
 
+// GeminiModelsURL is ModelsURL for the native Gemini API:
+// <origin and prefix>/v1beta/models, with the largest documented page size.
+func GeminiModelsURL(raw string) (string, error) {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil || len(raw) > 2048 || u == nil || (u.Scheme != "http" && u.Scheme != "https") ||
+		u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" {
+		return "", ErrURL
+	}
+	p := strings.TrimRight(u.Path, "/")
+	if i := strings.Index(p, "/models"); i >= 0 {
+		p = p[:i]
+	}
+	for _, v := range []string{"/v1beta", "/v1alpha", "/v1"} {
+		p = strings.TrimSuffix(p, v)
+	}
+	u.Path, u.RawPath, u.RawQuery = p+"/v1beta/models", "", "pageSize=1000"
+	return u.String(), nil
+}
+
 // Fetch reads the model list. hc must not follow redirects (a redirect would
 // carry the key to another host); validate is the SSRF check.
 func Fetch(ctx context.Context, hc *http.Client, validate Validator, base, key, kind string) (Result, error) {
-	endpoint, err := ModelsURL(base)
+	modelsURL := ModelsURL
+	if kind == KindGemini {
+		modelsURL = GeminiModelsURL
+	}
+	endpoint, err := modelsURL(base)
 	if err != nil {
 		return Result{}, err
 	}
@@ -96,7 +120,11 @@ func Fetch(ctx context.Context, hc *http.Client, validate Validator, base, key, 
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", "ModelsExam-model-list/1.0")
-	req.Header.Set("Authorization", "Bearer "+key)
+	if kind == KindGemini {
+		req.Header.Set("x-goog-api-key", key)
+	} else {
+		req.Header.Set("Authorization", "Bearer "+key)
+	}
 	if kind == KindClaude {
 		req.Header.Set("x-api-key", key)
 		req.Header.Set("anthropic-version", "2023-06-01")
@@ -107,7 +135,9 @@ func Fetch(ctx context.Context, hc *http.Client, validate Validator, base, key, 
 	}
 	defer resp.Body.Close()
 	switch {
-	case resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden:
+	// Gemini answers an invalid key with 400 API_KEY_INVALID.
+	case resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden,
+		kind == KindGemini && resp.StatusCode == http.StatusBadRequest:
 		return Result{}, ErrAuth
 	case resp.StatusCode == http.StatusNotFound || resp.StatusCode == http.StatusMethodNotAllowed:
 		return Result{}, ErrNotFound
@@ -180,6 +210,8 @@ var (
 	imageRe  = regexp.MustCompile(`(?i)(gpt-image|dall-e|image|imagen|flux|midjourney|sdxl|stable-diffusion)`)
 	// Chat-capable OpenAI-style models: skip embeddings, speech, images, moderation.
 	openaiRe    = regexp.MustCompile(`(?i)(gpt|^o\d|chatgpt|codex|deepseek|qwen|gemini|glm|kimi|llama|mistral|grok)`)
+	geminiRe    = regexp.MustCompile(`(?i)(gemini|gemma)`)
+	geminiNotRe = regexp.MustCompile(`(?i)(embed|imagen|veo|tts|aqa|image)`)
 	openaiNotRe = regexp.MustCompile(`(?i)(embed|whisper|tts|audio|transcribe|moderation|rerank|image|dall-e|realtime|claude)`)
 )
 
@@ -191,6 +223,10 @@ func Select(ids []string, kind string) Result {
 		switch kind {
 		case KindClaude:
 			if claudeRe.MatchString(id) {
+				match = append(match, id)
+			}
+		case KindGemini:
+			if geminiRe.MatchString(id) && !geminiNotRe.MatchString(id) {
 				match = append(match, id)
 			}
 		case KindImage:

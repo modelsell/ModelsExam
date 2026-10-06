@@ -81,7 +81,8 @@ export type OpenAISample = {
 export type OpenAICheckReport = {
   version: number
   id: string
-  provider: 'openai'
+  // Native Gemini reports share this shape and view.
+  provider: 'openai' | 'gemini'
   model: string
   endpoint?: string
   options?: Partial<OpenAICheckOptions>

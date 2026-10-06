@@ -73,7 +73,7 @@ export function IntegratePage() {
     model,
   })
   const params: Array<[string, string, string]> = [
-    ['type', 'claude / openai / image', t('Which check opens. Optional, Claude by default.')],
+    ['type', 'claude / openai / gemini / image', t('Which check opens. Optional, Claude by default.')],
     ['base_url', 'https://api.your-relay.com', t('Your API address. A /v1 suffix is accepted.')],
     ['key', 'sk-…', t('The user’s API key. Shown masked on the page.')],
     ['model', 'claude-sonnet-4-5', t('Model to check. The user can still pick another.')],
@@ -149,6 +149,7 @@ export function IntegratePage() {
             >
               <NativeSelectOption value='claude'>{t('Claude')}</NativeSelectOption>
               <NativeSelectOption value='openai'>{t('OpenAI-compatible')}</NativeSelectOption>
+              <NativeSelectOption value='gemini'>{t('Gemini')}</NativeSelectOption>
               <NativeSelectOption value='image'>{t('Image generation')}</NativeSelectOption>
             </NativeSelect>
           </Field>

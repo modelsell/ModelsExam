@@ -271,11 +271,15 @@ export function CheckHistory(props: { initialModel?: string }) {
                     <span className='text-muted-foreground mr-2 rounded border px-1.5 py-0.5 text-[10px] font-normal'>
                       {item.transport === 'openai_api'
                         ? 'OpenAI'
-                        : item.transport === 'image_api'
+                        : item.transport === 'gemini_api'
+                          ? 'Gemini'
+                          : item.transport === 'image_api'
                           ? t('Image')
                           : 'Claude'}
                     </span>
-                    {item.transport !== 'openai_api' && item.transport !== 'image_api' && (
+                    {item.transport !== 'openai_api' &&
+                      item.transport !== 'gemini_api' &&
+                      item.transport !== 'image_api' && (
                       <SourceBadge
                         source={sourceOfEndpoint(item.endpoint, item.transport)}
                         className='mr-2 align-middle'

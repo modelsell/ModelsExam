@@ -81,10 +81,13 @@ export function OpenAISheetBody(props: {
             <small>{t('Returned model')}</small>
             <code>{data.returnedModels.join(' / ') || '—'}</code>
           </div>
-          <div>
-            <small>system_fingerprint</small>
-            <code>{data.fingerprints.join(' / ') || '—'}</code>
-          </div>
+          {/* Gemini responses have no system_fingerprint. */}
+          {report.provider !== 'gemini' && (
+            <div>
+              <small>system_fingerprint</small>
+              <code>{data.fingerprints.join(' / ') || '—'}</code>
+            </div>
+          )}
         </div>
         <p className='mc-note'>
           {t(

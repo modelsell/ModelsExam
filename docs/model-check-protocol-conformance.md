@@ -46,7 +46,7 @@
 | OpenAI | 错误体 `{error:{message,type,param,code}}` 各字段、非 JSON、非 4xx 状态 | **新增测试** |
 | OpenAI | Responses 对象：`object`、`id`、`model`、`created_at`、`status`、`output`、完成态需 usage、`incomplete_details.reason`、`refusal` 内容 | **新增测试** |
 | OpenAI | Responses 流：`response.created` 在先、终止事件、终止后无事件、`sequence_number` 递增、SSE 事件名与 `type` 一致、增量文本与最终一致、终止事件需带 `response`、`response.failed` | **新增测试** |
-| Gemini | `generateContent` / `streamGenerateContent`（`contents`、`generationConfig`、`candidates[].finishReason`、`usageMetadata`、`{error:{code,message,status}}`） | 暂不做：仓库没有 Gemini 原生检测器，Gemini 模型目前只走 OpenAI 兼容路径（`internal/modellist`）。新增协议需要新的检测器、报告与前端入口，应单独立项 |
+| Gemini | `generateContent` / `streamGenerateContent` / `countTokens` / `models.get` | 2026-10-06 已新增原生检测器，见下节 |
 
 验证：`go vet` 与 `go test -race ./pkg/claudecheck/ ./pkg/openaicheck/` 在完整仓库（Go 1.26）通过。
 
@@ -55,3 +55,23 @@
 - `pkg/openaicheck`：`go test -race` 通过（含新增的 `conformance_test.go`）。
 - `pkg/claudecheck`：全部测试通过（含新增的 `protocol_conformance_test.go`），在沙箱中用 `common` 的最小替身以及 `testify/require`、`google/uuid` 的最小替身运行，因为沙箱没有 Go 模块代理，也没有 Go 1.25。替身的断言语义是按 testify 手写的，**不等同于**真实依赖；合并前请在完整仓库里重跑 `go test ./pkg/claudecheck/ ./pkg/openaicheck/`。
 - 官方文档读取日期 2026-10-04；文档会变，型号限制尤其需要在新型号发布后复核。
+
+## Gemini 原生协议（2026-10-06 新增）
+
+新增 `pkg/geminicheck`、`POST /api/model_check/gemini`（历史记录 transport 为 `gemini_api`）以及前端的 Gemini 平台卡片。报告与 OpenAI 检测同形（`provider:"gemini"`），复用同一报告视图。依据官方 API 参考（ai.google.dev/api，2026-10-06 读取）：
+
+| 方面 | 检测处理 |
+| --- | --- |
+| 鉴权 | 密钥只放在 `x-goog-api-key` 请求头，Base URL 拒绝查询参数（防止 `?key=` 绕过脱敏）；`400 API_KEY_INVALID` 识别为凭证无效（无法判定，不计分） |
+| 模型名 | 只允许 `[A-Za-z0-9._-]`，可带 `models/` 前缀，防止路径注入 |
+| 请求参数 | `contents`（user/model 多轮）、`systemInstruction`、`generationConfig`（`maxOutputTokens`、`stopSequences`、`temperature`、`topP`、`topK`、`candidateCount`、`seed`、`responseMimeType`、`responseSchema`、`thinkingConfig.includeThoughts`）、`safetySettings`、`tools[].functionDeclarations`、`toolConfig.functionCallingConfig`（`AUTO`/`ANY`+`allowedFunctionNames`/`NONE`）、`inlineData` 图片、`functionResponse` 往返（原样回放 model 轮，保留 `thoughtSignature`） |
+| 返回结构 | `candidates[].content.role=model`、`parts`、`index`（proto JSON 省略 0）、`finishReason`、`promptFeedback.blockReason`、`modelVersion`、`responseId`；`functionCall.args` 必须是对象；`thought:true` 片段不计入正文；出现 `choices` 等 OpenAI 信封记 `openai_envelope` |
+| finishReason | 只校验 proto 枚举写法（大写下划线）：官方枚举仍在新增（如 `MISSING_THOUGHT_SIGNATURE`、`MALFORMED_RESPONSE`），白名单会误判；`stop`、`tool_calls` 等其他协议取值记 `invalid_finish_reason` |
+| 流式 | `streamGenerateContent?alt=sse`：每帧是完整响应；`finishReason` 只出现一次且其后无内容；`responseId` 一致；末帧带 `usageMetadata`；出现 `[DONE]` 记 `unexpected_done_marker` |
+| usage | `promptTokenCount`、`totalTokenCount` 必填（其余零值计数按 proto JSON 允许省略）；`total = prompt + candidates + thoughts + toolUsePrompt`；`cachedContentTokenCount ≤ prompt`；`countTokens.totalTokens` 须等于同一 contents 的 `promptTokenCount` |
+| 错误格式 | google.rpc.Status：`error.code` 等于 HTTP 状态、`error.message`、`error.status` 为与状态对应的规范名（400→`INVALID_ARGUMENT`/`FAILED_PRECONDITION`/`OUT_OF_RANGE` 等）；带 OpenAI 的 `type`/`param` 记 `openai_error_fields` |
+| 模型信息 | `GET /v1beta/models/{model}`：`name`、`version`、token 上限、`supportedGenerationMethods` 含 `generateContent`（观测项，中转常不代理） |
+
+套件请求上限：基础 4、标准 16、完整 21（+图片 1）。
+
+**暂不做**：Vertex AI 端点（`/v1/projects/.../publishers/google/models`，需要 OAuth）、上下文缓存 `cachedContents`、文件上传 `files`、Live API、内置工具（Google Search、代码执行）。这些需要额外资源或计费，不属于基础协议一致性。
