@@ -27,6 +27,29 @@
 
 已有且本次未改动：`chat.completion` / `chat.completion.chunk` 信封、`[DONE]`、`stream_options.include_usage` 末帧、工具调用（含流式增量里的 `item_id`）、结构化输出、Responses 事件顺序（`sequence_number` 递增、事件名与 `type` 一致、`response.created` 在先、终止事件）、错误体 `{error:{message,type,param,code}}`。
 
+## 2026-10-06 基础协议覆盖对照
+
+对照三家官方的请求参数与返回结构复核。解析器里已有的校验没有改动；本次只为**已实现但没有单测**的基础校验补测试（`pkg/claudecheck/protocol_basics_test.go`、`pkg/openaicheck/protocol_basics_test.go`），每个用例只破坏一个字段并断言对应的问题码。
+
+| 协议 | 方面 | 结论 |
+| --- | --- | --- |
+| Claude | 请求参数（`max_tokens`、`system`、`stop_sequences`、`tools`/`tool_choice`、`thinking`、`count_tokens`） | 已有（runner 测试覆盖） |
+| Claude | 错误信封、`error.type` 与状态码 | 已有 |
+| Claude | 消息信封：`type`、`role`、`id`、`model`、`content`、`stop_reason`、`usage.input/output_tokens`（含负数、拒答可为空） | **新增测试** |
+| Claude | 流式：文本/工具 `input_json_delta` 拼装、`ping` 穿插、usage 由 `message_start` 与 `message_delta` 合并（含缓存读） | **新增测试** |
+| Claude | 流式生命周期违规：重复 `message_start`、块早于 `message_start`、重复块序号、块关闭后增量、未开先关、块未关就 `message_delta`、`message_delta` 后再开块、缺 `message_delta`、`message_stop` 后仍有事件、工具参数非 JSON、事件非 JSON | **新增测试** |
+| Claude | `GET /v1/models`、`output_config.format`、`strict` 工具、`tool_choice:none`、`stop_reason` 白名单 | 暂不做（理由见上文） |
+| OpenAI | 请求参数（`max_tokens`/`max_completion_tokens`、`stop`、`n`、`logprobs`、`tools`/`tool_choice`、`response_format`、`stream_options`、Responses `max_output_tokens`/`text.format`/`previous_response_id`） | 已有（runner 测试覆盖） |
+| OpenAI | `finish_reason`、Responses `status`、usage 明细、模型列表 | 已有 |
+| OpenAI | `chat.completion` 信封：`object`、`id`、`created`、`model`、`choices[].index`、`message`、`role`、`content` 键（工具调用时可为 `null`）、`finish_reason`、`usage` 缺失/负数/`total_tokens` 不一致 | **新增测试** |
+| OpenAI | `chat.completion.chunk` 流：`object`、ID 一致、首帧 `role`、`finish_reason` 唯一且合法、`[DONE]`、错误帧、usage 帧须为末帧且 `choices` 为空、工具调用增量拼装与首帧需带 `id`/`name` | **新增测试** |
+| OpenAI | 错误体 `{error:{message,type,param,code}}` 各字段、非 JSON、非 4xx 状态 | **新增测试** |
+| OpenAI | Responses 对象：`object`、`id`、`model`、`created_at`、`status`、`output`、完成态需 usage、`incomplete_details.reason`、`refusal` 内容 | **新增测试** |
+| OpenAI | Responses 流：`response.created` 在先、终止事件、终止后无事件、`sequence_number` 递增、SSE 事件名与 `type` 一致、增量文本与最终一致、终止事件需带 `response`、`response.failed` | **新增测试** |
+| Gemini | `generateContent` / `streamGenerateContent`（`contents`、`generationConfig`、`candidates[].finishReason`、`usageMetadata`、`{error:{code,message,status}}`） | 暂不做：仓库没有 Gemini 原生检测器，Gemini 模型目前只走 OpenAI 兼容路径（`internal/modellist`）。新增协议需要新的检测器、报告与前端入口，应单独立项 |
+
+验证：`go vet` 与 `go test -race ./pkg/claudecheck/ ./pkg/openaicheck/` 在完整仓库（Go 1.26）通过。
+
 ## 验证
 
 - `pkg/openaicheck`：`go test -race` 通过（含新增的 `conformance_test.go`）。
