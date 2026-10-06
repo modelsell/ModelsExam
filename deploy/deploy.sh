@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Usage: [PORT=8088] [SITE_URL=http://host:8088] [INSTALL_DOCKER=1] ./deploy/deploy.sh host
+# Usage: [PORT=8088] [SITE_URL=http://host:8088] [INSTALL_DOCKER=1] ./deploy/deploy.sh [host]
+# Defaults may come from a local, git-ignored .env.deploy (DEPLOY_HOST, DEPLOY_USER,
+# DEPLOY_PASSWORD, SITE_URL); with DEPLOY_PASSWORD set, sshpass supplies the password.
 # Isolated deploy: touches only /opt/modelsexam-* and the container named "modelsexam".
 # It never stops/removes other containers or services, never edits nginx/firewall,
 # and refuses to start if the chosen host port is used by anything other than our
@@ -7,14 +9,23 @@
 # and starts the new one (a few seconds of downtime); /opt/modelsexam-data is kept.
 # Auth: your SSH key, or type the ssh/sudo password when ssh asks (never put it in this file).
 set -euo pipefail
-HOST="${1:?Usage: ./deploy/deploy.sh host}"
-SSH_USER="${SSH_USER:-ubuntu}"   # non-root login; remote steps use sudo
+cd "$(dirname "$0")/.."
+if [ -f .env.deploy ]; then
+  set -a; . ./.env.deploy; set +a
+fi
+HOST="${1:-${DEPLOY_HOST:?Usage: ./deploy/deploy.sh host (or set DEPLOY_HOST in .env.deploy)}}"
+SSH_USER="${SSH_USER:-${DEPLOY_USER:-ubuntu}}"   # non-root login; remote steps use sudo
 PORT="${PORT:-8088}"
 SITE_URL="${SITE_URL:-http://$HOST:$PORT}"
-cd "$(dirname "$0")/.."
 # One SSH connection for every step, so a password is asked for only once.
 SSH_OPTS=(-o ControlMaster=auto -o "ControlPath=$HOME/.ssh/modelsexam-%r@%h:%p" -o ControlPersist=10m)
-ssh() { command ssh "${SSH_OPTS[@]}" "$@"; }
+if [ -n "${DEPLOY_PASSWORD:-}" ]; then
+  command -v sshpass >/dev/null || { echo "ERROR: DEPLOY_PASSWORD is set but sshpass is not installed" >&2; exit 1; }
+  export SSHPASS="$DEPLOY_PASSWORD"   # read by sshpass -e; never put on the command line
+  ssh() { sshpass -e ssh "${SSH_OPTS[@]}" "$@"; }
+else
+  ssh() { command ssh "${SSH_OPTS[@]}" "$@"; }
+fi
 
 echo ">> preflight (read-only)"
 ssh "$SSH_USER@$HOST" sudo env PORT="$PORT" INSTALL_DOCKER="${INSTALL_DOCKER:-0}" bash -s <<'REMOTE'
