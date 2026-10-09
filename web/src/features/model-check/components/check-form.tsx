@@ -47,6 +47,8 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { StatusBadge } from '@/components/status-badge'
+import type { Credential } from '@/features/account/api'
+import { SaveKeyPanel, SavedKeySelect, useCredentialHint, SavedKeyMask } from '@/features/account/components/saved-keys'
 import type { Channel } from '@/features/channels/types'
 import { useBaselines } from '../hooks/use-baselines'
 import { baselineCandidates } from '../lib/baseline-selection'
@@ -118,12 +120,29 @@ export function CheckForm(props: {
       performance_tolerance: 25,
       baseline_id: '',
       baseline_type: '',
+      credential_id: '',
+      // A retest restores the options of the earlier check.
+      ...(prefill?.options ?? {}),
     },
   })
   const mode = form.watch('mode')
   const currentModel = form.watch('model')
   const watchedBase = form.watch('base_url')
   const watchedKey = form.watch('key')
+  // Kept in state as well: credential_id has no input, so watch() would not re-render.
+  const [credentialId, setCredentialId] = useState('')
+  const savedKeys = useCredentialHint(credentialId)
+  // A saved key fixes the Base URL: it is only ever sent to that address.
+  const pickCredential = (credential: Credential | null) => {
+    form.setValue('credential_id', credential?.id ?? '')
+    setCredentialId(credential?.id ?? '')
+    if (credential) {
+      form.setValue('base_url', credential.base_url)
+      form.setValue('key', '')
+      setSource(sourceOfEndpoint(credential.base_url))
+    }
+    form.clearErrors(['base_url', 'key'])
+  }
   const baselineID = form.watch('baseline_id') || ''
   const baselineType = form.watch('baseline_type') || ''
   const selectedBaseline = baselineCandidates(
@@ -135,6 +154,8 @@ export function CheckForm(props: {
   const pickSource = (next: ClaudeSource) => {
     const current = sourceOfEndpoint(form.getValues('base_url'))
     setSource(next)
+    setValue('credential_id', '')
+    setCredentialId('')
     setValue('bedrock', next === 'aws')
     if (next === 'official') setValue('base_url', OFFICIAL_BASE_URL)
     else if (next === 'aws') setValue('base_url', AWS_BASE_URL_EXAMPLE)
@@ -205,6 +226,12 @@ export function CheckForm(props: {
     const options = modelCheckOptions(values, reference)
     if (values.mode === 'channel' && channel) {
       await props.onStart({ ...options, channel_id: channel.id })
+    } else if (values.credential_id) {
+      await props.onStart({
+        ...options,
+        base_url: values.base_url,
+        credential_id: values.credential_id,
+      })
     } else {
       await props.onStart({
         ...options,
@@ -329,6 +356,12 @@ export function CheckForm(props: {
                     )
                   })}
                 </div>
+                <SavedKeySelect
+                  provider='claude'
+                  value={credentialId}
+                  disabled={props.busy}
+                  onChange={pickCredential}
+                />
                 <Field data-invalid={!!form.formState.errors.base_url}>
                   <FieldLabel htmlFor='check-base-url'>Base URL</FieldLabel>
                   <Input
@@ -337,6 +370,7 @@ export function CheckForm(props: {
                     autoComplete='off'
                     spellCheck={false}
                     disabled={props.busy}
+                    readOnly={!!credentialId}
                     aria-invalid={!!form.formState.errors.base_url}
                     {...form.register('base_url')}
                   />
@@ -359,21 +393,34 @@ export function CheckForm(props: {
                   <FieldLabel htmlFor='check-key'>
                     {source === 'aws' ? t('AWS Bedrock API key') : source === 'official' ? t('Anthropic API key') : 'API Key'}
                   </FieldLabel>
-                  <Input
-                    id='check-key'
-                    type='password'
-                    placeholder={source === 'official' ? 'sk-ant-…' : 'sk-…'}
-                    autoComplete='new-password'
-                    spellCheck={false}
-                    disabled={props.busy}
-                    aria-invalid={!!form.formState.errors.key}
-                    {...form.register('key')}
-                  />
-                  <KeyFieldHint value={watchedKey} prefilled={prefill?.key} />
+                  {credentialId ? (
+                    <SavedKeyMask id='check-key' hint={savedKeys} />
+                  ) : (
+                    <Input
+                      id='check-key'
+                      type='password'
+                      placeholder={source === 'official' ? 'sk-ant-…' : 'sk-…'}
+                      autoComplete='new-password'
+                      spellCheck={false}
+                      disabled={props.busy}
+                      aria-invalid={!!form.formState.errors.key}
+                      {...form.register('key')}
+                    />
+                  )}
+                  {!credentialId && <KeyFieldHint value={watchedKey} prefilled={prefill?.key} />}
                   {form.formState.errors.key && (
                     <FieldError>{t('Enter a valid API key')}</FieldError>
                   )}
                 </Field>
+                {!credentialId && (
+                  <SaveKeyPanel
+                    provider='claude'
+                    baseUrl={watchedBase}
+                    secret={watchedKey}
+                    disabled={props.busy}
+                    onSaved={pickCredential}
+                  />
+                )}
               </>
             )}
             <Field

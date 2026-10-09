@@ -57,10 +57,16 @@ export function NewCheck(props: {
   const [provider, setProvider] = useState<'claude' | 'openai' | 'gemini' | 'image'>(
     prefill?.provider ?? 'claude'
   )
-  // A link that fills in the form lands on the form, not the hero.
+  // A link that fills in the form lands on the form, not the hero. A retest
+  // without a saved key also puts the cursor in the key field.
   useEffect(() => {
-    if (fromLink) document.getElementById('new-check')?.scrollIntoView()
-  }, [fromLink])
+    if (!fromLink) return
+    document.getElementById('new-check')?.scrollIntoView()
+    if (prefill?.focusKey) {
+      const ids = { claude: 'check-key', openai: 'openai-key', gemini: 'gemini-key', image: 'image-key' }
+      window.setTimeout(() => document.getElementById(ids[prefill.provider ?? 'claude'])?.focus(), 50)
+    }
+  }, [fromLink, prefill])
   const claudePrefill =
     (prefill?.provider ?? 'claude') === 'claude' ? prefill : undefined
   const [openAIBusy, setOpenAIBusy] = useState(false)
@@ -177,7 +183,9 @@ export function NewCheck(props: {
           {fromLink && (
             <Alert>
               <AlertDescription>
-                {t('Filled in from the link. Review the details, then press Start check.')}
+                {prefill?.focusKey
+                  ? t('Filled in from the earlier check. Enter the API key, then press Start check.')
+                  : t('Filled in from the link. Review the details, then press Start check.')}
               </AlertDescription>
             </Alert>
           )}

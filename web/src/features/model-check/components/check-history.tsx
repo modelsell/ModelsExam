@@ -70,6 +70,23 @@ import { isImageHistory } from '../image/lib/history-state'
 import { downloadOpenAIReportJSON } from '../openai/api'
 import { isOpenAIHistory } from '../openai/lib/history-state'
 import type { CheckHistoryItem, CheckHistoryStatus } from '../types'
+import { RetestActions } from '@/features/account/components/retest-actions'
+import { scoreDelta } from '@/features/account/lib/retest'
+import { cn } from '@/lib/utils'
+
+// Score change against the previous run of the same configuration.
+function ScoreDelta({ item }: { item: CheckHistoryItem }) {
+  const delta = scoreDelta(item.score, item.previous_score)
+  if (delta == null || delta === 0) return null
+  return (
+    <span
+      className={cn('ml-1 text-xs font-semibold tabular-nums', delta < 0 ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400')}
+      title={`${item.previous_score} → ${item.score}`}
+    >
+      {delta > 0 ? `+${delta}` : delta}
+    </span>
+  )
+}
 
 // The tested site: its name, and the address that was tested. Both come from
 // whoever ran the check, so the address is shown as text and never linked out;
@@ -108,6 +125,7 @@ function SiteCell({ item }: { item: CheckHistoryItem }) {
 export function CheckHistory(props: { initialModel?: string }) {
   const { t } = useTranslation()
   const userId = useAuthStore((state) => state.auth.user?.id)
+  const signedIn = useAuthStore((state) => !!state.auth.user.account)
   const [filters, setFilters] = useState({ model: props.initialModel ?? '', status: '', page: 1 })
   const debounced = useDebounce(filters, 300)
   const labels: Record<CheckHistoryStatus, string> = {
@@ -159,7 +177,9 @@ export function CheckHistory(props: { initialModel?: string }) {
             {t('My check records')}
           </h2>
           <p className='text-muted-foreground text-sm leading-6'>
-            {t('Only checks run from this browser. Nobody else can see this list.')}
+            {signedIn
+              ? t('Checks of your account, from any device. Nobody else can see this list.')
+              : t('Only checks run from this browser. Nobody else can see this list.')}
           </p>
         </div>
         <p className='text-muted-foreground flex items-center gap-2 text-xs'>
@@ -257,9 +277,19 @@ export function CheckHistory(props: { initialModel?: string }) {
               {list.data?.items.map((item) => (
                 <TableRow
                   key={item.id}
-                                  >
+                  className={cn(
+                    // A failed check or a score below the previous run stands out.
+                    (item.status === 'failed' || (scoreDelta(item.score, item.previous_score) ?? 0) < 0) &&
+                      'bg-destructive/5'
+                  )}
+                >
                   <TableCell className='text-xs tabular-nums'>
                     {new Date(item.started_at).toLocaleString()}
+                    {item.scheduled && (
+                      <span className='text-muted-foreground mt-1 block w-fit rounded border px-1.5 py-0.5 text-[10px]'>
+                        {t('Scheduled')}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className='max-w-72'>
                     <SiteCell item={item} />
@@ -298,6 +328,7 @@ export function CheckHistory(props: { initialModel?: string }) {
                       tier={badgeTier(item.status, item.score)}
                       score={item.score}
                     />
+                    <ScoreDelta item={item} />
                   </TableCell>
                   <TableCell className='text-xs tabular-nums'>
                     {(item.duration_ms / 1000).toFixed(1)} s
@@ -327,6 +358,7 @@ export function CheckHistory(props: { initialModel?: string }) {
                       >
                         {t('Export JSON')}
                       </Button>
+                      <RetestActions item={item} />
                     </div>
                   </TableCell>
                 </TableRow>

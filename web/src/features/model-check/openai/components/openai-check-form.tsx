@@ -44,6 +44,13 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import type { Credential } from '@/features/account/api'
+import {
+  SaveKeyPanel,
+  SavedKeySelect,
+  SavedKeyMask,
+  useCredentialHint,
+} from '@/features/account/components/saved-keys'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CheckModelSelect } from '../../components/check-model-select'
 import {
@@ -79,9 +86,26 @@ export function OpenAICheckFormCard(props: {
       vision: false,
       logprobs: false,
       limit_param: 'max_completion_tokens',
+      credential_id: '',
+      // A retest restores the options of the earlier check.
+      ...(props.prefill?.options ?? {}),
     },
   })
   const errors = form.formState.errors
+  // Kept in state as well: credential_id has no input, so watch() would not re-render.
+  const [credentialId, setCredentialId] = useState('')
+  const credentialHint = useCredentialHint(credentialId)
+  const watchedBase = form.watch('base_url')
+  // A saved key fixes the Base URL: it is only ever sent to that address.
+  const pickCredential = (credential: Credential | null) => {
+    form.setValue('credential_id', credential?.id ?? '')
+    setCredentialId(credential?.id ?? '')
+    if (credential) {
+      form.setValue('base_url', credential.base_url)
+      form.setValue('key', '')
+    }
+    form.clearErrors(['base_url', 'key'])
+  }
   const suite = form.watch('suite')
   const requests = openAIRequestBudget({
     suite,
@@ -94,7 +118,9 @@ export function OpenAICheckFormCard(props: {
     await props.onStart({
       ...openAICheckOptions(values),
       base_url: values.base_url,
-      key: values.key,
+      ...(values.credential_id
+        ? { credential_id: values.credential_id }
+        : { key: values.key }),
     })
   }
 
@@ -115,10 +141,17 @@ export function OpenAICheckFormCard(props: {
           className='flex flex-col gap-6'
         >
           <FieldGroup className='grid gap-5 sm:grid-cols-2'>
+            <SavedKeySelect
+              provider='openai'
+              value={credentialId}
+              disabled={props.busy}
+              onChange={pickCredential}
+            />
             <Field data-invalid={!!errors.base_url}>
               <FieldLabel htmlFor='openai-base-url'>Base URL</FieldLabel>
               <Input
                 id='openai-base-url'
+                readOnly={!!credentialId}
                 placeholder='https://api.openai.com'
                 autoComplete='off'
                 spellCheck={false}
@@ -139,24 +172,39 @@ export function OpenAICheckFormCard(props: {
             </Field>
             <Field data-invalid={!!errors.key}>
               <FieldLabel htmlFor='openai-key'>API Key</FieldLabel>
-              <Input
-                id='openai-key'
-                type='password'
-                placeholder='sk-…'
-                autoComplete='new-password'
-                spellCheck={false}
-                disabled={props.busy}
-                aria-invalid={!!errors.key}
-                {...form.register('key')}
-              />
-              <KeyFieldHint
-                value={form.watch('key')}
-                prefilled={props.prefill?.key}
-              />
+              {credentialId ? (
+                <SavedKeyMask id='openai-key' hint={credentialHint} />
+              ) : (
+                <Input
+                  id='openai-key'
+                  type='password'
+                  placeholder='sk-…'
+                  autoComplete='new-password'
+                  spellCheck={false}
+                  disabled={props.busy}
+                  aria-invalid={!!errors.key}
+                  {...form.register('key')}
+                />
+              )}
+              {!credentialId && (
+                <KeyFieldHint
+                  value={form.watch('key')}
+                  prefilled={props.prefill?.key}
+                />
+              )}
               {errors.key && (
                 <FieldError>{t('Enter a valid API key')}</FieldError>
               )}
             </Field>
+            {!credentialId && (
+              <SaveKeyPanel
+                provider='openai'
+                baseUrl={watchedBase}
+                secret={form.watch('key')}
+                disabled={props.busy}
+                onSaved={pickCredential}
+              />
+            )}
             <Field className='sm:col-span-2' data-invalid={!!errors.model}>
               <FieldLabel htmlFor='openai-model'>{t('Model')}</FieldLabel>
               <Controller

@@ -33,6 +33,11 @@ const NotFoundPage = lazy(() => import('./pages/not-found-page').then((m) => ({ 
 const RecordsPage = lazy(() => import('./pages/records-page').then((m) => ({ default: m.RecordsPage })))
 const ReportPage = lazy(() => import('./pages/report-page').then((m) => ({ default: m.ReportPage })))
 const SitePage = lazy(() => import('./pages/site-page').then((m) => ({ default: m.SitePage })))
+const LoginPage = lazy(() => import('./pages/login-page').then((m) => ({ default: m.LoginPage })))
+const RegisterPage = lazy(() => import('./pages/login-page').then((m) => ({ default: m.RegisterPage })))
+const AccountPage = lazy(() => import('./pages/account-page').then((m) => ({ default: m.AccountPage })))
+const KeysPage = lazy(() => import('./pages/keys-page').then((m) => ({ default: m.KeysPage })))
+const SchedulesPage = lazy(() => import('./pages/schedules-page').then((m) => ({ default: m.SchedulesPage })))
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -89,6 +94,21 @@ function Shell() {
       break
     case 'integrate':
       page = <IntegratePage />
+      break
+    case 'login':
+      page = <LoginPage />
+      break
+    case 'register':
+      page = <RegisterPage />
+      break
+    case 'account':
+      page = <AccountPage />
+      break
+    case 'keys':
+      page = <KeysPage />
+      break
+    case 'schedules':
+      page = <SchedulesPage />
       break
     default:
       page = <NotFoundPage />

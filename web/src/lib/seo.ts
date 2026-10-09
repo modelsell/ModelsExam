@@ -83,6 +83,24 @@ export function seoFor(route: Route, t: Translate): Seo {
         description: t('The latest ModelsExam check result for a website.'),
         noindex: true,
       }
+    case 'login':
+    case 'register':
+    case 'account':
+    case 'keys':
+    case 'schedules': {
+      const titles = {
+        login: t('Sign in'),
+        register: t('Create account'),
+        account: t('My account'),
+        keys: t('My keys'),
+        schedules: t('Scheduled checks'),
+      }
+      return {
+        title: `${titles[route.name]} | ${SITE_NAME}`,
+        description: t('Optional account: saved test keys, one-click retests and scheduled checks.'),
+        noindex: true,
+      }
+    }
     case 'report':
       return {
         title: `${t('Check report')} | ${SITE_NAME}`,

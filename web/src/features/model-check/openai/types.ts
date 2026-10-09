@@ -32,7 +32,9 @@ export type OpenAICheckOptions = {
 
 export type OpenAICheckTarget = OpenAICheckOptions & {
   base_url: string
-  key: string
+  key?: string
+  /** A saved key used instead of key (signed-in accounts). */
+  credential_id?: string
 }
 
 export type OpenAICheck = {

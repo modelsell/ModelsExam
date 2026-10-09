@@ -16,6 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
@@ -36,6 +37,13 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import type { Credential } from '@/features/account/api'
+import {
+  SaveKeyPanel,
+  SavedKeySelect,
+  SavedKeyMask,
+  useCredentialHint,
+} from '@/features/account/components/saved-keys'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CheckModelSelect } from '../../components/check-model-select'
@@ -65,9 +73,26 @@ export function GeminiCheckFormCard(props: {
       model: props.prefill?.model ?? '',
       suite: 'standard',
       vision: false,
+      credential_id: '',
+      // A retest restores the options of the earlier check.
+      ...(props.prefill?.options ?? {}),
     },
   })
   const errors = form.formState.errors
+  // Kept in state as well: credential_id has no input, so watch() would not re-render.
+  const [credentialId, setCredentialId] = useState('')
+  const credentialHint = useCredentialHint(credentialId)
+  const watchedBase = form.watch('base_url')
+  // A saved key fixes the Base URL: it is only ever sent to that address.
+  const pickCredential = (credential: Credential | null) => {
+    form.setValue('credential_id', credential?.id ?? '')
+    setCredentialId(credential?.id ?? '')
+    if (credential) {
+      form.setValue('base_url', credential.base_url)
+      form.setValue('key', '')
+    }
+    form.clearErrors(['base_url', 'key'])
+  }
   const suite = form.watch('suite')
   const requests = geminiRequestBudget({ suite, vision: !!form.watch('vision') })
 
@@ -75,7 +100,9 @@ export function GeminiCheckFormCard(props: {
     await props.onStart({
       ...geminiCheckOptions(values),
       base_url: values.base_url,
-      key: values.key,
+      ...(values.credential_id
+        ? { credential_id: values.credential_id }
+        : { key: values.key }),
     })
   }
 
@@ -96,10 +123,17 @@ export function GeminiCheckFormCard(props: {
           className='flex flex-col gap-6'
         >
           <FieldGroup className='grid gap-5 sm:grid-cols-2'>
+            <SavedKeySelect
+              provider='gemini'
+              value={credentialId}
+              disabled={props.busy}
+              onChange={pickCredential}
+            />
             <Field data-invalid={!!errors.base_url}>
               <FieldLabel htmlFor='gemini-base-url'>Base URL</FieldLabel>
               <Input
                 id='gemini-base-url'
+                readOnly={!!credentialId}
                 placeholder='https://generativelanguage.googleapis.com'
                 autoComplete='off'
                 spellCheck={false}
@@ -122,24 +156,39 @@ export function GeminiCheckFormCard(props: {
             </Field>
             <Field data-invalid={!!errors.key}>
               <FieldLabel htmlFor='gemini-key'>API Key</FieldLabel>
-              <Input
-                id='gemini-key'
-                type='password'
-                placeholder='AIza…'
-                autoComplete='new-password'
-                spellCheck={false}
-                disabled={props.busy}
-                aria-invalid={!!errors.key}
-                {...form.register('key')}
-              />
-              <KeyFieldHint
-                value={form.watch('key')}
-                prefilled={props.prefill?.key}
-              />
+              {credentialId ? (
+                <SavedKeyMask id='gemini-key' hint={credentialHint} />
+              ) : (
+                <Input
+                  id='gemini-key'
+                  type='password'
+                  placeholder='AIza…'
+                  autoComplete='new-password'
+                  spellCheck={false}
+                  disabled={props.busy}
+                  aria-invalid={!!errors.key}
+                  {...form.register('key')}
+                />
+              )}
+              {!credentialId && (
+                <KeyFieldHint
+                  value={form.watch('key')}
+                  prefilled={props.prefill?.key}
+                />
+              )}
               {errors.key && (
                 <FieldError>{t('Enter a valid API key')}</FieldError>
               )}
             </Field>
+            {!credentialId && (
+              <SaveKeyPanel
+                provider='gemini'
+                baseUrl={watchedBase}
+                secret={form.watch('key')}
+                disabled={props.busy}
+                onSaved={pickCredential}
+              />
+            )}
             <Field className='sm:col-span-2' data-invalid={!!errors.model}>
               <FieldLabel htmlFor='gemini-model'>{t('Model')}</FieldLabel>
               <Controller

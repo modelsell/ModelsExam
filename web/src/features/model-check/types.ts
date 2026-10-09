@@ -218,7 +218,12 @@ export type CheckEvent =
   | { type: 'check'; check: ClaudeCheck }
 
 export type CheckTarget = ClaudeCheckOptions &
-  ({ channel_id: number } | { base_url: string; key: string })
+  (
+    | { channel_id: number }
+    | { base_url: string; key: string }
+    // A saved key (signed-in accounts); the server sends it only to base_url.
+    | { base_url: string; credential_id: string }
+  )
 export type RunPhase =
   | 'idle'
   | 'connecting'
@@ -261,6 +266,11 @@ export type CheckHistoryItem = {
   pass_count: number
   fail_count: number
   active_probe: string
+  mine?: boolean
+  /** Started by a schedule on the server. */
+  scheduled?: boolean
+  /** Score of the previous run with the same endpoint, model and options. */
+  previous_score?: number | null
 }
 export type CheckHistoryDetail = {
   run: CheckHistoryItem

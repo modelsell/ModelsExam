@@ -27,6 +27,8 @@ import { cn } from '@/lib/utils'
 import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { readTheme, saveTheme, type Theme } from '@/lib/theme'
+import { useAuthStore } from '@/stores/auth-store'
+import { CredentialBanners } from '@/features/account/components/saved-keys'
 
 // Mark: the shield with a tick, the same icon the badge carries.
 function BrandMark() {
@@ -74,8 +76,28 @@ function ThemeToggle() {
   )
 }
 
+// Sign-in link, or the account's name linking to its pages.
+function AccountLink(props: { current: RouteName }) {
+  const { t } = useTranslation()
+  const auth = useAuthStore((state) => state.auth)
+  if (!auth.loaded) return null
+  const account = auth.user.account
+  const current = ['login', 'register', 'account', 'keys', 'schedules'].includes(props.current)
+  return (
+    <Link
+      to={account ? '/account' : '/login'}
+      className={cn(navLink, 'max-w-28 truncate')}
+      aria-current={current ? 'page' : undefined}
+      title={account?.username}
+    >
+      {account ? account.username : t('Sign in')}
+    </Link>
+  )
+}
+
 export function SiteLayout(props: { current: RouteName; children: ReactNode }) {
   const { t, i18n } = useTranslation()
+  const signedIn = useAuthStore((state) => !!state.auth.user.account)
   const item = (name: RouteName, to: string, label: string, showFrom?: 'md' | 'lg') => (
     <Link
       to={to}
@@ -113,6 +135,7 @@ export function SiteLayout(props: { current: RouteName; children: ReactNode }) {
             {item('getbadge', '/#get-badge', t('Get your badge'), 'lg')}
             {item('records', '/records', t('My check records'), 'lg')}
             {item('method', '/method', t('Method and independence'), 'lg')}
+            <AccountLink current={props.current} />
             <ThemeToggle />
             <select
               aria-label={t('Language')}
@@ -129,7 +152,10 @@ export function SiteLayout(props: { current: RouteName; children: ReactNode }) {
           </nav>
         </div>
       </header>
-      <main id='main'>{props.children}</main>
+      <main id='main'>
+        {signedIn && <CredentialBanners />}
+        {props.children}
+      </main>
       <footer className='bg-background border-t px-4 py-12 sm:px-6'>
         <div className='mx-auto grid max-w-6xl gap-8 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]'>
           <div className='flex flex-col gap-3'>

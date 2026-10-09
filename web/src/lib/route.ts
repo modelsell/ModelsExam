@@ -25,6 +25,11 @@ export type RouteName =
   | 'site'
   | 'method'
   | 'integrate'
+  | 'login'
+  | 'register'
+  | 'account'
+  | 'keys'
+  | 'schedules'
   | 'notfound'
 
 export type Route = { name: RouteName; id?: string }
@@ -36,6 +41,11 @@ export const ROUTE_PATHS = {
   getbadge: '/get-badge',
   method: '/method',
   integrate: '/integrate',
+  login: '/login',
+  register: '/register',
+  account: '/account',
+  keys: '/keys',
+  schedules: '/schedules',
 } as const
 
 // Pure URL parsing, kept free of React so it can be unit tested. The server
@@ -45,7 +55,7 @@ export function parseRoute(pathname: string, search = ''): Route {
   const legacy = new URLSearchParams(search).get('history_id')
   if (legacy) return { name: 'report', id: legacy }
   const path = pathname.replace(/\/+$/, '') || '/'
-  for (const name of ['home', 'records', 'baselines', 'getbadge', 'method', 'integrate'] as const) {
+  for (const name of Object.keys(ROUTE_PATHS) as Array<keyof typeof ROUTE_PATHS>) {
     if (ROUTE_PATHS[name] === path) return { name }
   }
   const site = /^\/sites\/([A-Za-z0-9.-]+)$/.exec(path)

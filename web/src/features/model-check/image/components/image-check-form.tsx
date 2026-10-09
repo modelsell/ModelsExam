@@ -45,6 +45,13 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import type { Credential } from '@/features/account/api'
+import {
+  SaveKeyPanel,
+  SavedKeySelect,
+  SavedKeyMask,
+  useCredentialHint,
+} from '@/features/account/components/saved-keys'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CheckModelSelect } from '../../components/check-model-select'
@@ -79,9 +86,26 @@ export function ImageCheckFormCard(props: {
       suite: 'standard',
       provenance: false,
       baseline: false,
+      credential_id: '',
+      // A retest restores the options of the earlier check.
+      ...(props.prefill?.options ?? {}),
     },
   })
   const errors = form.formState.errors
+  // Kept in state as well: credential_id has no input, so watch() would not re-render.
+  const [credentialId, setCredentialId] = useState('')
+  const credentialHint = useCredentialHint(credentialId)
+  const watchedBase = form.watch('base_url')
+  // A saved key fixes the Base URL: it is only ever sent to that address.
+  const pickCredential = (credential: Credential | null) => {
+    form.setValue('credential_id', credential?.id ?? '')
+    setCredentialId(credential?.id ?? '')
+    if (credential) {
+      form.setValue('base_url', credential.base_url)
+      form.setValue('key', '')
+    }
+    form.clearErrors(['base_url', 'key'])
+  }
   const suite = form.watch('suite')
   const provenance = !!form.watch('provenance')
   const baseline = !!form.watch('baseline')
@@ -92,7 +116,9 @@ export function ImageCheckFormCard(props: {
     await props.onStart({
       ...imageCheckOptions(values),
       base_url: values.base_url,
-      key: values.key,
+      ...(values.credential_id
+        ? { credential_id: values.credential_id }
+        : { key: values.key }),
       verify_key: values.verify_key,
     })
   }
@@ -116,10 +142,17 @@ export function ImageCheckFormCard(props: {
           className='flex flex-col gap-6'
         >
           <FieldGroup className='grid gap-5 sm:grid-cols-2'>
+            <SavedKeySelect
+              provider='image'
+              value={credentialId}
+              disabled={props.busy}
+              onChange={pickCredential}
+            />
             <Field data-invalid={!!errors.base_url}>
               <FieldLabel htmlFor='image-base-url'>Base URL</FieldLabel>
               <Input
                 id='image-base-url'
+                readOnly={!!credentialId}
                 placeholder='https://api.openai.com'
                 autoComplete='off'
                 spellCheck={false}
@@ -140,24 +173,39 @@ export function ImageCheckFormCard(props: {
             </Field>
             <Field data-invalid={!!errors.key}>
               <FieldLabel htmlFor='image-key'>API Key</FieldLabel>
-              <Input
-                id='image-key'
-                type='password'
-                placeholder='sk-…'
-                autoComplete='new-password'
-                spellCheck={false}
-                disabled={props.busy}
-                aria-invalid={!!errors.key}
-                {...form.register('key')}
-              />
-              <KeyFieldHint
-                value={form.watch('key')}
-                prefilled={props.prefill?.key}
-              />
+              {credentialId ? (
+                <SavedKeyMask id='image-key' hint={credentialHint} />
+              ) : (
+                <Input
+                  id='image-key'
+                  type='password'
+                  placeholder='sk-…'
+                  autoComplete='new-password'
+                  spellCheck={false}
+                  disabled={props.busy}
+                  aria-invalid={!!errors.key}
+                  {...form.register('key')}
+                />
+              )}
+              {!credentialId && (
+                <KeyFieldHint
+                  value={form.watch('key')}
+                  prefilled={props.prefill?.key}
+                />
+              )}
               {errors.key && (
                 <FieldError>{t('Enter a valid API key')}</FieldError>
               )}
             </Field>
+            {!credentialId && (
+              <SaveKeyPanel
+                provider='image'
+                baseUrl={watchedBase}
+                secret={form.watch('key')}
+                disabled={props.busy}
+                onSaved={pickCredential}
+              />
+            )}
             <Field className='sm:col-span-2' data-invalid={!!errors.model}>
               <FieldLabel htmlFor='image-model'>{t('Model')}</FieldLabel>
               <Controller

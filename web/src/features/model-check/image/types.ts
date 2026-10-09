@@ -29,7 +29,9 @@ export type ImageCheckOptions = {
 
 export type ImageCheckTarget = ImageCheckOptions & {
   base_url: string
-  key: string
+  key?: string
+  /** A saved key used instead of key (signed-in accounts). */
+  credential_id?: string
   // Official OpenAI key: only ever sent to api.openai.com by the server.
   verify_key: string
 }

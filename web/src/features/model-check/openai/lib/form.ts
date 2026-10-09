@@ -19,43 +19,46 @@ For commercial licensing, please contact support@quantumnous.com
 import z from 'zod'
 import type { OpenAICheckOptions } from '../types'
 
-export const openAICheckSchema = z
-  .object({
-    base_url: z.string().trim().max(2048),
-    key: z.string().trim().max(8192),
-    model: z.string().trim().min(1).max(200),
-    suite: z.enum(['basic', 'standard', 'full']),
-    responses: z.boolean(),
-    vision: z.boolean(),
-    logprobs: z.boolean(),
-    limit_param: z.enum(['max_completion_tokens', 'max_tokens']),
-  })
-  .superRefine((value, ctx) => {
-    try {
-      const url = new URL(value.base_url)
-      if (
-        !['http:', 'https:'].includes(url.protocol) ||
-        url.username ||
-        url.password ||
-        url.search ||
-        url.hash
-      )
-        throw new Error('url')
-    } catch {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['base_url'],
-        message:
-          'Enter a valid Base URL without credentials or query parameters',
-      })
-    }
-    if (value.key.length < 4 || /[\r\n]/.test(value.key))
-      ctx.addIssue({
-        code: 'custom',
-        path: ['key'],
-        message: 'Enter a valid API key',
-      })
-  })
+// The plain fields, without cross-field rules: retests normalize saved
+// options through them.
+export const openAICheckFields = z.object({
+  base_url: z.string().trim().max(2048),
+  key: z.string().trim().max(8192),
+  // A saved key replaces key (signed-in accounts).
+  credential_id: z.string().max(64).optional(),
+  model: z.string().trim().min(1).max(200),
+  suite: z.enum(['basic', 'standard', 'full']),
+  responses: z.boolean(),
+  vision: z.boolean(),
+  logprobs: z.boolean(),
+  limit_param: z.enum(['max_completion_tokens', 'max_tokens']),
+})
+export const openAICheckSchema = openAICheckFields.superRefine((value, ctx) => {
+  try {
+    const url = new URL(value.base_url)
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash
+    )
+      throw new Error('url')
+  } catch {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['base_url'],
+      message:
+        'Enter a valid Base URL without credentials or query parameters',
+    })
+  }
+  if (!value.credential_id && (value.key.length < 4 || /[\r\n]/.test(value.key)))
+    ctx.addIssue({
+      code: 'custom',
+      path: ['key'],
+      message: 'Enter a valid API key',
+    })
+})
 export type OpenAICheckForm = z.infer<typeof openAICheckSchema>
 
 export function openAICheckOptions(

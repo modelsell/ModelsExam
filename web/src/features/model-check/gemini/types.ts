@@ -26,5 +26,7 @@ export type GeminiCheckOptions = {
 
 export type GeminiCheckTarget = GeminiCheckOptions & {
   base_url: string
-  key: string
+  key?: string
+  /** A saved key used instead of key (signed-in accounts). */
+  credential_id?: string
 }

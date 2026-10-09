@@ -19,21 +19,30 @@ For commercial licensing, please contact support@quantumnous.com
 import { navigate } from '@/lib/router'
 import { reportPath } from '@/lib/route'
 import { FaqSection } from '@/features/model-check/components/faq-section'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BadgeSection } from '@/features/model-check/components/badge-section'
 import { BaselinesSection } from '@/features/model-check/components/baselines-section'
 import { CheckHistory } from '@/features/model-check/components/check-history'
 import { PromisesSection } from '@/features/model-check/components/promises-section'
 import { NewCheck } from '@/features/model-check/components/new-check'
-import { consumePrefill } from '@/features/model-check/lib/link-prefill'
+import { consumePrefill, RETEST_EVENT, takeRetestPrefill } from '@/features/model-check/lib/link-prefill'
 
 const open = (id: string | undefined) => navigate(id ? reportPath(id) : '/records')
 
 export function HomePage() {
-  const [prefill] = useState(consumePrefill)
+  const [state, setState] = useState(() => ({ prefill: takeRetestPrefill() ?? consumePrefill(), generation: 0 }))
+  // A retest started from the records list on this same page refills the form.
+  useEffect(() => {
+    const onRetest = () => {
+      const prefill = takeRetestPrefill()
+      if (prefill) setState((prev) => ({ prefill, generation: prev.generation + 1 }))
+    }
+    window.addEventListener(RETEST_EVENT, onRetest)
+    return () => window.removeEventListener(RETEST_EVENT, onRetest)
+  }, [])
   return (
     <>
-      <NewCheck prefill={prefill} onSelectReport={open} />
+      <NewCheck key={state.generation} prefill={state.prefill} onSelectReport={open} />
       <div className='mx-auto flex max-w-6xl flex-col gap-16 px-4 py-14 sm:px-6 sm:py-20'>
         <PromisesSection />
         <BadgeSection />

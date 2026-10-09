@@ -37,6 +37,13 @@ test('parses the known pages', () => {
   assert.equal(routePath({ name: 'integrate' }), '/integrate')
 })
 
+test('parses the account pages', () => {
+  for (const name of ['login', 'register', 'account', 'keys', 'schedules'] as const) {
+    assert.deepEqual(parseRoute(`/${name}`), { name })
+    assert.equal(routePath({ name }), `/${name}`)
+  }
+})
+
 test('parses a report path and round-trips it', () => {
   const id = '3f2b9c1e-0000-4000-8000-000000000001'
   assert.deepEqual(parseRoute(reportPath(id)), { name: 'report', id })

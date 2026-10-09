@@ -20,60 +20,63 @@ import z from 'zod'
 import type { BaselineListItem, ClaudeCheckOptions } from '../types'
 import { baselineSelectionOptions } from './baseline-selection'
 
-export const modelCheckSchema = z
-  .object({
-    base_url: z.string().trim().max(2048),
-    key: z.string().trim().max(8192),
-    model: z.string().trim().min(1).max(200),
-    cache: z.boolean(),
-    thinking: z.boolean(),
-    repeat: z.boolean(),
-    vision: z.boolean(),
-    pdf: z.boolean(),
-    stream_comparison: z.boolean(),
-    fingerprint: z.boolean().optional(),
-    benchmark: z.boolean().optional(),
-    performance: z.boolean().optional(),
-    performance_tolerance: z.number().min(0).max(100).optional(),
-    prompt_audit: z.boolean().optional(),
-    bedrock: z.boolean().optional(),
-    baseline_id: z.string().trim().max(80).optional(),
-    baseline_type: z.string().trim().max(40).optional(),
-    mode: z.enum(['endpoint', 'channel']),
-  })
-  .superRefine((value, ctx) => {
-    if (!!value.baseline_id !== !!value.baseline_type)
-      ctx.addIssue({
-        code: 'custom',
-        path: ['baseline_id'],
-        message: 'Select a saved baseline for the chosen type',
-      })
-    if (value.mode !== 'endpoint') return
-    try {
-      const url = new URL(value.base_url)
-      if (
-        !['http:', 'https:'].includes(url.protocol) ||
-        url.username ||
-        url.password ||
-        url.search ||
-        url.hash
-      )
-        throw new Error('url')
-    } catch {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['base_url'],
-        message:
-          'Enter a valid Base URL without credentials or query parameters',
-      })
-    }
-    if (value.key.length < 4 || /[\r\n]/.test(value.key))
-      ctx.addIssue({
-        code: 'custom',
-        path: ['key'],
-        message: 'Enter a valid API key',
-      })
-  })
+// The plain fields, without cross-field rules: retests normalize saved
+// options through them.
+export const modelCheckFields = z.object({
+  base_url: z.string().trim().max(2048),
+  key: z.string().trim().max(8192),
+  // A saved key replaces key (signed-in accounts).
+  credential_id: z.string().max(64).optional(),
+  model: z.string().trim().min(1).max(200),
+  cache: z.boolean(),
+  thinking: z.boolean(),
+  repeat: z.boolean(),
+  vision: z.boolean(),
+  pdf: z.boolean(),
+  stream_comparison: z.boolean(),
+  fingerprint: z.boolean().optional(),
+  benchmark: z.boolean().optional(),
+  performance: z.boolean().optional(),
+  performance_tolerance: z.number().min(0).max(100).optional(),
+  prompt_audit: z.boolean().optional(),
+  bedrock: z.boolean().optional(),
+  baseline_id: z.string().trim().max(80).optional(),
+  baseline_type: z.string().trim().max(40).optional(),
+  mode: z.enum(['endpoint', 'channel']),
+})
+export const modelCheckSchema = modelCheckFields.superRefine((value, ctx) => {
+  if (!!value.baseline_id !== !!value.baseline_type)
+    ctx.addIssue({
+      code: 'custom',
+      path: ['baseline_id'],
+      message: 'Select a saved baseline for the chosen type',
+    })
+  if (value.mode !== 'endpoint') return
+  try {
+    const url = new URL(value.base_url)
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash
+    )
+      throw new Error('url')
+  } catch {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['base_url'],
+      message:
+        'Enter a valid Base URL without credentials or query parameters',
+    })
+  }
+  if (!value.credential_id && (value.key.length < 4 || /[\r\n]/.test(value.key)))
+    ctx.addIssue({
+      code: 'custom',
+      path: ['key'],
+      message: 'Enter a valid API key',
+    })
+})
 export type ModelCheckForm = z.infer<typeof modelCheckSchema>
 
 export function modelCheckOptions(

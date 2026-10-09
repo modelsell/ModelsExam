@@ -19,52 +19,55 @@ For commercial licensing, please contact support@quantumnous.com
 import z from 'zod'
 import type { ImageCheckOptions } from '../types'
 
-export const imageCheckSchema = z
-  .object({
-    base_url: z.string().trim().max(2048),
-    key: z.string().trim().max(8192),
-    verify_key: z.string().trim().max(8192),
-    model: z.string().trim().min(1).max(200),
-    suite: z.enum(['basic', 'standard', 'full']),
-    provenance: z.boolean(),
-    baseline: z.boolean(),
-  })
-  .superRefine((value, ctx) => {
-    try {
-      const url = new URL(value.base_url)
-      if (
-        !['http:', 'https:'].includes(url.protocol) ||
-        url.username ||
-        url.password ||
-        url.search ||
-        url.hash
-      )
-        throw new Error('url')
-    } catch {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['base_url'],
-        message:
-          'Enter a valid Base URL without credentials or query parameters',
-      })
-    }
-    if (value.key.length < 4 || /[\r\n]/.test(value.key))
-      ctx.addIssue({
-        code: 'custom',
-        path: ['key'],
-        message: 'Enter a valid API key',
-      })
-    const needsVerify = value.provenance || value.baseline
+// The plain fields, without cross-field rules: retests normalize saved
+// options through them.
+export const imageCheckFields = z.object({
+  base_url: z.string().trim().max(2048),
+  key: z.string().trim().max(8192),
+  // A saved key replaces key (signed-in accounts).
+  credential_id: z.string().max(64).optional(),
+  verify_key: z.string().trim().max(8192),
+  model: z.string().trim().min(1).max(200),
+  suite: z.enum(['basic', 'standard', 'full']),
+  provenance: z.boolean(),
+  baseline: z.boolean(),
+})
+export const imageCheckSchema = imageCheckFields.superRefine((value, ctx) => {
+  try {
+    const url = new URL(value.base_url)
     if (
-      (needsVerify && value.verify_key.length < 4) ||
-      /[\r\n]/.test(value.verify_key)
+      !['http:', 'https:'].includes(url.protocol) ||
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash
     )
-      ctx.addIssue({
-        code: 'custom',
-        path: ['verify_key'],
-        message: 'Enter an official OpenAI API key',
-      })
-  })
+      throw new Error('url')
+  } catch {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['base_url'],
+      message:
+        'Enter a valid Base URL without credentials or query parameters',
+    })
+  }
+  if (!value.credential_id && (value.key.length < 4 || /[\r\n]/.test(value.key)))
+    ctx.addIssue({
+      code: 'custom',
+      path: ['key'],
+      message: 'Enter a valid API key',
+    })
+  const needsVerify = value.provenance || value.baseline
+  if (
+    (needsVerify && value.verify_key.length < 4) ||
+    /[\r\n]/.test(value.verify_key)
+  )
+    ctx.addIssue({
+      code: 'custom',
+      path: ['verify_key'],
+      message: 'Enter an official OpenAI API key',
+    })
+})
 
 export type ImageCheckForm = z.infer<typeof imageCheckSchema>
 

@@ -29,9 +29,13 @@ export type CheckPrefill = {
   base_url?: string
   key?: string
   model?: string
+  /** Form values of a retest (never from a link). */
+  options?: Record<string, unknown>
+  /** Move focus to the key field: a retest without a saved key. */
+  focusKey?: boolean
 }
 
-const ALIASES: Record<keyof CheckPrefill, string[]> = {
+const ALIASES: Record<'provider' | 'base_url' | 'key' | 'model', string[]> = {
   provider: ['type', 'provider', 'platform'],
   base_url: ['base_url', 'baseUrl', 'baseurl', 'base', 'url', 'endpoint'],
   key: ['key', 'api_key', 'apiKey', 'apikey', 'token'],
@@ -73,7 +77,7 @@ export function parsePrefill(search: string, hash: string): CheckPrefill {
   const query = fromParams(new URLSearchParams(search))
   const fragment = fromParams(new URLSearchParams(hash.replace(/^#/, '')))
   const merged: CheckPrefill = {}
-  for (const field of Object.keys(ALIASES) as Array<keyof CheckPrefill>) {
+  for (const field of Object.keys(ALIASES) as Array<keyof typeof ALIASES>) {
     const value = fragment[field] ?? query[field]
     if (value) (merged as Record<string, string>)[field] = value
   }
@@ -104,6 +108,21 @@ export function strippedLocation(pathname: string, search: string, hash: string)
 }
 
 let consumed: CheckPrefill | undefined
+let retest: CheckPrefill | undefined
+
+// A retest from the records list hands its rebuilt form to the home page.
+export const RETEST_EVENT = 'modelsexam:retest'
+
+export function setRetestPrefill(prefill: CheckPrefill) {
+  retest = prefill
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(RETEST_EVENT))
+}
+
+export function takeRetestPrefill(): CheckPrefill | undefined {
+  const value = retest
+  retest = undefined
+  return value
+}
 
 // Read the link once per page load (safe under StrictMode double renders) and
 // clean the address bar. A link that only names a model is left as it is,
