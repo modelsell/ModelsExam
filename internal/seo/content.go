@@ -109,6 +109,12 @@ var pages = []Page{
 		Lead:        "这里只列出当前浏览器发起的检测，其他人无法查看。清除浏览器 Cookie 或换一个浏览器后，之前的记录将无法再查看。",
 		NoIndex:     true,
 	},
+	// Account pages: private, never indexed. The app renders them.
+	{Path: "/login", Title: "登录 | " + siteName, Description: "登录 ModelsExam 账号，使用保存的测试 Key 一键重测和定时检测。账号是可选的，不登录也可以照常检测任何模型 API。", H1: "登录", Lead: "账号是可选的：不登录也可以照常检测。", NoIndex: true},
+	{Path: "/register", Title: "注册 | " + siteName, Description: "注册 ModelsExam 账号，保存专门用于检测的测试 Key，一键重测历史检测，并在服务器上定时检测。本站不收集邮箱。", H1: "注册", Lead: "本站不收集邮箱，也不提供找回密码，请牢记你的密码。", NoIndex: true},
+	{Path: "/account", Title: "我的账号 | " + siteName, Description: "ModelsExam 账号设置：修改密码、退出登录，把这个浏览器里的检测记录加入账号。本站不提供找回密码。", H1: "我的账号", Lead: "修改密码、退出登录。", NoIndex: true},
+	{Path: "/keys", Title: "我的 Key | " + siteName, Description: "保存在 ModelsExam 账号中的测试 Key：只显示掩码、剩余有效期和最近使用时间。Key 以明文保存在服务器上，到期自动删除。", H1: "我的 Key", Lead: "这些 Key 以明文保存在服务器上。不再检测的 Key 请立即删除，并到服务商处作废。", NoIndex: true},
+	{Path: "/schedules", Title: "定时检测 | " + siteName, Description: "ModelsExam 账号的定时检测：用保存的测试 Key 按固定间隔在服务器上检测模型 API，关闭页面也会继续，分数下降会突出显示。", H1: "定时检测", Lead: "定时检测在服务器上运行，关闭页面也会继续。", NoIndex: true},
 	{
 		Path:        "/method",
 		Title:       "检测方法与独立性：ModelsExam 检查什么、怎么计分 | " + siteName,

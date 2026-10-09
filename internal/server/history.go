@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"regexp"
@@ -50,21 +51,30 @@ func (s *Server) listHistory(c *gin.Context) {
 		c.JSON(400, gin.H{"success": false, "message": "Invalid model name"})
 		return
 	}
-	rows, total, err := s.cfg.Store.ListRuns(c.Request.Context(), store.ListQuery{OwnerID: ownerID(c), ModelName: name, Status: status, Page: page, PageSize: size})
+	// A signed-in account lists its own runs; otherwise this browser's.
+	owner, userID := ownerID(c), currentUserID(c)
+	query := store.ListQuery{OwnerID: owner, UserID: userID, ModelName: name, Status: status, Page: page, PageSize: size}
+	rows, total, err := s.cfg.Store.ListRuns(c.Request.Context(), query)
 	if err != nil {
 		c.JSON(500, gin.H{"success": false, "message": "Failed to load check history"})
 		return
 	}
-	// "mine" lets the UI show which rows this browser may annotate.
-	owner := ownerID(c)
+	previous, err := s.cfg.Store.PreviousScores(c.Request.Context(), query, rows)
+	if err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to load check history"})
+		return
+	}
+	// "mine" lets the UI show which rows this browser may annotate;
+	// previous_score is the score of the last run with the same configuration.
 	type item struct {
 		store.Run
-		Mine bool `json:"mine"`
+		Mine          bool `json:"mine"`
+		Scheduled     bool `json:"scheduled"`
+		PreviousScore *int `json:"previous_score"`
 	}
 	items := make([]item, len(rows))
 	for i, r := range rows {
-		items[i] = item{Run: r}
-		items[i].Mine = r.OwnerID == owner
+		items[i] = item{Run: r, Mine: store.RunOwnedBy(&rows[i], owner, userID), Scheduled: r.ScheduleID != nil, PreviousScore: previous[r.ID]}
 	}
 	c.JSON(200, gin.H{"success": true, "data": gin.H{"items": items, "total": total, "page": page, "page_size": size}})
 }
@@ -72,8 +82,8 @@ func (s *Server) listHistory(c *gin.Context) {
 // historyDetail decodes a stored run. The report type depends on the
 // transport; OpenAI runs also carry the Markdown export, rebuilt from the
 // stored (already redacted) report.
-func historyDetail(run *store.Run, owner string) (gin.H, bool) {
-	out := gin.H{"run": run, "mine": run.OwnerID == owner}
+func historyDetail(run *store.Run, owner string, userID int64) (gin.H, bool) {
+	out := gin.H{"run": run, "mine": store.RunOwnedBy(run, owner, userID)}
 	if run.Transport == openAITransportName {
 		var report openaicheck.Report
 		if common.UnmarshalJsonStr(run.ReportJSON, &report) != nil {
@@ -136,7 +146,7 @@ func (s *Server) getHistory(c *gin.Context) {
 		c.JSON(500, gin.H{"success": false, "message": "Failed to load check report"})
 		return
 	}
-	data, ok := historyDetail(run, ownerID(c))
+	data, ok := historyDetail(run, ownerID(c), currentUserID(c))
 	if !ok {
 		c.JSON(500, gin.H{"success": false, "message": "Failed to load check report"})
 		return
@@ -159,7 +169,7 @@ func (s *Server) updateRemark(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Remark must contain at most 200 characters"})
 		return
 	}
-	run, err := s.cfg.Store.UpdateRemark(c.Request.Context(), ownerID(c), id, *body.Remark)
+	run, err := s.cfg.Store.UpdateRemark(c.Request.Context(), ownerID(c), currentUserID(c), id, *body.Remark)
 	switch {
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Check report not found"})
@@ -174,7 +184,7 @@ func (s *Server) updateRemark(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update check remark"})
 		return
 	}
-	data, ok := historyDetail(run, ownerID(c))
+	data, ok := historyDetail(run, ownerID(c), currentUserID(c))
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to load check report"})
 		return
@@ -217,7 +227,7 @@ func (s *Server) createBaseline(c *gin.Context) {
 		return
 	}
 	run, err := s.cfg.Store.GetRun(c.Request.Context(), input.ReportID)
-	if errors.Is(err, gorm.ErrRecordNotFound) || (err == nil && run.OwnerID != ownerID(c)) {
+	if errors.Is(err, gorm.ErrRecordNotFound) || (err == nil && !store.RunOwnedBy(run, ownerID(c), currentUserID(c))) {
 		c.JSON(404, gin.H{"success": false, "message": "Check report not found"})
 		return
 	}
@@ -256,70 +266,72 @@ func (s *Server) createBaseline(c *gin.Context) {
 	c.JSON(200, gin.H{"success": true, "data": row})
 }
 
-func (s *Server) loadBaselines(c *gin.Context) ([]claudecheck.ComparisonBaseline, bool) {
-	rows, err := s.cfg.Store.LoadBaselines(c.Request.Context())
+func (s *Server) loadBaselines(ctx context.Context) ([]claudecheck.ComparisonBaseline, *leaseError) {
+	rows, err := s.cfg.Store.LoadBaselines(ctx)
 	if err != nil {
-		c.JSON(500, gin.H{"success": false, "message": "Could not load comparison baselines"})
-		return nil, false
+		return nil, &leaseError{500, "Could not load comparison baselines"}
 	}
 	snapshots := make([]claudecheck.ComparisonBaseline, 0, len(rows))
 	for _, row := range rows {
 		var snapshot claudecheck.ComparisonBaseline
 		if common.UnmarshalJsonStr(row.SnapshotJSON, &snapshot) != nil {
-			c.JSON(500, gin.H{"success": false, "message": "Could not load comparison baselines"})
-			return nil, false
+			return nil, &leaseError{500, "Could not load comparison baselines"}
 		}
 		snapshots = append(snapshots, snapshot)
 	}
-	return snapshots, true
+	return snapshots, nil
 }
 
 // selectBaselines resolves the chosen comparison before history creation or
-// any model request. Clients omit comparison when no snapshot is selected;
-// explicit legacy compare_baselines requests keep automatic matching.
+// any model request, answering the request itself when it fails.
 func (s *Server) selectBaselines(c *gin.Context, options *claudecheck.Options) ([]claudecheck.ComparisonBaseline, bool) {
+	baselines, err := s.resolveBaselines(c.Request.Context(), options)
+	if err != nil {
+		c.JSON(err.status, gin.H{"success": false, "message": err.message})
+		return nil, false
+	}
+	return baselines, true
+}
+
+// resolveBaselines resolves the chosen comparison. Clients omit comparison
+// when no snapshot is selected; explicit legacy compare_baselines requests
+// keep automatic matching.
+func (s *Server) resolveBaselines(ctx context.Context, options *claudecheck.Options) ([]claudecheck.ComparisonBaseline, *leaseError) {
 	options.BaselineID, options.BaselineType = strings.TrimSpace(options.BaselineID), strings.TrimSpace(options.BaselineType)
 	if options.BaselineID == "" {
 		if options.BaselineType != "" {
-			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Select a saved baseline for the chosen type"})
-			return nil, false
+			return nil, &leaseError{http.StatusBadRequest, "Select a saved baseline for the chosen type"}
 		}
 		if options.CompareBaselines {
-			return s.loadBaselines(c)
+			return s.loadBaselines(ctx)
 		}
-		return nil, true
+		return nil, nil
 	}
 	parsed, err := uuid.Parse(options.BaselineID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid comparison baseline"})
-		return nil, false
+		return nil, &leaseError{http.StatusBadRequest, "Invalid comparison baseline"}
 	}
-	row, err := s.cfg.Store.GetBaseline(c.Request.Context(), parsed.String())
+	row, err := s.cfg.Store.GetBaseline(ctx, parsed.String())
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "The selected comparison baseline is unavailable"})
-		return nil, false
+		return nil, &leaseError{http.StatusBadRequest, msgBaselineUnavailable}
 	}
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Could not load comparison baselines"})
-		return nil, false
+		return nil, &leaseError{http.StatusInternalServerError, "Could not load comparison baselines"}
 	}
 	if options.BaselineType != "" && !strings.EqualFold(options.BaselineType, row.Type) {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "The selected baseline does not match the chosen type"})
-		return nil, false
+		return nil, &leaseError{http.StatusBadRequest, "The selected baseline does not match the chosen type"}
 	}
 	var snapshot claudecheck.ComparisonBaseline
 	if common.UnmarshalJsonStr(row.SnapshotJSON, &snapshot) != nil || snapshot.ID != row.ID || snapshot.ReportID != row.ReportID ||
 		snapshot.Type != row.Type || snapshot.Version < 6 || !claudecheck.ComparisonModelsMatch(snapshot.Model, row.ModelName) {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "The selected comparison baseline is unavailable"})
-		return nil, false
+		return nil, &leaseError{http.StatusBadRequest, msgBaselineUnavailable}
 	}
 	if !claudecheck.ComparisonModelsMatch(options.Model, snapshot.Model) {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "The selected baseline does not match the requested model"})
-		return nil, false
+		return nil, &leaseError{http.StatusBadRequest, "The selected baseline does not match the requested model"}
 	}
 	// Earlier snapshots omitted individual fingerprint usage rows; the source
 	// report may supply them. Missing history never invalidates the choice.
-	if source, err := s.cfg.Store.GetRun(c.Request.Context(), snapshot.ReportID); err == nil {
+	if source, err := s.cfg.Store.GetRun(ctx, snapshot.ReportID); err == nil {
 		var sourceReport claudecheck.Report
 		if common.UnmarshalJsonStr(source.ReportJSON, &sourceReport) == nil {
 			snapshot = claudecheck.RestoreBaselineFingerprintUsage(snapshot, sourceReport, store.MaxBaselineBytes)
@@ -327,5 +339,7 @@ func (s *Server) selectBaselines(c *gin.Context, options *claudecheck.Options) (
 	}
 	options.CompareBaselines = true
 	options.BaselineID, options.BaselineType = snapshot.ID, snapshot.Type
-	return []claudecheck.ComparisonBaseline{snapshot}, true
+	return []claudecheck.ComparisonBaseline{snapshot}, nil
 }
+
+const msgBaselineUnavailable = "The selected comparison baseline is unavailable"

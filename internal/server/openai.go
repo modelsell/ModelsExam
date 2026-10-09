@@ -26,11 +26,22 @@ func (s *Server) checkOpenAI(c *gin.Context) {
 		BaseURL string `json:"base_url"`
 		Key     string `json:"key"`
 		Remark  string `json:"remark"`
+		// CredentialID uses a saved key instead of Key (signed-in accounts only).
+		CredentialID string `json:"credential_id"`
 	}
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 16<<10)
 	if common.DecodeJson(c.Request.Body, &input) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid request"})
 		return
+	}
+	var lease *keyLease
+	if input.CredentialID != "" {
+		var ok bool
+		if lease, ok = s.leaseFor(c, input.CredentialID, "openai", input.BaseURL); !ok {
+			return
+		}
+		defer lease.finish(s.cfg.Store)
+		input.BaseURL, input.Key = lease.endpoint, lease.secret
 	}
 	input.Model, input.Key = strings.TrimSpace(input.Model), strings.TrimSpace(input.Key)
 	endpoint, err := openaicheck.NormalizeBaseURL(input.BaseURL)
@@ -61,6 +72,9 @@ func (s *Server) checkOpenAI(c *gin.Context) {
 	// Name and description of the tested site, read from its home page. A
 	// failure leaves them empty; the check never depends on it.
 	site := siteinfo.Fetch(c.Request.Context(), client.Client, client.ValidateURL, endpoint)
+	if lease != nil {
+		lease.watch.wrap(client.Client)
+	}
 
 	ctx, cancel := context.WithTimeout(c.Request.Context(), openaicheck.RunTimeout)
 	defer cancel()
@@ -100,7 +114,7 @@ func (s *Server) checkOpenAI(c *gin.Context) {
 		}
 	}()
 
-	history := &openAIHistory{store: s.cfg.Store, owner: ownerID(c), redactor: redactor, siteName: site.Name, siteDesc: site.Description}
+	history := &openAIHistory{store: s.cfg.Store, owner: ownerID(c), meta: requestMeta(c, lease), redactor: redactor, siteName: site.Name, siteDesc: site.Description}
 	defer history.finalizeInterrupted()
 	report := openaicheck.RunWithObserver(ctx, input.Options, transport, func(event openaicheck.Event) {
 		if event.Report != nil {
@@ -168,6 +182,7 @@ func (s *Server) checkOpenAI(c *gin.Context) {
 type openAIHistory struct {
 	store         *store.Store
 	owner         string
+	meta          runMeta
 	redactor      *openaicheck.Redactor
 	snapshot      openaicheck.Report
 	activeProbe   string
@@ -260,6 +275,7 @@ func (h *openAIHistory) save(state string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if !h.created {
+		h.meta.apply(run)
 		err = h.store.CreateRun(ctx, run)
 		h.created = err == nil
 		return err

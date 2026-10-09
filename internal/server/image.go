@@ -24,11 +24,35 @@ const imageTransportName = "image_api"
 // stream event, stored row and error before it leaves this handler.
 func (s *Server) checkImage(c *gin.Context) {
 	c.Header("Cache-Control", "no-store")
-	var input imagecheck.Input
+	var req struct {
+		imagecheck.Input
+		// Saved keys (signed-in accounts only): the endpoint key and the
+		// official OpenAI key used for provenance verification.
+		CredentialID       string `json:"credential_id"`
+		VerifyCredentialID string `json:"verify_credential_id"`
+	}
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 32<<10)
-	if common.DecodeJson(c.Request.Body, &input) != nil {
+	if common.DecodeJson(c.Request.Body, &req) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid request"})
 		return
+	}
+	input := req.Input
+	var lease *keyLease
+	if req.CredentialID != "" {
+		var ok bool
+		if lease, ok = s.leaseFor(c, req.CredentialID, "image", input.BaseURL); !ok {
+			return
+		}
+		defer lease.finish(s.cfg.Store)
+		input.BaseURL, input.Key = lease.endpoint, lease.secret
+	}
+	if req.VerifyCredentialID != "" {
+		verify, ok := s.leaseFor(c, req.VerifyCredentialID, "openai", s.verifyBase())
+		if !ok {
+			return
+		}
+		defer verify.finish(s.cfg.Store)
+		input.VerifyKey = verify.secret
 	}
 	endpoint, err := input.Normalize()
 	if err != nil {
@@ -50,6 +74,9 @@ func (s *Server) checkImage(c *gin.Context) {
 	// Name and description of the tested site, read from its home page. A
 	// failure leaves them empty; the check never depends on it.
 	site := siteinfo.Fetch(c.Request.Context(), client.Client, client.ValidateURL, endpoint)
+	if lease != nil {
+		lease.watch.wrap(client.Client)
+	}
 
 	ctx, cancel := context.WithTimeout(c.Request.Context(), imagecheck.RunTimeout)
 	defer cancel()
@@ -93,7 +120,7 @@ func (s *Server) checkImage(c *gin.Context) {
 		}
 	}()
 
-	history := &imageHistory{store: s.cfg.Store, owner: ownerID(c), redactor: redactor, siteName: site.Name, siteDesc: site.Description}
+	history := &imageHistory{store: s.cfg.Store, owner: ownerID(c), meta: requestMeta(c, lease), redactor: redactor, siteName: site.Name, siteDesc: site.Description}
 	defer history.finalizeInterrupted()
 	report := imagecheck.Run(ctx, input.Options, transport, deps, func(event imagecheck.Event) {
 		if event.Report != nil {
@@ -162,6 +189,7 @@ func (s *Server) checkImage(c *gin.Context) {
 type imageHistory struct {
 	store         *store.Store
 	owner         string
+	meta          runMeta
 	redactor      *openaicheck.Redactor
 	snapshot      imagecheck.Report
 	activeProbe   string
@@ -247,6 +275,7 @@ func (h *imageHistory) save(state string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if !h.created {
+		h.meta.apply(run)
 		err = h.store.CreateRun(ctx, run)
 		h.created = err == nil
 		return err

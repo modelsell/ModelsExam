@@ -71,19 +71,19 @@ func TestRemarkOwnership(t *testing.T) {
 	if err := s.CreateRun(ctx, r); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.UpdateRemark(ctx, "owner-b", r.ID, "hijack"); !errors.Is(err, ErrForbidden) {
+	if _, err := s.UpdateRemark(ctx, "owner-b", 0, r.ID, "hijack"); !errors.Is(err, ErrForbidden) {
 		t.Fatalf("other browsers must not edit: %v", err)
 	}
-	got, err := s.UpdateRemark(ctx, "owner-a", r.ID, "new")
+	got, err := s.UpdateRemark(ctx, "owner-a", 0, r.ID, "new")
 	if err != nil || got.Remark == nil || *got.Remark != "new" {
 		t.Fatalf("owner edit failed: %v", err)
 	}
-	if _, err := s.UpdateRemark(ctx, "owner-a", uuid.NewString(), "x"); !errors.Is(err, gorm.ErrRecordNotFound) {
+	if _, err := s.UpdateRemark(ctx, "owner-a", 0, uuid.NewString(), "x"); !errors.Is(err, gorm.ErrRecordNotFound) {
 		t.Fatalf("missing report: %v", err)
 	}
 	running := newRun("owner-a", "running")
 	_ = s.CreateRun(ctx, running)
-	if _, err := s.UpdateRemark(ctx, "owner-a", running.ID, "x"); !errors.Is(err, ErrRunning) {
+	if _, err := s.UpdateRemark(ctx, "owner-a", 0, running.ID, "x"); !errors.Is(err, ErrRunning) {
 		t.Fatalf("running report: %v", err)
 	}
 }

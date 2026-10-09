@@ -23,6 +23,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("open database: %v", err)
 	}
+	if len(os.Args) > 1 {
+		os.Exit(runCommand(st, os.Args[1:]))
+	}
 	var webFS fs.FS
 	if sub, err := web.FS(); err == nil {
 		webFS = sub
@@ -40,7 +43,12 @@ func main() {
 		Trusted:       trusted,
 		VerifyBaseURL: os.Getenv("MODEL_CHECK_VERIFY_BASE_URL"),
 		SiteURL:       os.Getenv("MODEL_CHECK_SITE_URL"),
+		// Logins and saved keys never travel over plain HTTP unless this is
+		// explicitly turned off (local development only).
+		RequireHTTPS: os.Getenv("AUTH_REQUIRE_HTTPS") != "false",
+		Cloudflare:   os.Getenv("MODEL_CHECK_CLOUDFLARE") == "true",
 	})
+	srv.Start()
 	addr := os.Getenv("LISTEN_ADDR")
 	if addr == "" {
 		addr = ":8080"
@@ -53,6 +61,7 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 		_ = httpServer.Shutdown(ctx)
+		srv.Close()
 	}()
 	log.Printf("ModelsExam listening on %s", addr)
 	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

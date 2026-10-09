@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,6 +60,13 @@ type Run struct {
 	FailCount       int     `json:"fail_count"`
 	ActiveProbe     string  `json:"active_probe" gorm:"size:64"`
 	ReportJSON      string  `json:"-" gorm:"size:4194304"`
+	// UserID is set for runs of a signed-in account (or claimed into one).
+	UserID       *int64  `json:"-" gorm:"index"`
+	CredentialID *string `json:"-" gorm:"size:36;index"`
+	ScheduleID   *string `json:"-" gorm:"size:36;index"`
+	// ConfigKey identifies provider, endpoint, model and options, so a run can
+	// be compared with the previous run of the same configuration.
+	ConfigKey string `json:"-" gorm:"size:64;index"`
 }
 
 func (Run) TableName() string { return "model_check_runs" }
@@ -83,6 +91,7 @@ type Store struct{ db *gorm.DB }
 // "@tcp(" or "mysql://" prefix selects MySQL.
 func Open(dsn string) (*Store, error) {
 	var dialector gorm.Dialector
+	sqlitePath := ""
 	switch {
 	case strings.HasPrefix(dsn, "postgres://"), strings.HasPrefix(dsn, "postgresql://"):
 		dialector = postgres.Open(dsn)
@@ -100,15 +109,30 @@ func Open(dsn string) (*Store, error) {
 			}
 		}
 		dialector = sqlite.Open(dsn + "?_busy_timeout=5000")
+		sqlitePath = dsn
 	}
-	db, err := gorm.Open(dialector, &gorm.Config{Logger: logger.Default.LogMode(logger.Warn)})
+	// A missing row (unknown user, expired session) is an answer, not an error to log.
+	quiet := logger.New(log.New(os.Stderr, "\r\n", log.LstdFlags), logger.Config{SlowThreshold: 200 * time.Millisecond, LogLevel: logger.Warn, IgnoreRecordNotFoundError: true, Colorful: false})
+	db, err := gorm.Open(dialector, &gorm.Config{Logger: quiet})
 	if err != nil {
 		return nil, err
 	}
-	if err := db.AutoMigrate(&Run{}, &Baseline{}); err != nil {
+	if err := db.AutoMigrate(&Run{}, &Baseline{}, &User{}, &Session{}, &LoginAttempt{}, &OwnerClaim{}, &Credential{}, &Schedule{}, &ScheduleRun{}); err != nil {
 		return nil, fmt.Errorf("migrate: %w", err)
 	}
-	return &Store{db: db}, nil
+	// The database holds saved API keys in plaintext: only the service user may read it.
+	if sqlitePath != "" {
+		for _, p := range []string{sqlitePath, sqlitePath + "-wal", sqlitePath + "-shm", sqlitePath + "-journal"} {
+			if err := os.Chmod(p, 0o600); err != nil && !errors.Is(err, os.ErrNotExist) {
+				return nil, fmt.Errorf("chmod database: %w", err)
+			}
+		}
+	}
+	st := &Store{db: db}
+	if err := st.backfillConfigKeys(context.Background()); err != nil {
+		return nil, fmt.Errorf("backfill config keys: %w", err)
+	}
+	return st, nil
 }
 
 func (s *Store) Ping(ctx context.Context) error {
@@ -158,7 +182,8 @@ func (s *Store) recoverStale(ctx context.Context) error {
 }
 
 type ListQuery struct {
-	OwnerID   string // required: only this browser's runs are listed
+	OwnerID   string // only this browser's runs are listed, unless UserID is set
+	UserID    int64  // a signed-in account lists its own runs instead
 	ModelName string
 	Status    string
 	Page      int
@@ -169,10 +194,16 @@ func (s *Store) ListRuns(ctx context.Context, q ListQuery) ([]Run, int64, error)
 	if err := s.recoverStale(ctx); err != nil {
 		return nil, 0, err
 	}
-	if q.OwnerID == "" {
+	limit := int64(PublicRecordLimit)
+	tx := s.db.WithContext(ctx).Model(&Run{})
+	switch {
+	case q.UserID != 0:
+		tx, limit = tx.Where("user_id = ?", q.UserID), UserRecordLimit
+	case q.OwnerID != "":
+		tx = tx.Where("owner_id = ?", q.OwnerID)
+	default:
 		return []Run{}, 0, nil
 	}
-	tx := s.db.WithContext(ctx).Model(&Run{}).Where("owner_id = ?", q.OwnerID)
 	if q.ModelName != "" {
 		tx = tx.Where("model_name LIKE ?", "%"+q.ModelName+"%")
 	}
@@ -183,9 +214,9 @@ func (s *Store) ListRuns(ctx context.Context, q ListQuery) ([]Run, int64, error)
 	if err := tx.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	// Only the most recent PublicRecordLimit records of a browser are shown.
-	if total > PublicRecordLimit {
-		total = PublicRecordLimit
+	// Only the most recent records of a browser (or account) are shown.
+	if total > limit {
+		total = limit
 	}
 	page, size := q.Page, q.PageSize
 	if page < 1 {
@@ -218,9 +249,9 @@ func (s *Store) GetRun(ctx context.Context, id string) (*Run, error) {
 }
 
 // UpdateRemark preserves unknown report fields. Only the browser that started
-// the run (matching owner ID) may edit it.
-func (s *Store) UpdateRemark(ctx context.Context, ownerID, id, remark string) (*Run, error) {
-	if ownerID == "" || id == "" || !utf8.ValidString(remark) || utf8.RuneCountInString(remark) > 200 {
+// the run (matching owner ID) or the account it belongs to may edit it.
+func (s *Store) UpdateRemark(ctx context.Context, ownerID string, userID int64, id, remark string) (*Run, error) {
+	if (ownerID == "" && userID == 0) || id == "" || !utf8.ValidString(remark) || utf8.RuneCountInString(remark) > 200 {
 		return nil, errors.New("invalid model check remark")
 	}
 	var run Run
@@ -232,7 +263,7 @@ func (s *Store) UpdateRemark(ctx context.Context, ownerID, id, remark string) (*
 		if err := q.Where("id = ?", id).First(&run).Error; err != nil {
 			return err
 		}
-		if run.OwnerID != ownerID {
+		if !RunOwnedBy(&run, ownerID, userID) {
 			return ErrForbidden
 		}
 		if run.Status == "running" {
@@ -269,6 +300,11 @@ func (s *Store) UpdateRemark(ctx context.Context, ownerID, id, remark string) (*
 }
 
 var ErrForbidden = errors.New("not the owner of this report")
+
+// RunOwnedBy reports whether a browser owner ID or an account owns a run.
+func RunOwnedBy(run *Run, ownerID string, userID int64) bool {
+	return (ownerID != "" && run.OwnerID == ownerID) || (userID != 0 && run.UserID != nil && *run.UserID == userID)
+}
 
 // CreateBaseline is idempotent per report: repeated clicks return the existing
 // snapshot so a historical comparison cannot be silently replaced.

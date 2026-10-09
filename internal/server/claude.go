@@ -50,11 +50,22 @@ func (s *Server) checkClaude(c *gin.Context) {
 		BaseURL string `json:"base_url"`
 		Key     string `json:"key"`
 		Remark  string `json:"remark"`
+		// CredentialID uses a saved key instead of Key (signed-in accounts only).
+		CredentialID string `json:"credential_id"`
 	}
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 16<<10)
 	if common.DecodeJson(c.Request.Body, &input) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid request"})
 		return
+	}
+	var lease *keyLease
+	if input.CredentialID != "" {
+		var ok bool
+		if lease, ok = s.leaseFor(c, input.CredentialID, "claude", input.BaseURL); !ok {
+			return
+		}
+		defer lease.finish(s.cfg.Store)
+		input.BaseURL, input.Key = lease.endpoint, lease.secret
 	}
 	input.Model, input.Key = strings.TrimSpace(input.Model), strings.TrimSpace(input.Key)
 	endpoint, err := normalizeClaudeURL(input.BaseURL)
@@ -90,6 +101,9 @@ func (s *Server) checkClaude(c *gin.Context) {
 	// Name and description of the tested site, read from its home page. A
 	// failure leaves them empty; the check never depends on it.
 	site := siteinfo.Fetch(c.Request.Context(), client.Client, client.ValidateURL, endpoint)
+	if lease != nil {
+		lease.watch.wrap(client.Client)
+	}
 
 	ctx, cancel := context.WithTimeout(c.Request.Context(), claudecheck.RunTimeout)
 	defer cancel()
@@ -107,7 +121,7 @@ func (s *Server) checkClaude(c *gin.Context) {
 			report.Endpoint = u.String()
 		}
 	}
-	history := &claudeHistory{store: s.cfg.Store, owner: ownerID(c), redact: transport.redactJSON, siteDesc: site.Description}
+	history := &claudeHistory{store: s.cfg.Store, owner: ownerID(c), meta: requestMeta(c, lease), redact: transport.redactJSON, siteDesc: site.Description}
 	defer history.finalizeInterrupted()
 	stream := strings.Contains(c.GetHeader("Accept"), "text/event-stream")
 	var writeMu sync.Mutex
@@ -185,6 +199,7 @@ func (s *Server) checkClaude(c *gin.Context) {
 type claudeHistory struct {
 	store         *store.Store
 	owner         string
+	meta          runMeta
 	redact        func([]byte) []byte
 	snapshot      claudecheck.Report
 	activeProbe   string
@@ -288,6 +303,7 @@ func (h *claudeHistory) save(state string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if !h.created {
+		h.meta.apply(run)
 		err = h.store.CreateRun(ctx, run)
 		h.created = err == nil
 		return err

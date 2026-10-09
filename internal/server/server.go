@@ -4,6 +4,7 @@ package server
 import (
 	"context"
 	"io/fs"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
@@ -30,6 +31,12 @@ type Config struct {
 	// SiteURL is the public origin (https://example.com) used for canonical
 	// links and the sitemap. Empty derives it from the request.
 	SiteURL string
+	// RequireHTTPS refuses sign-in, registration and saving keys over plain
+	// HTTP. X-Forwarded-Proto is believed only from Trusted proxies.
+	RequireHTTPS bool
+	// Cloudflare believes CF-Connecting-IP when the trusted proxy reports a
+	// Cloudflare edge address as the client.
+	Cloudflare bool
 }
 
 type Server struct {
@@ -39,12 +46,28 @@ type Server struct {
 	openaiSlots chan struct{}
 	imageSlots  chan struct{}
 	geminiSlots chan struct{}
+	trusted     []*net.IPNet
+	// credBusy holds the saved keys in use: one check per key at a time.
+	credBusy sync.Map
+	// Background checks (retests with a saved key, schedules) have their own
+	// slots, separate from the manual ones above.
+	bgSlots  map[string]chan struct{}
+	bgCtx    context.Context
+	bgCancel context.CancelFunc
+	bgWG     sync.WaitGroup
+	now      func() time.Time
 }
 
 const ownerCookie = "mc_owner"
 
 func New(cfg Config) *Server {
-	return &Server{cfg: cfg, claudeSlots: make(chan struct{}, 2), openaiSlots: make(chan struct{}, 2), imageSlots: make(chan struct{}, 2), geminiSlots: make(chan struct{}, 2)}
+	s := &Server{cfg: cfg, claudeSlots: make(chan struct{}, 2), openaiSlots: make(chan struct{}, 2), imageSlots: make(chan struct{}, 2), geminiSlots: make(chan struct{}, 2),
+		trusted: parseNets(cfg.Trusted), now: time.Now, bgSlots: map[string]chan struct{}{}}
+	for _, p := range []string{"claude", "openai", "gemini", "image"} {
+		s.bgSlots[p] = make(chan struct{}, 2)
+	}
+	s.bgCtx, s.bgCancel = context.WithCancel(context.Background())
+	return s
 }
 
 func (s *Server) newClient() *ssrf.Client { return ssrf.New(s.cfg.AllowPrivate) }
@@ -56,7 +79,7 @@ func (s *Server) Handler() http.Handler {
 	_ = r.SetTrustedProxies(s.cfg.Trusted)
 	r.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedPaths([]string{"/api/model_check"})))
 
-	api := r.Group("/api", s.owner())
+	api := r.Group("/api", s.owner(), s.session())
 	api.GET("/status", func(c *gin.Context) {
 		c.Header("Cache-Control", "no-store")
 		if err := s.cfg.Store.Ping(c.Request.Context()); err != nil {
@@ -79,6 +102,28 @@ func (s *Server) Handler() http.Handler {
 	checks.GET("/boards", s.listBoards)
 	checks.GET("/boards/:model", s.getBoard)
 	checks.POST("/baselines", s.createBaseline)
+
+	// Accounts, saved keys, schedules and background checks. Every
+	// state-changing request here must come from this site.
+	acct := api.Group("", s.sameSite())
+	acct.GET("/auth/me", s.authMe)
+	acct.POST("/auth/register", s.register)
+	acct.POST("/auth/login", s.login)
+	acct.POST("/auth/logout", s.logout)
+	acct.POST("/auth/password", s.changePassword)
+	acct.POST("/auth/claim", s.claimRuns)
+	acct.GET("/credentials", s.listCredentials)
+	acct.POST("/credentials", s.createCredential)
+	acct.POST("/credentials/:id/renew", s.renewCredential)
+	acct.POST("/credentials/:id/resume", s.resumeCredential)
+	acct.DELETE("/credentials/:id", s.deleteCredential)
+	acct.GET("/schedules", s.listSchedules)
+	acct.POST("/schedules", s.createSchedule)
+	acct.PATCH("/schedules/:id", s.updateSchedule)
+	acct.DELETE("/schedules/:id", s.deleteSchedule)
+	acct.GET("/schedules/:id/runs", s.listScheduleRuns)
+	acct.POST("/jobs/retest", s.retest)
+	acct.GET("/jobs/running", s.runningJobs)
 
 	// Badge endpoints are public and carry no cookies. They are served only to
 	// pages of the badge's own domain (see badge.go).
@@ -151,7 +196,7 @@ func ownerID(c *gin.Context) string { return c.GetString("owner") }
 // acquire enforces one running check per client IP and a global concurrency
 // limit. The returned func releases both; ok=false means a response was sent.
 func (s *Server) acquire(c *gin.Context, kind string, slots chan struct{}) (release func(), ok bool) {
-	key := kind + ":" + c.ClientIP()
+	key := kind + ":" + s.clientIP(c)
 	if _, loaded := s.active.LoadOrStore(key, true); loaded {
 		c.JSON(http.StatusConflict, gin.H{"success": false, "message": "A model check is already running from your address"})
 		return nil, false
