@@ -47,7 +47,17 @@ Validate a source checkout with `make build && make test && go vet ./...`.
 | `MODEL_CHECK_ALLOW_PRIVATE` | `false` | allow loopback/private upstreams (local dev only) |
 | `MODEL_CHECK_VERIFY_BASE_URL` | `https://api.openai.com` | OpenAI Verify host for image provenance checks (override only for tests) |
 | `MODEL_CHECK_SITE_URL` | derived from the request | public origin, e.g. `https://modelsexam.com`; used for canonical links, `robots.txt` and `sitemap.xml`. Set it in production |
-| `TRUSTED_PROXIES` | none | comma-separated CIDRs allowed to set `X-Forwarded-For` (needed behind a reverse proxy for per-IP limits) |
+| `TRUSTED_PROXIES` | none | comma-separated CIDRs allowed to set `X-Forwarded-For` and `X-Forwarded-Proto` (needed behind a reverse proxy for per-IP limits and for sign-in over HTTPS) |
+| `AUTH_REQUIRE_HTTPS` | `true` | refuse sign-in, registration and saving keys over plain HTTP. Set `false` only for local development |
+| `MODEL_CHECK_CLOUDFLARE` | `false` | behind Cloudflare: believe `CF-Connecting-IP` when the trusted proxy reports a Cloudflare edge address |
+
+Optional accounts, saved test keys, one-click retests and scheduled checks are described in
+[docs/account-and-server-key.md](docs/account-and-server-key.md). Operator commands:
+
+```
+modelsexam user reset-password <username>   # new random password; deletes the user's saved keys
+modelsexam credentials purge-all --yes      # incident response: delete every saved key and schedule
+```
 
 ## API
 
@@ -56,7 +66,7 @@ All under `/api`, JSON, `Cache-Control: no-store`.
 | Method | Path | |
 |---|---|---|
 | POST | `/model_check` | Claude check (`{base_url,key,model,…options,remark?}`); `Accept: text/event-stream` streams progress |
-| POST | `/model_check/openai` | OpenAI check, same shape |
+| POST | `/model_check/openai` | OpenAI check, same shape. Every check endpoint also takes `credential_id` (a saved key of the signed-in account) instead of `key` |
 | POST | `/model_check/gemini` | native Gemini check (`{base_url,key,model,suite,vision?,remark?}`); the key is sent as `x-goog-api-key` |
 | POST | `/model_check/image` | image check (`{base_url,key,model,suite,provenance?,baseline?,verify_key?,remark?}`); `verify_key` is an official OpenAI key sent only to the Verify host |
 | GET | `/model_check/history` | this browser's "My check records" list (owner cookie), **latest 100 only** (`page`, `page_size`, `model`, `status`); older rows stay in the DB but are never listed |
