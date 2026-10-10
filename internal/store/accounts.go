@@ -63,9 +63,10 @@ type OwnerClaim struct {
 
 func (OwnerClaim) TableName() string { return "owner_claims" }
 
-// Credential is an API key saved by a user. Secret is stored in plaintext and
-// is write-only: it has no JSON name, list and detail queries omit the column,
-// and only CredentialSecret reads it, for the check runner.
+// Credential is an API key saved by a user. Secret is encrypted at rest
+// (AES-256-GCM, see internal/secretbox; the master key is not in the
+// database) and is write-only: it has no JSON name, list and detail queries
+// omit the column, and only CredentialSecret decrypts it, for the check runner.
 type Credential struct {
 	ID             string `json:"id" gorm:"primaryKey;size:36"`
 	UserID         int64  `json:"-" gorm:"index"`
@@ -253,7 +254,17 @@ func (s *Store) DeleteSession(ctx context.Context, tokenHash string) error {
 var credentialColumns = []string{"id", "user_id", "name", "provider", "base_url", "hint", "expires_at", "acknowledged_at",
 	"created_at", "last_used_at", "use_count", "paused_reason", "auth_failures"}
 
+// CreateCredential encrypts c.Secret before it is written.
 func (s *Store) CreateCredential(ctx context.Context, c *Credential) error {
+	if s.box == nil {
+		return ErrNoSecretKey
+	}
+	sealed, err := s.box.Seal(c.Secret, secretAAD(c.ID, c.UserID))
+	if err != nil {
+		return err
+	}
+	row := *c
+	row.Secret = sealed
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var n int64
 		if err := tx.Model(&Credential{}).Where("user_id = ?", c.UserID).Count(&n).Error; err != nil {
@@ -262,7 +273,7 @@ func (s *Store) CreateCredential(ctx context.Context, c *Credential) error {
 		if n >= MaxCredentialsPerUser {
 			return ErrLimit
 		}
-		return tx.Create(c).Error
+		return tx.Create(&row).Error
 	})
 }
 
@@ -279,11 +290,17 @@ func (s *Store) GetCredential(ctx context.Context, userID int64, id string) (*Cr
 	return &c, err
 }
 
-// CredentialSecret is the only read of a saved key, used by the check runner.
+// CredentialSecret is the only read of a saved key, used by the check runner
+// right before it sends the key upstream.
 func (s *Store) CredentialSecret(ctx context.Context, userID int64, id string) (string, error) {
+	if s.box == nil {
+		return "", ErrNoSecretKey
+	}
 	var c Credential
-	err := s.db.WithContext(ctx).Select("secret").Where("id = ? AND user_id = ?", id, userID).First(&c).Error
-	return c.Secret, err
+	if err := s.db.WithContext(ctx).Select("secret").Where("id = ? AND user_id = ?", id, userID).First(&c).Error; err != nil {
+		return "", err
+	}
+	return s.box.Open(c.Secret, secretAAD(id, userID))
 }
 
 func (s *Store) RenewCredential(ctx context.Context, userID int64, id string, expiresAt int64) error {

@@ -79,7 +79,7 @@ function KeysContent() {
     <>
       <Alert variant='destructive'>
         <AlertDescription>
-          {t('These keys are stored in plaintext on the server. Delete any key you no longer use for checks right away, and revoke it at your provider.')}
+          {t('These keys are stored encrypted on the server. Delete any key you no longer use for checks right away, and revoke it at your provider.')}
         </AlertDescription>
       </Alert>
       {deleted && (

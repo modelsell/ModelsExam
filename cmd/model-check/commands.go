@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"model-check/internal/auth"
+	"model-check/internal/secretbox"
 	"model-check/internal/store"
 )
 
@@ -17,7 +18,10 @@ const usage = `Usage:
                                               user out everywhere and delete all of
                                               that user's saved keys and schedules
   modelsexam credentials purge-all --yes      delete every saved key and schedule
-                                              (incident response)`
+                                              (incident response)
+  modelsexam credentials rotate-key <file>    re-encrypt every saved key with the
+                                              master key in <file>, then point
+                                              MODEL_CHECK_SECRET_KEY_FILE at it`
 
 // runCommand handles the operator subcommands. There is no self-service
 // password reset: an operator resets it, and the user's saved keys go with it.
@@ -60,6 +64,32 @@ func runCommand(st *store.Store, args []string) int {
 		}
 		fmt.Printf("Deleted %d saved keys and all schedules.\n", n)
 		return 0
+	case len(args) == 3 && args[0] == "credentials" && args[1] == "rotate-key":
+		current, err := loadSecretBox()
+		if err == nil {
+			_, err = st.UseSecretBox(ctx, current)
+		}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "current master key: %v\n", err)
+			return 1
+		}
+		data, err := os.ReadFile(args[2])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "read new key: %v\n", err)
+			return 1
+		}
+		next, err := secretbox.New(string(data))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "new key: %v\n", err)
+			return 1
+		}
+		n, err := st.RotateSecretKey(ctx, next)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "rotate: %v (nothing was changed)\n", err)
+			return 1
+		}
+		fmt.Printf("Re-encrypted %d saved keys. Now point MODEL_CHECK_SECRET_KEY_FILE at %s and restart.\n", n, args[2])
+		return 0
 	case len(args) == 1 && (args[0] == "help" || args[0] == "-h" || args[0] == "--help"):
 		fmt.Println(usage)
 		return 0
@@ -67,4 +97,21 @@ func runCommand(st *store.Store, args []string) int {
 	fmt.Fprintln(os.Stderr, errors.New("unknown command: "+strings.Join(args, " ")))
 	fmt.Fprintln(os.Stderr, usage)
 	return 2
+}
+
+// loadSecretBox reads the master key for saved API keys: the file named by
+// MODEL_CHECK_SECRET_KEY_FILE (production: a root-only file mounted read-only,
+// outside the data volume and its backups), else MODEL_CHECK_SECRET_KEY.
+func loadSecretBox() (*secretbox.Box, error) {
+	if path := strings.TrimSpace(os.Getenv("MODEL_CHECK_SECRET_KEY_FILE")); path != "" {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("read MODEL_CHECK_SECRET_KEY_FILE: %w", err)
+		}
+		return secretbox.New(string(data))
+	}
+	if key := os.Getenv("MODEL_CHECK_SECRET_KEY"); key != "" {
+		return secretbox.New(key)
+	}
+	return nil, errors.New("set MODEL_CHECK_SECRET_KEY_FILE or MODEL_CHECK_SECRET_KEY (32 random bytes, base64; e.g. openssl rand -base64 32)")
 }

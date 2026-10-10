@@ -25,6 +25,7 @@ import (
 	"gorm.io/gorm/logger"
 
 	"model-check/common"
+	"model-check/internal/secretbox"
 )
 
 const (
@@ -83,7 +84,10 @@ type Baseline struct {
 
 func (Baseline) TableName() string { return "model_check_baselines" }
 
-type Store struct{ db *gorm.DB }
+type Store struct {
+	db  *gorm.DB
+	box *secretbox.Box // encrypts saved keys; nil until UseSecretBox
+}
 
 // Open connects using DSN: empty or a file path selects SQLite, a
 // "postgres://" / "postgresql://" URL selects PostgreSQL and anything with an

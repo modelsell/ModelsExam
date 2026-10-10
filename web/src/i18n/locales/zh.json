@@ -1602,7 +1602,6 @@
     "Filled in from the record. Review the details, then create the schedule.": "已按检测记录填好。核对后创建定时检测。",
     "Host": "主机",
     "I have set a spending limit for this key at the provider.": "我已在服务商处为这个 Key 设置了额度上限。",
-    "I understand this key is stored in plaintext on this site’s server.": "我知道这个 Key 会以明文保存在本站服务器上。",
     "Incorrect username or password": "用户名或密码错误",
     "Interval": "间隔",
     "Invalid model check options": "检测选项无效",
@@ -1663,7 +1662,6 @@
     "The two passwords do not match": "两次输入的密码不一致",
     "There is no email and no password recovery. Remember your password: if it is lost, only the site operator can reset it, and that deletes every key saved in the account.": "本站不收集邮箱，也不提供找回密码。请牢记你的密码：忘记后只能由站点管理员重置，重置会删除账号中保存的所有 Key。",
     "There is no password recovery. Keep the new password somewhere safe.": "本站不提供找回密码，请妥善保存新密码。",
-    "These keys are stored in plaintext on the server. Delete any key you no longer use for checks right away, and revoke it at your provider.": "这些 Key 以明文保存在服务器上。不再检测的 Key 请立即删除，并到服务商处作废。",
     "This is a test key made only for checks. It is not used in production.": "这是专门用于检测的测试 Key，没有在生产环境中使用。",
     "This password is too common. Choose another one": "这个密码太常见了，请换一个",
     "This record cannot be retested: its address or model is missing.": "这条记录缺少地址或模型，无法重新测试。",
@@ -1671,7 +1669,6 @@
     "This saved key has reached its limit of 50 checks today": "这个已保存的 Key 今天已达到 50 次检测上限",
     "This saved key is for a different kind of check": "这个已保存的 Key 属于另一种检测类型",
     "This saved key is paused after repeated authentication failures": "这个已保存的 Key 因连续认证失败已暂停",
-    "This site stores the key <b>in plaintext on the server</b> for one-click retests and scheduled checks. Site operators, database backups and anyone who breaks into the server may be able to read it. After saving, even you will only see its mask.": "本站会把这个 Key <b>以明文保存在服务器上</b>，用于一键重测和定时检测。本站运维人员、数据库备份以及服务器被入侵时，都可能读到它。保存后你自己也只能看到掩码。",
     "This username is already taken": "这个用户名已被注册",
     "Too many accounts were created from your address. Try again later.": "你的地址注册的账号过多，请稍后再试。",
     "Too many failed sign-ins. This account is locked for {{minutes}} more minutes.": "登录失败次数过多，账号已锁定，请 {{minutes}} 分钟后再试。",
@@ -1698,6 +1695,9 @@
     "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.": "登录后查看你的检测记录。登录后发起的检测会保存到你的账号；未登录发起的检测不会进入任何记录列表。",
     "At least 8 characters with both letters and digits. Not a common password.": "至少 8 个字符，需同时包含字母和数字，不能是常见密码。",
     "Password must be at least 8 characters": "密码至少需要 8 个字符",
-    "Password must contain both letters and digits": "密码需要同时包含字母和数字"
+    "Password must contain both letters and digits": "密码需要同时包含字母和数字",
+    "These keys are stored encrypted on the server. Delete any key you no longer use for checks right away, and revoke it at your provider.": "这些 Key 会以加密保存在服务器上。不再检测的 Key 请立即删除，并到服务商处作废。",
+    "This site stores the key <b>encrypted on the server</b> for one-click retests and scheduled checks. The server has to decrypt it to run checks for you, so it could still leak if the server is broken into. After saving, even you will only see its mask.": "本站会把这个 Key <b>加密保存在服务器上</b>，用于一键重测和定时检测。服务器需要解密后才能代替你发起检测，所以服务器被入侵时仍可能泄露。保存后你自己也只能看到掩码。",
+    "I understand this key is stored encrypted on this site’s server and used to run checks for me.": "我知道这个 Key 会加密保存在本站服务器上，并用于代我发起检测。"
   }
 }

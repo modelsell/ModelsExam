@@ -140,7 +140,7 @@ export function SaveKeyPanel(props: {
           <ul className='flex list-disc flex-col gap-1.5 pl-5 text-xs leading-5'>
             <li>
               <Trans
-                i18nKey='This site stores the key <b>in plaintext on the server</b> for one-click retests and scheduled checks. Site operators, database backups and anyone who breaks into the server may be able to read it. After saving, even you will only see its mask.'
+                i18nKey='This site stores the key <b>encrypted on the server</b> for one-click retests and scheduled checks. The server has to decrypt it to run checks for you, so it could still leak if the server is broken into. After saving, even you will only see its mask.'
                 components={{ b: <strong /> }}
               />
             </li>
@@ -167,7 +167,7 @@ export function SaveKeyPanel(props: {
             [
               ['test', t('This is a test key made only for checks. It is not used in production.')],
               ['quota', t('I have set a spending limit for this key at the provider.')],
-              ['plaintext', t('I understand this key is stored in plaintext on this site’s server.')],
+              ['plaintext', t('I understand this key is stored encrypted on this site’s server and used to run checks for me.')],
             ] as const
           ).map(([name, label]) => (
             <label key={name} className='flex items-start gap-2 text-xs leading-5'>

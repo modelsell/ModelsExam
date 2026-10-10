@@ -13,4 +13,5 @@ test:
 	cd web && bun run typecheck && bun run test
 # API only on :8080 (run `cd web && bun run dev` alongside: serves on :5178, proxies /api).
 dev-api:
-	MODEL_CHECK_ALLOW_PRIVATE=true AUTH_REQUIRE_HTTPS=false go run ./cmd/model-check
+	# A fixed, public development master key: never use it in production.
+	MODEL_CHECK_ALLOW_PRIVATE=true AUTH_REQUIRE_HTTPS=false MODEL_CHECK_SECRET_KEY=ZGV2LW9ubHktbW9kZWxzZXhhbS1tYXN0ZXIta2V5ISE= go run ./cmd/model-check

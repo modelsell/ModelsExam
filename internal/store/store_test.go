@@ -8,6 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+
+	"model-check/internal/secretbox"
 )
 
 func open(t *testing.T) *Store {
@@ -16,7 +18,23 @@ func open(t *testing.T) *Store {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if _, err := s.UseSecretBox(context.Background(), testBox(t)); err != nil {
+		t.Fatal(err)
+	}
 	return s
+}
+
+func testBox(t *testing.T) *secretbox.Box {
+	t.Helper()
+	key, err := secretbox.NewKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+	box, err := secretbox.New(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return box
 }
 
 func newRun(owner, status string) *Run {

@@ -25,7 +25,8 @@ git clone https://github.com/modelsell/ModelsExam.git
 cd ModelsExam
 go mod download
 make build                  # bun install + build web + go build  -> ./modelsexam
-./modelsexam               # http://localhost:8080
+openssl rand -base64 32 > secret.key   # master key for saved API keys; keep it out of backups
+MODEL_CHECK_SECRET_KEY_FILE=secret.key ./modelsexam   # http://localhost:8080
 ```
 
 Development: `make dev-api` (API on :8080, private upstreams allowed) and, in another terminal,
@@ -35,7 +36,8 @@ Docker:
 
 ```bash
 docker build -t modelsexam .
-docker run --rm -p 8080:8080 -v modelsexam-data:/data modelsexam
+docker run --rm -p 8080:8080 -v modelsexam-data:/data \
+  -v "$PWD/secret.key:/secrets/secret.key:ro" -e MODEL_CHECK_SECRET_KEY_FILE=/secrets/secret.key modelsexam
 ```
 
 Validate a source checkout with `make build && make test && go vet ./...`.
@@ -49,6 +51,7 @@ Validate a source checkout with `make build && make test && go vet ./...`.
 | `MODEL_CHECK_SITE_URL` | derived from the request | public origin, e.g. `https://modelsexam.com`; used for canonical links, `robots.txt` and `sitemap.xml`. Set it in production |
 | `TRUSTED_PROXIES` | none | comma-separated CIDRs allowed to set `X-Forwarded-For` and `X-Forwarded-Proto` (needed behind a reverse proxy for per-IP limits and for sign-in over HTTPS) |
 | `AUTH_REQUIRE_HTTPS` | `true` | refuse sign-in, registration and saving keys over plain HTTP. Set `false` only for local development |
+| `MODEL_CHECK_SECRET_KEY_FILE` / `MODEL_CHECK_SECRET_KEY` | required | master key (32 random bytes, base64: `openssl rand -base64 32`) that encrypts saved API keys at rest. The server refuses to start without it. Keep it outside the database and its backups |
 | `MODEL_CHECK_CLOUDFLARE` | `false` | behind Cloudflare: believe `CF-Connecting-IP` when the trusted proxy reports a Cloudflare edge address |
 
 Optional accounts, saved test keys, one-click retests and scheduled checks are described in
@@ -57,6 +60,7 @@ Optional accounts, saved test keys, one-click retests and scheduled checks are d
 ```
 modelsexam user reset-password <username>   # new random password; deletes the user's saved keys
 modelsexam credentials purge-all --yes      # incident response: delete every saved key and schedule
+modelsexam credentials rotate-key <file>    # re-encrypt saved keys with a new master key
 ```
 
 ## API

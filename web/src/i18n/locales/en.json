@@ -1602,7 +1602,6 @@
     "Filled in from the record. Review the details, then create the schedule.": "Filled in from the record. Review the details, then create the schedule.",
     "Host": "Host",
     "I have set a spending limit for this key at the provider.": "I have set a spending limit for this key at the provider.",
-    "I understand this key is stored in plaintext on this site’s server.": "I understand this key is stored in plaintext on this site’s server.",
     "Incorrect username or password": "Incorrect username or password",
     "Interval": "Interval",
     "Invalid model check options": "Invalid model check options",
@@ -1663,7 +1662,6 @@
     "The two passwords do not match": "The two passwords do not match",
     "There is no email and no password recovery. Remember your password: if it is lost, only the site operator can reset it, and that deletes every key saved in the account.": "There is no email and no password recovery. Remember your password: if it is lost, only the site operator can reset it, and that deletes every key saved in the account.",
     "There is no password recovery. Keep the new password somewhere safe.": "There is no password recovery. Keep the new password somewhere safe.",
-    "These keys are stored in plaintext on the server. Delete any key you no longer use for checks right away, and revoke it at your provider.": "These keys are stored in plaintext on the server. Delete any key you no longer use for checks right away, and revoke it at your provider.",
     "This is a test key made only for checks. It is not used in production.": "This is a test key made only for checks. It is not used in production.",
     "This password is too common. Choose another one": "This password is too common. Choose another one",
     "This record cannot be retested: its address or model is missing.": "This record cannot be retested: its address or model is missing.",
@@ -1671,7 +1669,6 @@
     "This saved key has reached its limit of 50 checks today": "This saved key has reached its limit of 50 checks today",
     "This saved key is for a different kind of check": "This saved key is for a different kind of check",
     "This saved key is paused after repeated authentication failures": "This saved key is paused after repeated authentication failures",
-    "This site stores the key <b>in plaintext on the server</b> for one-click retests and scheduled checks. Site operators, database backups and anyone who breaks into the server may be able to read it. After saving, even you will only see its mask.": "This site stores the key <b>in plaintext on the server</b> for one-click retests and scheduled checks. Site operators, database backups and anyone who breaks into the server may be able to read it. After saving, even you will only see its mask.",
     "This username is already taken": "This username is already taken",
     "Too many accounts were created from your address. Try again later.": "Too many accounts were created from your address. Try again later.",
     "Too many failed sign-ins. This account is locked for {{minutes}} more minutes.": "Too many failed sign-ins. This account is locked for {{minutes}} more minutes.",
@@ -1698,6 +1695,9 @@
     "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.": "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.",
     "At least 8 characters with both letters and digits. Not a common password.": "At least 8 characters with both letters and digits. Not a common password.",
     "Password must be at least 8 characters": "Password must be at least 8 characters",
-    "Password must contain both letters and digits": "Password must contain both letters and digits"
+    "Password must contain both letters and digits": "Password must contain both letters and digits",
+    "These keys are stored encrypted on the server. Delete any key you no longer use for checks right away, and revoke it at your provider.": "These keys are stored encrypted on the server. Delete any key you no longer use for checks right away, and revoke it at your provider.",
+    "This site stores the key <b>encrypted on the server</b> for one-click retests and scheduled checks. The server has to decrypt it to run checks for you, so it could still leak if the server is broken into. After saving, even you will only see its mask.": "This site stores the key <b>encrypted on the server</b> for one-click retests and scheduled checks. The server has to decrypt it to run checks for you, so it could still leak if the server is broken into. After saving, even you will only see its mask.",
+    "I understand this key is stored encrypted on this site’s server and used to run checks for me.": "I understand this key is stored encrypted on this site’s server and used to run checks for me."
   }
 }

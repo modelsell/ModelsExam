@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"model-check/internal/auth"
+	"model-check/internal/secretbox"
 	"model-check/internal/store"
 )
 
@@ -32,6 +33,14 @@ func newHarness(t *testing.T) *harness {
 	auth.BcryptCost = 4
 	st, err := store.Open(t.TempDir() + "/t.db")
 	if err != nil {
+		t.Fatal(err)
+	}
+	key, _ := secretbox.NewKey()
+	box, err := secretbox.New(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.UseSecretBox(context.Background(), box); err != nil {
 		t.Fatal(err)
 	}
 	srv := New(Config{Store: st, AllowPrivate: true, Trusted: []string{"10.0.0.1"}, RequireHTTPS: true, SiteURL: "https://exam.test"})

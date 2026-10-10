@@ -6,6 +6,10 @@
 # Behind a reverse proxy on the same host (Caddy/nginx -> 127.0.0.1:PORT) the container
 # sees the proxy as the docker bridge gateway, so TRUSTED_PROXIES defaults to 172.17.0.1/32;
 # without it the app cannot tell HTTPS requests apart and refuses sign-in.
+# MODEL_CHECK_SECRET_KEY (in .env.deploy) is the master key that encrypts saved API keys.
+# It is sent over stdin to /opt/modelsexam-secrets/secret.key (root, 600) on the first
+# deploy, mounted read-only into the container, and never placed in the data directory or
+# its backups. A different key than the one on the server is refused (use rotate-key).
 # Isolated deploy: touches only /opt/modelsexam-* and the container named "modelsexam".
 # It never stops/removes other containers or services, never edits nginx/firewall,
 # and refuses to start if the chosen host port is used by anything other than our
@@ -53,6 +57,25 @@ fi
 df -h /opt | tail -1; free -m | sed -n 2p
 REMOTE
 
+echo ">> master key for saved API keys"
+printf '%s\n' "${MODEL_CHECK_SECRET_KEY:-}" | ssh "$SSH_USER@$HOST" 'sudo bash -c '"'"'
+set -eu
+install -d -m 700 /opt/modelsexam-secrets
+key=/opt/modelsexam-secrets/secret.key
+umask 077
+cat > "$key.new"
+if [ "$(tr -d "[:space:]" < "$key.new")" = "" ]; then
+  rm -f "$key.new"
+  [ -s "$key" ] || { echo "ERROR: no master key on the server; set MODEL_CHECK_SECRET_KEY in .env.deploy (openssl rand -base64 32)" >&2; exit 1; }
+  echo "ok: using the master key already on the server"
+elif [ -s "$key" ]; then
+  if cmp -s "$key" "$key.new"; then rm -f "$key.new"; echo "ok: master key unchanged"
+  else rm -f "$key.new"; echo "ERROR: MODEL_CHECK_SECRET_KEY differs from the key on the server; rotate with modelsexam credentials rotate-key" >&2; exit 1; fi
+else
+  mv "$key.new" "$key"; chmod 600 "$key"; echo "ok: master key installed"
+fi
+'"'"''
+
 echo ">> upload source"
 tar --exclude=.git --exclude=web/node_modules --exclude=web/dist --exclude=data --exclude='*.db' --exclude='.env*' -czf - . \
   | ssh "$SSH_USER@$HOST" 'sudo rm -rf /opt/modelsexam-src && sudo mkdir -p /opt/modelsexam-src && sudo tar -xzf - -C /opt/modelsexam-src'
@@ -69,7 +92,7 @@ docker stop modelsexam 2>/dev/null || true   # only our own container
 docker rm modelsexam 2>/dev/null || true
 mkdir -p /opt/modelsexam-data
 # Back up the database while no container writes to it. It holds saved API
-# keys in plaintext, so backups are root-only.
+# keys (encrypted; the master key is not in the data directory), so backups are root-only.
 if ls /opt/modelsexam-data/*.db >/dev/null 2>&1; then
   install -d -m 700 /opt/modelsexam-backups
   stamp=$(date +%Y%m%d-%H%M%S)
@@ -82,6 +105,7 @@ docker run -d --name modelsexam --restart unless-stopped \
   -p "127.0.0.1:${PORT}:8080" -v /opt/modelsexam-data:/data \
   -e MODEL_CHECK_SITE_URL="$SITE_URL" -e TRUSTED_PROXIES="${TRUSTED_PROXIES:-}" \
   -e AUTH_REQUIRE_HTTPS="$AUTH_REQUIRE_HTTPS" -e MODEL_CHECK_CLOUDFLARE="$MODEL_CHECK_CLOUDFLARE" \
+  -v /opt/modelsexam-secrets/secret.key:/secrets/secret.key:ro -e MODEL_CHECK_SECRET_KEY_FILE=/secrets/secret.key \
   modelsexam
 for i in $(seq 1 15); do
   curl -fsS -o /dev/null "http://127.0.0.1:${PORT}/api/status" && break

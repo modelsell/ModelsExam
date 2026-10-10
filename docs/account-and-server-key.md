@@ -48,8 +48,27 @@ cannot spoof it). Per-IP limits, including the existing "one check per address",
 
 ## Saved keys (`credentials`)
 
-Product decision: keys are stored **in plaintext** so the server can run checks without
-the user. Mitigations:
+Keys are **encrypted at rest** (since 2026-10-10; before that they were stored in
+plaintext and were encrypted by the first start of the new version). The server must be
+able to decrypt a key to run checks without the user, so encryption protects the database
+and its backups, not a compromised server.
+
+- Encryption (`internal/secretbox`): AES-256-GCM, a random 12-byte nonce per value,
+  stored as `v1:` + base64(nonce‖ciphertext). The additional data is the credential id and
+  user id, so a ciphertext copied into another row does not decrypt. Only
+  `Store.CredentialSecret` decrypts, right before the runner sends the key upstream.
+- Master key: 32 random bytes, base64, from `MODEL_CHECK_SECRET_KEY_FILE` (production) or
+  `MODEL_CHECK_SECRET_KEY`. The server refuses to start without it, and refuses a key that
+  cannot open the rows already encrypted. On start it encrypts any plaintext row left
+  (idempotent). Production keeps it in `/opt/modelsexam-secrets/secret.key` (root, 600),
+  mounted read-only at `/secrets`, outside the data volume and its backups; `deploy.sh`
+  installs it from `MODEL_CHECK_SECRET_KEY` in the local, git-ignored `.env.deploy`.
+- Rotation: `modelsexam credentials rotate-key <new-key-file>` re-encrypts every row in one
+  transaction (nothing changes if any row fails), then point `MODEL_CHECK_SECRET_KEY_FILE`
+  at the new file and restart. Losing the master key makes every saved key unreadable:
+  run `credentials purge-all --yes` and users save their keys again.
+
+Other mitigations:
 
 - Write-only. `Secret` has no JSON name; list and detail queries select every column but
   `secret`; only `Store.CredentialSecret` reads it, for the check runner. The UI shows the
@@ -64,8 +83,9 @@ the user. Mitigations:
   across runs; the run stops sending once paused). The user resumes it on My keys.
 - Limits: 20 keys per account, 50 checks per key per UTC day, one running check per key.
 - Saving needs the "保存到我的账号" switch plus all three acknowledgements; the warning
-  text is in the check forms and on My keys.
-- SQLite file (and WAL/SHM) is chmod 600; deploy backups are root-only.
+  text is in the check forms and on My keys. My keys says 「这些 Key 会以加密保存在服务器上。不再检测的 Key 请立即删除，并到服务商处作废。」
+- SQLite file (and WAL/SHM) is chmod 600; deploy backups are root-only and hold only
+  ciphertext.
 - Incident response: `modelsexam credentials purge-all --yes` deletes every key and schedule.
 
 Image checks: the endpoint key is a credential of provider `image`; the OpenAI Verify key,
@@ -109,7 +129,7 @@ previous run with the same key. Failures and score drops are highlighted.
 | GET | `/api/auth/me` | `{user, https, require_https}` |
 | POST | `/api/auth/register`, `/api/auth/login` | `{username, password}` |
 | POST | `/api/auth/logout`, `/api/auth/password` | |
-| GET/POST | `/api/credentials` | list (no secrets) / save `{provider, base_url, secret, expires_days, ack_test_key, ack_quota, ack_plaintext, name?}` |
+| GET/POST | `/api/credentials` | list (no secrets) / save `{provider, base_url, secret, expires_days, ack_test_key, ack_quota, ack_plaintext, name?}` (`ack_plaintext` is the storage acknowledgement; the name is kept for compatibility) |
 | POST | `/api/credentials/:id/renew`, `/resume`; DELETE `/api/credentials/:id` | |
 | GET/POST | `/api/schedules`; PATCH/DELETE `/api/schedules/:id`; GET `/api/schedules/:id/runs` | |
 | POST | `/api/jobs/retest` | `{provider, credential_id, model, options}` → `{run_id}` |

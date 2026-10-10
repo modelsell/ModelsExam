@@ -26,6 +26,17 @@ func main() {
 	if len(os.Args) > 1 {
 		os.Exit(runCommand(st, os.Args[1:]))
 	}
+	// Saved API keys are encrypted at rest; without the master key the server
+	// refuses to start rather than store or read them in plaintext.
+	box, err := loadSecretBox()
+	if err != nil {
+		log.Fatalf("saved-key encryption: %v", err)
+	}
+	if n, err := st.UseSecretBox(context.Background(), box); err != nil {
+		log.Fatalf("saved-key encryption: %v (is this the master key the keys were saved with?)", err)
+	} else if n > 0 {
+		log.Printf("encrypted %d saved keys that were stored in plaintext", n)
+	}
 	var webFS fs.FS
 	if sub, err := web.FS(); err == nil {
 		webFS = sub
