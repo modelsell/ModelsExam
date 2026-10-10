@@ -1559,7 +1559,6 @@
     "An account can have at most 10 schedules": "An account can have at most 10 schedules",
     "An account can save at most 20 keys. Delete one first": "An account can save at most 20 keys. Delete one first",
     "An account is optional. It lets you save test keys, retest with one click and run scheduled checks on the server.": "An account is optional. It lets you save test keys, retest with one click and run scheduled checks on the server.",
-    "At least 10 characters with 3 of: uppercase, lowercase, digits, symbols. Not your username, not a common password.": "At least 10 characters with 3 of: uppercase, lowercase, digits, symbols. Not your username, not a common password.",
     "At your provider, <b>create a separate test key</b> with a <b>low spending limit</b>. <b>Do not use a key that production uses</b>, and do not share one key between checks and production.": "At your provider, <b>create a separate test key</b> with a <b>low spending limit</b>. <b>Do not use a key that production uses</b>, and do not share one key between checks and production.",
     "Background checks are busy. Try again in a few minutes": "Background checks are busy. Try again in a few minutes",
     "Change password": "Change password",
@@ -1626,10 +1625,7 @@
     "Or pick a key saved in your account.": "Or pick a key saved in your account.",
     "Password": "Password",
     "Password changed. Other sessions were signed out.": "Password changed. Other sessions were signed out.",
-    "Password must be at least 10 characters": "Password must be at least 10 characters",
     "Password must be at most 72 bytes": "Password must be at most 72 bytes",
-    "Password must not contain the username": "Password must not contain the username",
-    "Password must use at least 3 of: uppercase letters, lowercase letters, digits, symbols": "Password must use at least 3 of: uppercase letters, lowercase letters, digits, symbols",
     "Paused": "Paused",
     "Paused after repeated 401/403 answers": "Paused after repeated 401/403 answers",
     "Renew": "Renew",
@@ -1699,6 +1695,9 @@
     "The key is used only for that check and is never written into reports. Check records are listed only in the user’s own account.": "The key is used only for that check and is never written into reports. Check records are listed only in the user’s own account.",
     "Check records are private to your account. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.": "Check records are private to your account. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.",
     "Your check records, after signing in. They are private and not shown to anyone else.": "Your check records, after signing in. They are private and not shown to anyone else.",
-    "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.": "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list."
+    "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.": "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.",
+    "At least 8 characters with both letters and digits. Not a common password.": "At least 8 characters with both letters and digits. Not a common password.",
+    "Password must be at least 8 characters": "Password must be at least 8 characters",
+    "Password must contain both letters and digits": "Password must contain both letters and digits"
   }
 }

@@ -1559,7 +1559,6 @@
     "An account can have at most 10 schedules": "每个账号最多 10 个定时检测",
     "An account can save at most 20 keys. Delete one first": "每个账号最多保存 20 个 Key，请先删除一个",
     "An account is optional. It lets you save test keys, retest with one click and run scheduled checks on the server.": "账号是可选的。登录后可以保存测试 Key、一键重测，并在服务器上定时检测。",
-    "At least 10 characters with 3 of: uppercase, lowercase, digits, symbols. Not your username, not a common password.": "至少 10 个字符，包含大写字母、小写字母、数字、符号中的至少 3 类；不能包含用户名，不能是常见密码。",
     "At your provider, <b>create a separate test key</b> with a <b>low spending limit</b>. <b>Do not use a key that production uses</b>, and do not share one key between checks and production.": "请在服务商处<b>单独创建一个测试 Key</b>，并设置<b>较低的额度上限</b>。<b>不要使用生产环境正在使用的 Key</b>，也不要和生产业务共用同一个 Key。",
     "Background checks are busy. Try again in a few minutes": "后台检测繁忙，请几分钟后再试",
     "Change password": "修改密码",
@@ -1626,10 +1625,7 @@
     "Or pick a key saved in your account.": "也可以选择账号中保存的 Key。",
     "Password": "密码",
     "Password changed. Other sessions were signed out.": "密码已修改，其他登录已退出。",
-    "Password must be at least 10 characters": "密码至少需要 10 个字符",
     "Password must be at most 72 bytes": "密码最多 72 字节",
-    "Password must not contain the username": "密码不能包含用户名",
-    "Password must use at least 3 of: uppercase letters, lowercase letters, digits, symbols": "密码需要包含大写字母、小写字母、数字、符号中的至少 3 类",
     "Paused": "已暂停",
     "Paused after repeated 401/403 answers": "连续收到 401/403，已暂停",
     "Renew": "续期",
@@ -1699,6 +1695,9 @@
     "The key is used only for that check and is never written into reports. Check records are listed only in the user’s own account.": "Key 只用于这一次检测，不会写入报告；检测记录只出现在用户自己的账号里。",
     "Check records are private to your account. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.": "检测记录仅对你的账号可见。结果描述的是检测当时所测的端点和模型，不是排名、认证或背书。",
     "Your check records, after signing in. They are private and not shown to anyone else.": "登录后查看你的检测记录。记录私有，不向任何人展示。",
-    "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.": "登录后查看你的检测记录。登录后发起的检测会保存到你的账号；未登录发起的检测不会进入任何记录列表。"
+    "Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.": "登录后查看你的检测记录。登录后发起的检测会保存到你的账号；未登录发起的检测不会进入任何记录列表。",
+    "At least 8 characters with both letters and digits. Not a common password.": "至少 8 个字符，需同时包含字母和数字，不能是常见密码。",
+    "Password must be at least 8 characters": "密码至少需要 8 个字符",
+    "Password must contain both letters and digits": "密码需要同时包含字母和数字"
   }
 }

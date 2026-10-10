@@ -33,7 +33,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const problems = mode === 'register' && password ? passwordProblems(username, password) : []
+  const problems = mode === 'register' && password ? passwordProblems(password) : []
   const blocked = auth.loaded && auth.requireHttps && !auth.https
 
   async function submit(event: FormEvent) {
@@ -105,7 +105,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
               />
               {mode === 'register' && (
                 <FieldDescription>
-                  {t('At least 10 characters with 3 of: uppercase, lowercase, digits, symbols. Not your username, not a common password.')}
+                  {t('At least 8 characters with both letters and digits. Not a common password.')}
                 </FieldDescription>
               )}
             </Field>

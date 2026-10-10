@@ -70,7 +70,6 @@ function AccountContent() {
 
 function PasswordCard() {
   const { t } = useTranslation()
-  const account = useAuthStore((state) => state.auth.user.account!)
   const [oldPassword, setOld] = useState('')
   const [newPassword, setNew] = useState('')
   const [error, setError] = useState('')
@@ -86,7 +85,7 @@ function PasswordCard() {
   const submit = (event: FormEvent) => {
     event.preventDefault()
     setError('')
-    const problems = passwordProblems(account.username, newPassword)
+    const problems = passwordProblems(newPassword)
     if (problems.length) return setError(t(problems[0]))
     change.mutate()
   }

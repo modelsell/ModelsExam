@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"strings"
 	"testing"
 )
 
@@ -20,27 +21,29 @@ func TestValidateUsername(t *testing.T) {
 
 func TestValidatePassword(t *testing.T) {
 	cases := []struct {
-		user, pw string
-		want     error
+		pw   string
+		want error
 	}{
-		{"alice", "Short1!", ErrPasswordLength},
-		{"alice", "alllowercaseletters", ErrPasswordClasses},
-		{"alice", "lowercase123456", ErrPasswordClasses},
-		{"alice", "Alice-Rocks-2026", ErrPasswordName},
-		{"bob", "Password123!", ErrPasswordCommon},
-		{"bob", "P@ssw0rd2024", ErrPasswordCommon},
-		{"bob", "Qwerty12345!", ErrPasswordCommon},
-		{"bob", "Admin@123456", ErrPasswordCommon},
-		{"bob", "Woaini1314!!", ErrPasswordCommon},
-		{"bob", "Abcabcabc123", ErrPasswordCommon},
-		{"bob", "1qaz2wsx3edC", ErrPasswordCommon},
-		{"bob", "Tr4in-Cactus-Lamp", nil},
-		{"bob", "violet Kettle 92", nil},
-		{"bob", string(make([]byte, 0)) + "Aa1-" + "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", ErrPasswordTooLong},
+		{"abc1234", ErrPasswordLength},
+		{"12345678901", ErrPasswordClasses},  // digits only
+		{"onlyletters", ErrPasswordClasses},  // letters only
+		{"!!!!@@@@####", ErrPasswordClasses}, // symbols only
+		{"password1", ErrPasswordCommon},
+		{"abc12345", ErrPasswordCommon},
+		{"Password123!", ErrPasswordCommon},
+		{"P@ssw0rd2024", ErrPasswordCommon},
+		{"Qwerty12345", ErrPasswordCommon},
+		{"woaini1314", ErrPasswordCommon},
+		{"abcabcabc123", ErrPasswordCommon},
+		{"1qaz2wsx3edc", ErrPasswordCommon},
+		{"kettle92violet", nil}, // lowercase letters and digits are enough
+		{"bob7kettle", nil},
+		{"Tr4in-Cactus-Lamp", nil},
+		{"Aa1-" + strings.Repeat("x", 70), ErrPasswordTooLong},
 	}
 	for _, c := range cases {
-		if got := ValidatePassword(c.user, c.pw); !errors.Is(got, c.want) {
-			t.Errorf("ValidatePassword(%q, %q) = %v, want %v", c.user, c.pw, got, c.want)
+		if got := ValidatePassword(c.pw); !errors.Is(got, c.want) {
+			t.Errorf("ValidatePassword(%q) = %v, want %v", c.pw, got, c.want)
 		}
 	}
 }
@@ -57,7 +60,7 @@ func TestHashAndTokens(t *testing.T) {
 		t.Fatalf("token %q hash %q err %v", tok, hash, err)
 	}
 	pw, err := RandomPassword()
-	if err != nil || ValidatePassword("someone", pw) != nil {
-		t.Fatalf("random password %q rejected: %v", pw, ValidatePassword("someone", pw))
+	if err != nil || ValidatePassword(pw) != nil {
+		t.Fatalf("random password %q rejected: %v", pw, ValidatePassword(pw))
 	}
 }

@@ -249,7 +249,7 @@ func (s *Server) register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
 	}
-	if err := auth.ValidatePassword(in.Username, in.Password); err != nil {
+	if err := auth.ValidatePassword(in.Password); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
 	}
@@ -357,7 +357,7 @@ func (s *Server) changePassword(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "The current password is incorrect"})
 		return
 	}
-	if err := auth.ValidatePassword(u.Username, in.NewPassword); err != nil {
+	if err := auth.ValidatePassword(in.NewPassword); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
 	}

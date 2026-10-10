@@ -12,8 +12,9 @@ remark of a run it started.)
 
 - Username only (3–32 `[A-Za-z0-9_]`, case-insensitive unique) and a password. No email,
   no 2FA, no self-service recovery.
-- Password: at least 10 characters, 3 of 4 classes (upper/lower/digit/symbol), must not
-  contain the username, at most 72 bytes (bcrypt), and not a common password. The
+- Password: at least 8 characters with at least one letter and one digit (relaxed from
+  10 characters / 3 of 4 classes on 2026-10-10), at most 72 bytes (bcrypt), and not a
+  common password. Existing passwords are unaffected. The
   embedded list (`internal/auth/weak-passwords.txt`) is matched directly, after undoing
   leetspeak and after stripping the digits and symbols people append (`P@ssw0rd2024`).
   Hash: bcrypt cost 12.

@@ -25,10 +25,9 @@ var usernamePattern = regexp.MustCompile(`^[A-Za-z0-9_]{3,32}$`)
 // Error messages are English sentences; the web app uses them as i18n keys.
 var (
 	ErrUsername        = errors.New("Username must be 3 to 32 letters, digits or underscores")
-	ErrPasswordLength  = errors.New("Password must be at least 10 characters")
+	ErrPasswordLength  = errors.New("Password must be at least 8 characters")
 	ErrPasswordTooLong = errors.New("Password must be at most 72 bytes")
-	ErrPasswordClasses = errors.New("Password must use at least 3 of: uppercase letters, lowercase letters, digits, symbols")
-	ErrPasswordName    = errors.New("Password must not contain the username")
+	ErrPasswordClasses = errors.New("Password must contain both letters and digits")
 	ErrPasswordCommon  = errors.New("This password is too common. Choose another one")
 )
 
@@ -56,40 +55,22 @@ var weak = func() map[string]bool {
 var leet = strings.NewReplacer("@", "a", "4", "a", "0", "o", "1", "i", "!", "i", "3", "e", "$", "s", "5", "s", "7", "t", "+", "t", "8", "b", "9", "g")
 
 // ValidatePassword applies the account password policy.
-func ValidatePassword(username, password string) error {
-	if utf8.RuneCountInString(password) < 10 {
+func ValidatePassword(password string) error {
+	if utf8.RuneCountInString(password) < 8 {
 		return ErrPasswordLength
 	}
 	if len(password) > 72 { // bcrypt reads at most 72 bytes
 		return ErrPasswordTooLong
 	}
-	var upper, lower, digit, symbol bool
+	var letter, digit bool
 	for _, r := range password {
-		switch {
-		case unicode.IsUpper(r):
-			upper = true
-		case unicode.IsLower(r):
-			lower = true
-		case unicode.IsDigit(r):
-			digit = true
-		default:
-			symbol = true
-		}
+		letter = letter || unicode.IsLetter(r)
+		digit = digit || unicode.IsDigit(r)
 	}
-	classes := 0
-	for _, ok := range []bool{upper, lower, digit, symbol} {
-		if ok {
-			classes++
-		}
-	}
-	if classes < 3 {
+	if !letter || !digit {
 		return ErrPasswordClasses
 	}
-	lowerPw := strings.ToLower(password)
-	if username != "" && strings.Contains(lowerPw, strings.ToLower(username)) {
-		return ErrPasswordName
-	}
-	if isCommon(lowerPw) {
+	if isCommon(strings.ToLower(password)) {
 		return ErrPasswordCommon
 	}
 	return nil
