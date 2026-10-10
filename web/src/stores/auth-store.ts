@@ -11,7 +11,6 @@ type State = {
     loaded: boolean
     https: boolean
     requireHttps: boolean
-    claimable: number
   }
 }
 
@@ -19,7 +18,7 @@ const GUEST: AuthUser = { id: 'guest', role: 0 }
 // Until the first answer the id is empty, so queries keyed on it wait
 // instead of loading the anonymous list and then the account's.
 let state: State = {
-  auth: { user: { id: '', role: 0 }, loaded: false, https: true, requireHttps: true, claimable: 0 },
+  auth: { user: { id: '', role: 0 }, loaded: false, https: true, requireHttps: true },
 }
 const listeners = new Set<() => void>()
 
@@ -38,12 +37,11 @@ export function setAuthInfo(info: AuthInfo) {
     loaded: true,
     https: info.https,
     requireHttps: info.require_https,
-    claimable: info.claimable,
   })
 }
 
-export function setSignedIn(account: Account | null, claimable = 0) {
-  emit({ ...state.auth, user: userFor(account), loaded: true, claimable })
+export function setSignedIn(account: Account | null) {
+  emit({ ...state.auth, user: userFor(account), loaded: true })
 }
 
 let pending: Promise<void> | undefined

@@ -1,7 +1,8 @@
-// Package store persists check reports and comparison baselines. There are no
-// user accounts: a random per-browser owner ID decides whose list a report is
-// in and who may annotate it. Anyone with a report's ID (its share link) may
-// open it, but reports are never listed publicly.
+// Package store persists check reports, comparison baselines and the optional
+// accounts (accounts.go). Only an account has a record list: it holds the runs
+// started while signed in. A guest run is in no list; the random per-browser
+// owner ID only decides who may annotate it. Anyone with a report's ID (its
+// share link) may open it, but reports are never listed publicly.
 package store
 
 import (
@@ -31,8 +32,6 @@ const (
 	MaxBaselineBytes = 32 << 10
 	BaselineLimit    = 50
 	ScoreVersion     = 1
-	// PublicRecordLimit caps a browser's record list; older rows stay in the database.
-	PublicRecordLimit = 100
 )
 
 var ErrRunning = errors.New("model check is still running")
@@ -182,8 +181,7 @@ func (s *Store) recoverStale(ctx context.Context) error {
 }
 
 type ListQuery struct {
-	OwnerID   string // only this browser's runs are listed, unless UserID is set
-	UserID    int64  // a signed-in account lists its own runs instead
+	UserID    int64 // required: only this account's runs are listed
 	ModelName string
 	Status    string
 	Page      int
@@ -194,16 +192,12 @@ func (s *Store) ListRuns(ctx context.Context, q ListQuery) ([]Run, int64, error)
 	if err := s.recoverStale(ctx); err != nil {
 		return nil, 0, err
 	}
-	limit := int64(PublicRecordLimit)
-	tx := s.db.WithContext(ctx).Model(&Run{})
-	switch {
-	case q.UserID != 0:
-		tx, limit = tx.Where("user_id = ?", q.UserID), UserRecordLimit
-	case q.OwnerID != "":
-		tx = tx.Where("owner_id = ?", q.OwnerID)
-	default:
+	// Only accounts have a record list; guest runs are never listed.
+	if q.UserID == 0 {
 		return []Run{}, 0, nil
 	}
+	limit := int64(UserRecordLimit)
+	tx := s.db.WithContext(ctx).Model(&Run{}).Where("user_id = ?", q.UserID)
 	if q.ModelName != "" {
 		tx = tx.Where("model_name LIKE ?", "%"+q.ModelName+"%")
 	}

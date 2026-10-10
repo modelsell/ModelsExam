@@ -69,17 +69,17 @@ All under `/api`, JSON, `Cache-Control: no-store`.
 | POST | `/model_check/openai` | OpenAI check, same shape. Every check endpoint also takes `credential_id` (a saved key of the signed-in account) instead of `key` |
 | POST | `/model_check/gemini` | native Gemini check (`{base_url,key,model,suite,vision?,remark?}`); the key is sent as `x-goog-api-key` |
 | POST | `/model_check/image` | image check (`{base_url,key,model,suite,provenance?,baseline?,verify_key?,remark?}`); `verify_key` is an official OpenAI key sent only to the Verify host |
-| GET | `/model_check/history` | this browser's "My check records" list (owner cookie), **latest 100 only** (`page`, `page_size`, `model`, `status`); older rows stay in the DB but are never listed |
+| GET | `/model_check/history` | the signed-in account's "My check records" (401 without an account), **latest 1000 only** (`page`, `page_size`, `model`, `status`); older rows stay in the DB but are never listed |
 | GET | `/model_check/history/:id` | report detail (+`markdown` for OpenAI, Gemini and image); open to anyone with the report id (the share link) |
-| PATCH | `/model_check/history/:id/remark` | only the browser that ran the check (owner cookie) |
+| PATCH | `/model_check/history/:id/remark` | only the account (or, for a guest run, the browser) that ran the check |
 | GET/POST | `/model_check/baselines` | shared comparison baselines (Claude) |
 
 ## Behaviour you should know about
 
-- **Private history, shareable reports.** A report is listed only to the browser that ran it, identified
-  by a random `mc_owner` cookie (no accounts). Its `/reports/<id>` link (a random UUID) opens for anyone
-  it is shared with, and report pages are `noindex`. Clearing cookies or switching browsers removes
-  reports from your list, but their links keep working; the rows stay in the database. There are no public record lists, model boards, stats or report sitemap
+- **Private history, shareable reports.** "My check records" needs an account and lists only the checks
+  that account ran while signed in. Guests can still run checks, but their runs are in no list. Every
+  report's `/reports/<id>` link (a random UUID) opens for anyone it is shared with, and report pages are
+  `noindex`. There are no public record lists, model boards, stats or report sitemap
   entries. Site badges still show the verdict (tier, score, date) of the newest check of a domain, from
   any visitor, but never link to the report.
 - **Shared baselines.** Any visitor can promote a completed Claude report they ran to a baseline, and baselines

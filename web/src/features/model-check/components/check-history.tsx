@@ -142,7 +142,8 @@ export function CheckHistory(props: { initialModel?: string }) {
     // replay and axios then rejects with CanceledError, leaving the list in an
     // error state before any request is sent.
     queryFn: () => getCheckHistory(debounced),
-    enabled: !!userId,
+    // Records belong to accounts: without one there is no list to load.
+    enabled: signedIn,
     refetchInterval: (query) =>
       query.state.data?.items.some((item) => item.status === 'running')
         ? 3000
@@ -177,9 +178,7 @@ export function CheckHistory(props: { initialModel?: string }) {
             {t('My check records')}
           </h2>
           <p className='text-muted-foreground text-sm leading-6'>
-            {signedIn
-              ? t('Checks of your account, from any device. Nobody else can see this list.')
-              : t('Only checks run from this browser. Nobody else can see this list.')}
+            {t('Checks of your account, from any device. Nobody else can see this list.')}
           </p>
         </div>
         <p className='text-muted-foreground flex items-center gap-2 text-xs'>
@@ -195,7 +194,7 @@ export function CheckHistory(props: { initialModel?: string }) {
         <CardHeader className='sr-only'>
           <CardTitle>{t('My check records')}</CardTitle>
           <CardDescription>
-            {t('Your latest 100 checks from this browser. Other people cannot see this list; a report opens only for people you share its link with.')}
+            {t('Your latest checks while signed in. Other people cannot see this list; a report opens only for people you share its link with.')}
           </CardDescription>
         </CardHeader>
         <CardContent className='flex flex-col gap-4'>
@@ -206,7 +205,7 @@ export function CheckHistory(props: { initialModel?: string }) {
               placeholder={t('Filter by model')}
               value={filters.model}
               maxLength={200}
-              disabled={!userId}
+              disabled={!signedIn}
               onChange={(event) =>
                 setFilters((previous) => ({
                   ...previous,
@@ -218,7 +217,7 @@ export function CheckHistory(props: { initialModel?: string }) {
             <NativeSelect
               aria-label={t('Status')}
               value={filters.status}
-              disabled={!userId}
+              disabled={!signedIn}
               onChange={(event) =>
                 setFilters((previous) => ({
                   ...previous,
@@ -238,7 +237,7 @@ export function CheckHistory(props: { initialModel?: string }) {
             </NativeSelect>
             <Button
               variant='outline'
-              disabled={!userId || list.isFetching}
+              disabled={!signedIn || list.isFetching}
               onClick={() => {
                 void list.refetch()
               }}
@@ -267,7 +266,7 @@ export function CheckHistory(props: { initialModel?: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {userId && list.isPending && (
+              {signedIn && list.isPending && (
                 <TableRow>
                   <TableCell colSpan={8}>
                     <Skeleton className='h-24' />
@@ -363,7 +362,7 @@ export function CheckHistory(props: { initialModel?: string }) {
                   </TableCell>
                 </TableRow>
               ))}
-              {!userId && !list.data && (
+              {!signedIn && (
                 <TableRow>
                   <TableCell colSpan={8}>
                     <Empty className='py-10'>
@@ -375,14 +374,22 @@ export function CheckHistory(props: { initialModel?: string }) {
                           {t('Your model checks, all in one place')}
                         </EmptyTitle>
                         <EmptyDescription>
-                          {t('Sign in to view your check history.')}
+                          {t('Sign in to see your check records. Checks you run while signed in are saved to your account; checks run without an account are not added to any list.')}
                         </EmptyDescription>
+                        <div className='flex justify-center gap-2'>
+                          <Link to='/login' className={buttonVariants({ size: 'sm' })}>
+                            {t('Sign in')}
+                          </Link>
+                          <Link to='/register' className={buttonVariants({ size: 'sm', variant: 'outline' })}>
+                            {t('Create account')}
+                          </Link>
+                        </div>
                       </EmptyHeader>
                     </Empty>
                   </TableCell>
                 </TableRow>
               )}
-              {!!userId &&
+              {signedIn &&
                 !list.isPending &&
                 !list.isError &&
                 !list.data?.items.length && (
@@ -415,7 +422,7 @@ export function CheckHistory(props: { initialModel?: string }) {
             <Button
               size='sm'
               variant='outline'
-              disabled={!userId || filters.page <= 1 || list.isFetching}
+              disabled={!signedIn || filters.page <= 1 || list.isFetching}
               onClick={() =>
                 setFilters((previous) => ({
                   ...previous,
@@ -432,7 +439,7 @@ export function CheckHistory(props: { initialModel?: string }) {
               size='sm'
               variant='outline'
               disabled={
-                !userId || filters.page * size >= total || list.isFetching
+                !signedIn || filters.page * size >= total || list.isFetching
               }
               onClick={() =>
                 setFilters((previous) => ({

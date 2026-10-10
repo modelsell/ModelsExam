@@ -165,7 +165,7 @@ export function SiteLayout(props: { current: RouteName; children: ReactNode }) {
             </p>
             <p className='max-w-xl text-xs leading-5 text-muted-foreground'>
               {t(
-                'Check records are private to the browser that ran them. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.'
+                'Check records are private to your account. Results describe the endpoint and model tested at the time of the run; they are not rankings, certifications or endorsements.'
               )}
             </p>
             <p className='max-w-xl text-xs leading-5 text-muted-foreground'>

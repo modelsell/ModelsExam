@@ -1,7 +1,12 @@
 # Accounts, saved keys, retests and scheduled checks
 
-Status: shipped 2026-10-09. Everything here is optional: without an account the site
-works exactly as before (records belong to the browser's `mc_owner` cookie).
+Status: shipped 2026-10-09. Records became account-only on 2026-10-10.
+
+Checks need no account. "My check records", saved keys, retests and schedules do: the
+record list holds only the runs an account started while signed in. Guest runs are not
+attached to any account and are in no list; their report links keep working, and their
+rows stay in the database. (The browser `mc_owner` cookie now only lets a guest edit the
+remark of a run it started.)
 
 ## Accounts (`internal/auth`, `internal/server/accounts.go`)
 
@@ -25,9 +30,10 @@ works exactly as before (records belong to the browser's `mc_owner` cookie).
   (in Docker: `docker exec modelsexam /modelsexam user reset-password <name>`). It prints a
   random password, ends all sessions and deletes all of that user's saved keys and
   schedules.
-- On sign-in, a browser whose anonymous records are not yet claimed is offered to move
-  them into the account (`owner_claims`, once per browser). Signed in, "My check records"
-  lists the account's runs (`model_check_runs.user_id`) from any device.
+- "My check records" lists the account's runs (`model_check_runs.user_id`, latest 1000)
+  from any device; `GET /api/model_check/history` answers 401 without an account. Guest
+  runs are never moved into an account (the earlier claim flow was removed; its
+  `owner_claims` table is kept unused because schema changes are add-only).
 
 ## HTTPS gate
 
@@ -99,9 +105,9 @@ previous run with the same key. Failures and score drops are highlighted.
 
 | Method | Path | |
 |---|---|---|
-| GET | `/api/auth/me` | `{user, https, require_https, claimable}` |
+| GET | `/api/auth/me` | `{user, https, require_https}` |
 | POST | `/api/auth/register`, `/api/auth/login` | `{username, password}` |
-| POST | `/api/auth/logout`, `/api/auth/password`, `/api/auth/claim` | |
+| POST | `/api/auth/logout`, `/api/auth/password` | |
 | GET/POST | `/api/credentials` | list (no secrets) / save `{provider, base_url, secret, expires_days, ack_test_key, ack_quota, ack_plaintext, name?}` |
 | POST | `/api/credentials/:id/renew`, `/resume`; DELETE `/api/credentials/:id` | |
 | GET/POST | `/api/schedules`; PATCH/DELETE `/api/schedules/:id`; GET `/api/schedules/:id/runs` | |
@@ -111,8 +117,8 @@ previous run with the same key. Failures and score drops are highlighted.
 ## Tests
 
 `internal/auth` (password rules, tokens), `internal/store/accounts_test.go` (lockout,
-session ending, write-only secret, expiry deletion, limits, schedule claim, record claim,
+session ending, write-only secret, expiry deletion, limits, schedule claim, account-only record lists,
 previous score) and `internal/server/accounts_test.go` (HTTPS gate, cross-site refusal,
-lockout and rate limits, logout and password change, write-only API, base URL binding,
+lockout and rate limits, logout and password change, records for accounts only, write-only API, base URL binding,
 auto-pause, background retest, a schedule that runs once under concurrent ticks,
 Cloudflare client IP). Frontend: `web/src/features/account/lib/*.test.ts`.

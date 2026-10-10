@@ -51,9 +51,15 @@ func (s *Server) listHistory(c *gin.Context) {
 		c.JSON(400, gin.H{"success": false, "message": "Invalid model name"})
 		return
 	}
-	// A signed-in account lists its own runs; otherwise this browser's.
-	owner, userID := ownerID(c), currentUserID(c)
-	query := store.ListQuery{OwnerID: owner, UserID: userID, ModelName: name, Status: status, Page: page, PageSize: size}
+	// Check records belong to accounts: only a signed-in user has a list, and it
+	// holds the runs started while signed in. Guest runs are in no list; their
+	// report link still opens them.
+	u, ok := requireUser(c)
+	if !ok {
+		return
+	}
+	owner, userID := ownerID(c), u.ID
+	query := store.ListQuery{UserID: userID, ModelName: name, Status: status, Page: page, PageSize: size}
 	rows, total, err := s.cfg.Store.ListRuns(c.Request.Context(), query)
 	if err != nil {
 		c.JSON(500, gin.H{"success": false, "message": "Failed to load check history"})

@@ -47,9 +47,9 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
     setBusy(true)
     try {
       const result = mode === 'login' ? await login(username, password) : await register(username, password)
-      setSignedIn(result.user, result.claimable)
+      setSignedIn(result.user)
       await queryClient.invalidateQueries()
-      navigate(result.claimable > 0 ? '/account' : '/')
+      navigate('/')
     } catch (err) {
       setError((err as Error).message)
     } finally {

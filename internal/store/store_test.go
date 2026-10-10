@@ -25,21 +25,23 @@ func newRun(owner, status string) *Run {
 		ReportJSON: `{"id":"x","remark":"old"}`}
 }
 
-func TestRunLifecycleAndOwnerList(t *testing.T) {
+func TestRunLifecycleAndAccountList(t *testing.T) {
 	s, ctx := open(t), context.Background()
+	u := newUser(t, s, "lifecycle")
 	a, b := newRun("owner-a", "running"), newRun("owner-b", "completed")
+	a.UserID = &u.ID
 	for _, r := range []*Run{a, b} {
 		if err := s.CreateRun(ctx, r); err != nil {
 			t.Fatal(err)
 		}
 	}
-	// Each browser lists only its own reports; no owner lists nothing.
-	rows, total, err := s.ListRuns(ctx, ListQuery{OwnerID: "owner-a", Page: 1, PageSize: 20})
+	// An account lists only its own runs; without an account there is no list.
+	rows, total, err := s.ListRuns(ctx, ListQuery{UserID: u.ID, Page: 1, PageSize: 20})
 	if err != nil || total != 1 || len(rows) != 1 || rows[0].ID != a.ID {
 		t.Fatalf("list: %v total=%d rows=%d", err, total, len(rows))
 	}
 	if rows, total, err := s.ListRuns(ctx, ListQuery{Page: 1, PageSize: 20}); err != nil || total != 0 || len(rows) != 0 {
-		t.Fatalf("list without owner: %v total=%d rows=%d", err, total, len(rows))
+		t.Fatalf("list without account: %v total=%d rows=%d", err, total, len(rows))
 	}
 	// Finalize the running row; a late checkpoint afterwards must be rejected.
 	a.Status = "completed"
@@ -107,20 +109,22 @@ func TestBaselineIsIdempotentPerReport(t *testing.T) {
 	}
 }
 
-func TestListRunsShowsOnlyLatest100(t *testing.T) {
+func TestListRunsShowsOnlyTheLatest(t *testing.T) {
 	s, ctx := open(t), context.Background()
+	u := newUser(t, s, "many")
 	base := time.Now().UnixMilli()
-	for i := 0; i < 120; i++ {
+	for i := 0; i < UserRecordLimit+20; i++ {
 		r := newRun("o", "completed")
+		r.UserID = &u.ID
 		r.StartedAt = base + int64(i)
 		if err := s.CreateRun(ctx, r); err != nil {
 			t.Fatal(err)
 		}
 	}
 	seen, newest := 0, int64(0)
-	for page := 1; page <= 6; page++ {
-		rows, total, err := s.ListRuns(ctx, ListQuery{OwnerID: "o", Page: page, PageSize: 20})
-		if err != nil || total != 100 {
+	for page := 1; page <= UserRecordLimit/100+1; page++ {
+		rows, total, err := s.ListRuns(ctx, ListQuery{UserID: u.ID, Page: page, PageSize: 100})
+		if err != nil || total != UserRecordLimit {
 			t.Fatalf("page %d: total=%d err=%v", page, total, err)
 		}
 		for _, r := range rows {
@@ -128,12 +132,12 @@ func TestListRunsShowsOnlyLatest100(t *testing.T) {
 				newest = r.StartedAt
 			}
 			if r.StartedAt < base+20 {
-				t.Fatalf("a record outside the latest 100 was listed: %d", r.StartedAt-base)
+				t.Fatalf("a record outside the latest %d was listed: %d", UserRecordLimit, r.StartedAt-base)
 			}
 		}
 		seen += len(rows)
 	}
-	if seen != 100 || newest != base+119 {
+	if seen != UserRecordLimit || newest != base+UserRecordLimit+19 {
 		t.Fatalf("seen=%d newest=%d", seen, newest-base)
 	}
 }

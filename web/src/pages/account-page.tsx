@@ -8,8 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Link, navigate } from '@/lib/router'
-import { refreshAuth, setSignedIn, useAuthStore } from '@/stores/auth-store'
-import { changePassword, claimRecords, logout } from '@/features/account/api'
+import { setSignedIn, useAuthStore } from '@/stores/auth-store'
+import { changePassword, logout } from '@/features/account/api'
 import { HttpsNotice } from '@/features/account/components/auth-forms'
 import { RequireAccount } from '@/features/account/components/require-account'
 import { passwordProblems } from '@/features/account/lib/password'
@@ -29,15 +29,6 @@ function AccountContent() {
   const queryClient = useQueryClient()
   const auth = useAuthStore((state) => state.auth)
   const account = auth.user.account!
-  const claim = useMutation({
-    mutationFn: claimRecords,
-    onSuccess: async (data) => {
-      toast.success(t('{{count}} records added to your account.', { count: data.moved }))
-      await refreshAuth()
-      await queryClient.invalidateQueries()
-    },
-    onError: (error) => toast.error(error.message),
-  })
   const signOut = useMutation({
     mutationFn: logout,
     onSuccess: async () => {
@@ -61,21 +52,6 @@ function AccountContent() {
           <Link to='/records' className='underline underline-offset-4'>{t('My check records')}</Link>
         </div>
       </header>
-      {auth.claimable > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('Add this browser’s records to your account?')}</CardTitle>
-            <CardDescription>
-              {t('This browser ran {{count}} checks without an account. Add them to your account to see them on any device. This can be done once per browser.', { count: auth.claimable })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button disabled={claim.isPending} onClick={() => claim.mutate()}>
-              {t('Add records')}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
       <PasswordCard />
       <Card>
         <CardHeader>

@@ -424,3 +424,45 @@ func ginTestContext(req *http.Request) (*gin.Context, *gin.Engine) {
 	c.Request = req
 	return c, engine
 }
+
+func TestRecordsAreForAccountsOnly(t *testing.T) {
+	h := newHarness(t)
+	upstream, _, _ := fakeUpstream(t, http.StatusUnauthorized)
+	guest := h.client("11.0.0.1")
+	// A guest can still run a check and open its report by link...
+	code, out := guest.do("POST", "/api/model_check/openai", map[string]any{"base_url": upstream.URL, "key": "sk-guest-key-0000", "model": "gpt", "suite": "basic"})
+	if code != 200 {
+		t.Fatalf("guest check: %d %.200s", code, out["_raw"])
+	}
+	guestRun := out["data"].(map[string]any)["id"].(string)
+	if code, _ := guest.do("GET", "/api/model_check/history/"+guestRun, nil); code != 200 {
+		t.Fatalf("report link: %d", code)
+	}
+	// ...but has no record list.
+	if code, out := guest.do("GET", "/api/model_check/history", nil); code != 401 || out["code"] != "login_required" {
+		t.Fatalf("guest list: %d %v", code, out)
+	}
+	// Signing in in the same browser does not bring the guest run along.
+	guest.register("lena")
+	_, list := guest.do("GET", "/api/model_check/history", nil)
+	if items := list["data"].(map[string]any)["items"].([]any); len(items) != 0 {
+		t.Fatalf("guest run listed in the account: %v", items)
+	}
+	if code, _ := guest.do("POST", "/api/auth/claim", map[string]any{}); code != 404 {
+		t.Fatalf("claim endpoint still exists: %d", code)
+	}
+	// Runs started while signed in are listed, and only for that account.
+	if code, _ := guest.do("POST", "/api/model_check/openai", map[string]any{"base_url": upstream.URL, "key": "sk-lena-key-0000", "model": "gpt", "suite": "basic"}); code != 200 {
+		t.Fatal("signed-in check failed")
+	}
+	_, list = guest.do("GET", "/api/model_check/history", nil)
+	if items := list["data"].(map[string]any)["items"].([]any); len(items) != 1 {
+		t.Fatalf("account list: %v", items)
+	}
+	other := h.client("11.0.0.2")
+	other.register("mike")
+	_, list = other.do("GET", "/api/model_check/history", nil)
+	if items := list["data"].(map[string]any)["items"].([]any); len(items) != 0 {
+		t.Fatalf("another account sees runs: %v", items)
+	}
+}

@@ -111,7 +111,6 @@ func (s *Server) Handler() http.Handler {
 	acct.POST("/auth/login", s.login)
 	acct.POST("/auth/logout", s.logout)
 	acct.POST("/auth/password", s.changePassword)
-	acct.POST("/auth/claim", s.claimRuns)
 	acct.GET("/credentials", s.listCredentials)
 	acct.POST("/credentials", s.createCredential)
 	acct.POST("/credentials/:id/renew", s.renewCredential)

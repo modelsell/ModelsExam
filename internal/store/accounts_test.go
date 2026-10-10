@@ -221,36 +221,36 @@ func TestScheduleClaimRunsOnce(t *testing.T) {
 	}
 }
 
-func TestClaimBrowserRunsOnce(t *testing.T) {
+func TestOnlyAccountsHaveRecordLists(t *testing.T) {
 	s, ctx := open(t), context.Background()
 	a, b := newUser(t, s, "ivan"), newUser(t, s, "judy")
-	for i := 0; i < 2; i++ {
-		if err := s.CreateRun(ctx, newRun("browser-1", "completed")); err != nil {
+	guest := newRun("browser-1", "completed") // started without an account
+	mine := newRun("browser-1", "completed")
+	mine.UserID = &a.ID
+	theirs := newRun("browser-2", "completed")
+	theirs.UserID = &b.ID
+	for _, r := range []*Run{guest, mine, theirs} {
+		if err := s.CreateRun(ctx, r); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if n, _ := s.ClaimableRuns(ctx, "browser-1"); n != 2 {
-		t.Fatalf("claimable %d", n)
-	}
-	if n, err := s.ClaimRuns(ctx, "browser-1", a.ID); err != nil || n != 2 {
-		t.Fatalf("claim: %d %v", n, err)
-	}
-	if _, err := s.ClaimRuns(ctx, "browser-1", b.ID); !errors.Is(err, ErrForbidden) {
-		t.Fatalf("second claim: %v", err)
-	}
-	if n, _ := s.ClaimableRuns(ctx, "browser-1"); n != 0 {
-		t.Fatal("claimed browser still claimable")
-	}
 	rows, total, err := s.ListRuns(ctx, ListQuery{UserID: a.ID, Page: 1, PageSize: 20})
-	if err != nil || total != 2 || len(rows) != 2 {
-		t.Fatalf("account list: %d %v", total, err)
+	if err != nil || total != 1 || len(rows) != 1 || rows[0].ID != mine.ID {
+		t.Fatalf("account list must hold only its own runs: %d %v", total, err)
 	}
-	// The account may edit the remark although it is not the browser's owner ID.
-	if _, err := s.UpdateRemark(ctx, "", a.ID, rows[0].ID, "mine"); err != nil {
+	if rows, total, _ := s.ListRuns(ctx, ListQuery{Page: 1, PageSize: 20}); total != 0 || len(rows) != 0 {
+		t.Fatal("without an account there is no list")
+	}
+	// The account may edit its run's remark; another account may not.
+	if _, err := s.UpdateRemark(ctx, "", a.ID, mine.ID, "mine"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.UpdateRemark(ctx, "", b.ID, rows[0].ID, "theirs"); !errors.Is(err, ErrForbidden) {
+	if _, err := s.UpdateRemark(ctx, "", b.ID, mine.ID, "theirs"); !errors.Is(err, ErrForbidden) {
 		t.Fatalf("other account edit: %v", err)
+	}
+	// A guest run stays a guest run: still openable by its link.
+	if got, err := s.GetRun(ctx, guest.ID); err != nil || got.UserID != nil {
+		t.Fatalf("guest run: %+v %v", got, err)
 	}
 }
 
@@ -261,24 +261,25 @@ func TestPreviousScoreOfSameConfig(t *testing.T) {
 		t.Fatal("config key must ignore false options, key order and the model field")
 	}
 	other := ConfigKey("openai_api", "https://x.example", "gpt", json.RawMessage(`{"suite":"basic"}`))
+	u := newUser(t, s, "kim")
 	scores := []int{90, 80}
 	var runs []*Run
 	for i, score := range scores {
 		r := newRun("o", "completed")
 		r.StartedAt += int64(i * 1000)
-		r.Score, r.ConfigKey = &score, key
+		r.Score, r.ConfigKey, r.UserID = &score, key, &u.ID
 		runs = append(runs, r)
 	}
 	unrelated := newRun("o", "completed")
 	unrelated.StartedAt += 500
 	unrelatedScore := 10
-	unrelated.Score, unrelated.ConfigKey = &unrelatedScore, other
+	unrelated.Score, unrelated.ConfigKey, unrelated.UserID = &unrelatedScore, other, &u.ID
 	for _, r := range append(runs, unrelated) {
 		if err := s.CreateRun(ctx, r); err != nil {
 			t.Fatal(err)
 		}
 	}
-	q := ListQuery{OwnerID: "o", Page: 1, PageSize: 20}
+	q := ListQuery{UserID: u.ID, Page: 1, PageSize: 20}
 	rows, _, err := s.ListRuns(ctx, q)
 	if err != nil {
 		t.Fatal(err)

@@ -212,13 +212,7 @@ func viewOf(u *store.User) *accountView {
 func (s *Server) authMe(c *gin.Context) {
 	c.Header("Cache-Control", "no-store")
 	u := currentUser(c)
-	out := gin.H{"user": viewOf(u), "https": s.isHTTPS(c.Request), "require_https": s.cfg.RequireHTTPS, "claimable": 0}
-	if u != nil {
-		if n, err := s.cfg.Store.ClaimableRuns(c.Request.Context(), ownerID(c)); err == nil {
-			out["claimable"] = n
-		}
-	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": out})
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"user": viewOf(u), "https": s.isHTTPS(c.Request), "require_https": s.cfg.RequireHTTPS}})
 }
 
 type credentialsInput struct {
@@ -278,8 +272,7 @@ func (s *Server) register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Could not sign in"})
 		return
 	}
-	n, _ := s.cfg.Store.ClaimableRuns(ctx, ownerID(c))
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"user": viewOf(u), "claimable": n}})
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"user": viewOf(u)}})
 }
 
 func (s *Server) login(c *gin.Context) {
@@ -327,8 +320,7 @@ func (s *Server) login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Could not sign in"})
 		return
 	}
-	n, _ := s.cfg.Store.ClaimableRuns(ctx, ownerID(c))
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"user": viewOf(u), "claimable": n}})
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"user": viewOf(u)}})
 }
 
 func lockedResponse(c *gin.Context, until int64, now time.Time) {
@@ -375,23 +367,4 @@ func (s *Server) changePassword(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true})
-}
-
-// claimRuns moves this browser's anonymous records into the account.
-func (s *Server) claimRuns(c *gin.Context) {
-	c.Header("Cache-Control", "no-store")
-	u, ok := requireUser(c)
-	if !ok {
-		return
-	}
-	moved, err := s.cfg.Store.ClaimRuns(c.Request.Context(), ownerID(c), u.ID)
-	if errors.Is(err, store.ErrForbidden) {
-		c.JSON(http.StatusConflict, gin.H{"success": false, "message": "This browser's records were already added to an account"})
-		return
-	}
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Could not add the records"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"moved": moved}})
 }

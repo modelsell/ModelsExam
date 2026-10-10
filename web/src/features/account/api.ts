@@ -11,8 +11,6 @@ export type AuthInfo = {
   /** This request reached the server over HTTPS. */
   https: boolean
   require_https: boolean
-  /** Anonymous records of this browser that can move into the account. */
-  claimable: number
 }
 
 export type Provider = 'claude' | 'openai' | 'gemini' | 'image'
@@ -97,13 +95,12 @@ async function call<T>(run: () => Promise<{ data: Envelope<T> }>): Promise<T> {
 
 export const getAuth = () => call<AuthInfo>(() => api.get('/api/auth/me'))
 export const register = (username: string, password: string) =>
-  call<{ user: Account; claimable: number }>(() => api.post('/api/auth/register', { username, password }))
+  call<{ user: Account }>(() => api.post('/api/auth/register', { username, password }))
 export const login = (username: string, password: string) =>
-  call<{ user: Account; claimable: number }>(() => api.post('/api/auth/login', { username, password }))
+  call<{ user: Account }>(() => api.post('/api/auth/login', { username, password }))
 export const logout = () => call<void>(() => api.post('/api/auth/logout', {}))
 export const changePassword = (old_password: string, new_password: string) =>
   call<void>(() => api.post('/api/auth/password', { old_password, new_password }))
-export const claimRecords = () => call<{ moved: number }>(() => api.post('/api/auth/claim', {}))
 
 export const listCredentials = () => call<Credential[]>(() => api.get('/api/credentials'))
 export type NewCredential = {

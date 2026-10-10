@@ -49,7 +49,7 @@ export function seoFor(route: Route, t: Translate): Seo {
       return {
         title: `${t('My check records')} | ${SITE_NAME}`,
         description: t(
-          'Check records run from this browser. They are private and not shown to anyone else.'
+          'Your check records, after signing in. They are private and not shown to anyone else.'
         ),
         noindex: true,
       }

@@ -45,7 +45,7 @@ export function PromisesSection() {
     },
     {
       title: t('Open source. Private records.'),
-      body: t('The code is AGPL-3.0. Check records stay with the browser that ran them and are never published.'),
+      body: t('The code is AGPL-3.0. Check records stay in your account and are never published.'),
     },
   ]
   return (

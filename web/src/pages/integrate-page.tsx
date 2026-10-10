@@ -99,7 +99,7 @@ export function IntegratePage() {
           <li>{t('Your console builds a link with the user’s Base URL, key and model.')}</li>
           <li>{t('The user opens it and lands on the ModelsExam check form, already filled in. The key is shown masked.')}</li>
           <li>{t('The user reviews the form and presses Start check. Nothing runs until they do.')}</li>
-          <li>{t('The report is listed only in the browser that ran the check. Share its link to show it to others.')}</li>
+          <li>{t('The report appears in the user’s own records only when they ran the check signed in. Share its link to show it to others.')}</li>
         </ol>
       </section>
 
@@ -217,7 +217,7 @@ export function IntegratePage() {
           <li>{t('Values after # are read in the browser and never sent to the server with the page request.')}</li>
           <li>{t('As soon as the page reads the link, the Base URL and key are removed from the address bar, so they do not stay in history or get shared onwards.')}</li>
           <li>{t('The key field is a password field; a masked form such as sk-abc••••wxyz confirms which key was filled in.')}</li>
-          <li>{t('The key is used only for that check and is never written into reports. Check records are listed only in the browser that ran them.')}</li>
+          <li>{t('The key is used only for that check and is never written into reports. Check records are listed only in the user’s own account.')}</li>
           <li>{t('Only put a key in a link for the user who owns it. Suggest a dedicated key with a small quota for checks.')}</li>
         </ul>
       </section>

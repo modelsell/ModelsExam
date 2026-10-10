@@ -52,8 +52,9 @@ type LoginAttempt struct {
 
 func (LoginAttempt) TableName() string { return "login_attempts" }
 
-// OwnerClaim marks a browser owner ID whose anonymous runs were moved into an
-// account. Each owner ID can be claimed once.
+// OwnerClaim recorded browser owner IDs whose anonymous runs were moved into
+// an account. Moving guest runs into accounts was withdrawn; the table is kept
+// (schema changes are add-only) and no longer written.
 type OwnerClaim struct {
 	OwnerID   string `gorm:"primaryKey;size:36"`
 	UserID    int64  `gorm:"index"`
@@ -244,40 +245,6 @@ func (s *Store) SessionUser(ctx context.Context, tokenHash string, now time.Time
 
 func (s *Store) DeleteSession(ctx context.Context, tokenHash string) error {
 	return s.db.WithContext(ctx).Where("token_hash = ?", tokenHash).Delete(&Session{}).Error
-}
-
-// ---- claims ----
-
-// ClaimableRuns counts anonymous runs of a browser that can move into an account.
-func (s *Store) ClaimableRuns(ctx context.Context, ownerID string) (int64, error) {
-	if ownerID == "" {
-		return 0, nil
-	}
-	var claimed int64
-	if err := s.db.WithContext(ctx).Model(&OwnerClaim{}).Where("owner_id = ?", ownerID).Count(&claimed).Error; err != nil || claimed > 0 {
-		return 0, err
-	}
-	var n int64
-	err := s.db.WithContext(ctx).Model(&Run{}).Where("owner_id = ? AND user_id IS NULL", ownerID).Count(&n).Error
-	return n, err
-}
-
-// ClaimRuns moves a browser's anonymous runs into an account, once per owner ID.
-func (s *Store) ClaimRuns(ctx context.Context, ownerID string, userID int64) (int64, error) {
-	var moved int64
-	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		res := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&OwnerClaim{OwnerID: ownerID, UserID: userID, ClaimedAt: time.Now().UnixMilli()})
-		if res.Error != nil {
-			return res.Error
-		}
-		if res.RowsAffected != 1 {
-			return ErrForbidden
-		}
-		res = tx.Model(&Run{}).Where("owner_id = ? AND user_id IS NULL", ownerID).Update("user_id", userID)
-		moved = res.RowsAffected
-		return res.Error
-	})
-	return moved, err
 }
 
 // ---- credentials ----
@@ -538,11 +505,7 @@ func (s *Store) PreviousScores(ctx context.Context, q ListQuery, runs []Run) (ma
 	}
 	tx := s.db.WithContext(ctx).Model(&Run{}).Select("id", "config_key", "score", "started_at").
 		Where("config_key IN ? AND score IS NOT NULL AND status IN ?", keys, []string{"completed", "failed"})
-	if q.UserID != 0 {
-		tx = tx.Where("user_id = ?", q.UserID)
-	} else {
-		tx = tx.Where("owner_id = ?", q.OwnerID)
-	}
+	tx = tx.Where("user_id = ?", q.UserID)
 	history := []Run{}
 	if err := tx.Order("started_at DESC").Limit(2000).Find(&history).Error; err != nil {
 		return nil, err

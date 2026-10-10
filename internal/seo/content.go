@@ -19,11 +19,11 @@ var nav = []Link{
 
 // FAQ is shown on the home page and published as FAQPage structured data.
 var FAQ = []QA{
-	{"ModelsExam 是什么？", "ModelsExam 是开源（AGPL-3.0）的独立检测服务：向你指定的 Claude、OpenAI 兼容或图像模型 API 地址发送一组固定请求，检查模型表现是否与声称的一致、协议是否符合官方、用量是否虚标，并生成检测报告。报告只出现在发起检测的浏览器里，只有你分享了链接的人才能打开。"},
+	{"ModelsExam 是什么？", "ModelsExam 是开源（AGPL-3.0）的独立检测服务：向你指定的 Claude、OpenAI 兼容或图像模型 API 地址发送一组固定请求，检查模型表现是否与声称的一致、协议是否符合官方、用量是否虚标，并生成检测报告。登录后的检测会出现在你账号的“我的检测记录”里；报告只有你分享了链接的人才能打开。"},
 	{"怎么判断中转站的模型是不是真的？", "单靠让模型自报家门并不可靠。ModelsExam 综合身份问答、行为指纹和能力探测，再对照官方基线，并检查字段、流式、工具调用、错误格式和 Token 用量是否符合官方协议。便宜模型冒充高价模型，通常会在这些检查里露出破绽。"},
-	{"检测需要填写 API Key 吗？密钥会泄露吗？", "需要。密钥只在本次检测中使用，不会写入报告。检测记录只出现在发起检测的浏览器里，不会公开列出。建议使用专门为检测创建、额度有限的密钥，检测后可以停用。"},
+	{"检测需要填写 API Key 吗？密钥会泄露吗？", "需要。密钥只在本次检测中使用，不会写入报告。检测记录只出现在你自己账号的“我的检测记录”里，不会公开列出。建议使用专门为检测创建、额度有限的密钥，检测后可以停用。"},
 	{"得分 100 就代表可以放心购买吗？", "不能这样理解。分数只统计计分断言，描述的是某个地址在某一时刻的一次表现，是证据而不是保证，更不是排名或背书。徽章 30 天后过期，请以检测日期为准。"},
-	{"我的检测记录别人能看到吗？", "看不到。检测记录只出现在发起检测的浏览器的“我的检测记录”里；网站不公开任何人的记录，也不生成榜单，报告也不会被搜索引擎收录。只有你把报告链接发给别人，对方才能打开。清除 Cookie 或更换浏览器后，之前的记录会从列表里消失，但报告链接仍然可以打开。"},
+	{"我的检测记录别人能看到吗？", "看不到。“我的检测记录”需要登录，只列出你登录后发起的检测；网站不公开任何人的记录，也不生成榜单，报告也不会被搜索引擎收录。只有你把报告链接发给别人，对方才能打开。不登录也可以检测，但结果不会进入任何记录列表，请保存好报告链接。"},
 	{"我是站长，怎么展示检测徽章？", "在“获取徽章”页输入你的域名，复制脚本、图片或 Markdown 代码即可。徽章只在你自己的域名下显示，来自你域名下端点的最近一次检测，30 天后过期。徽章只显示结论，不公开检测报告。"},
 	{"检测会产生费用吗？", "检测会向你填写的上游发送最多二十多次请求，可能产生上游服务商的少量费用，每次请求最长等待 90 秒，整轮检测最长 10 分钟。"},
 }
@@ -32,7 +32,7 @@ var pages = []Page{
 	{
 		Path:        "/",
 		Title:       siteName + " 模型评测｜Claude / OpenAI API 中转站真伪与协议检测",
-		Description: "独立、开源的大模型 API 检测：输入地址和密钥，检测 Claude、OpenAI 兼容和图像模型是否为真、协议是否符合官方、用量是否虚标。检测记录只对你自己的浏览器可见。Independent, open-source conformance and authenticity tests for model APIs.",
+		Description: "独立、开源的大模型 API 检测：输入地址和密钥，检测 Claude、OpenAI 兼容和图像模型是否为真、协议是否符合官方、用量是否虚标。检测记录只对你自己的账号可见。Independent, open-source conformance and authenticity tests for model APIs.",
 		H1:          siteName + "：大模型 API 真伪与协议一致性检测",
 		FAQ:         FAQ,
 		Lead:        "只做真模型，不做假货，不掺水。输入任意 Claude、OpenAI 兼容或图像模型的 API 地址，ModelsExam 发送一组固定请求，如实记录返回了什么，并附上证据。报告不公开列出，只有拿到链接的人能打开，只统计断言得分，不为任何服务商背书。 Independent exams for Claude, OpenAI-compatible and image model APIs.",
@@ -43,7 +43,7 @@ var pages = []Page{
 				"只做真模型，不做假货，不掺水：检查端点的真实行为——身份问答、行为指纹和能力探测，低价模型冒充高价模型通常会在这里露出破绽。",
 				"符合官方协议，不虚标：同一组请求遵循官方约定的字段、流式、工具调用和错误格式；上报的 Token 用量会与实际发送内容比对，虚增的数字会被标出。",
 				"服务稳定，检测日期看得见：徽章只和最近一次检测一样新，30 天后过期；每份报告都列出延迟和失败的请求。",
-				"开源，记录私有：代码采用 AGPL-3.0；检测记录只保存在发起检测的浏览器名下，不对外公开。",
+				"开源，记录私有：代码采用 AGPL-3.0；检测记录只保存在你的账号下，不对外公开。",
 			}},
 			{Heading: "检测怎么做", Items: []string{
 				"选择你的端点使用的协议：Claude（Anthropic Messages）、OpenAI 兼容（Chat Completions 与 Responses）或图像生成（OpenAI Images）。",
@@ -104,15 +104,15 @@ var pages = []Page{
 	{
 		Path:        "/records",
 		Title:       "我的检测记录 | " + siteName,
-		Description: "只显示当前浏览器发起的 ModelsExam 检测记录。记录不公开，其他浏览器和其他人都无法查看或打开这些检测报告。",
+		Description: "登录后查看你账号下的 ModelsExam 检测记录。记录不公开，其他人无法查看这个列表；不登录发起的检测不会进入任何记录列表。",
 		H1:          "我的检测记录",
-		Lead:        "这里只列出当前浏览器发起的检测，其他人无法查看。清除浏览器 Cookie 或换一个浏览器后，之前的记录将无法再查看。",
+		Lead:        "需要登录。这里列出你登录后发起的检测，在任何设备上都能看到，其他人无法查看。",
 		NoIndex:     true,
 	},
 	// Account pages: private, never indexed. The app renders them.
 	{Path: "/login", Title: "登录 | " + siteName, Description: "登录 ModelsExam 账号，使用保存的测试 Key 一键重测和定时检测。账号是可选的，不登录也可以照常检测任何模型 API。", H1: "登录", Lead: "账号是可选的：不登录也可以照常检测。", NoIndex: true},
 	{Path: "/register", Title: "注册 | " + siteName, Description: "注册 ModelsExam 账号，保存专门用于检测的测试 Key，一键重测历史检测，并在服务器上定时检测。本站不收集邮箱。", H1: "注册", Lead: "本站不收集邮箱，也不提供找回密码，请牢记你的密码。", NoIndex: true},
-	{Path: "/account", Title: "我的账号 | " + siteName, Description: "ModelsExam 账号设置：修改密码、退出登录，把这个浏览器里的检测记录加入账号。本站不提供找回密码。", H1: "我的账号", Lead: "修改密码、退出登录。", NoIndex: true},
+	{Path: "/account", Title: "我的账号 | " + siteName, Description: "ModelsExam 账号设置：修改密码、退出登录，管理保存的测试 Key 和定时检测。本站不收集邮箱，也不提供找回密码。", H1: "我的账号", Lead: "修改密码、退出登录。", NoIndex: true},
 	{Path: "/keys", Title: "我的 Key | " + siteName, Description: "保存在 ModelsExam 账号中的测试 Key：只显示掩码、剩余有效期和最近使用时间。Key 以明文保存在服务器上，到期自动删除。", H1: "我的 Key", Lead: "这些 Key 以明文保存在服务器上。不再检测的 Key 请立即删除，并到服务商处作废。", NoIndex: true},
 	{Path: "/schedules", Title: "定时检测 | " + siteName, Description: "ModelsExam 账号的定时检测：用保存的测试 Key 按固定间隔在服务器上检测模型 API，关闭页面也会继续，分数下降会突出显示。", H1: "定时检测", Lead: "定时检测在服务器上运行，关闭页面也会继续。", NoIndex: true},
 	{
@@ -148,7 +148,7 @@ var pages = []Page{
 			{Heading: "Key 与隐私", Items: []string{
 				"页面读取链接后立即从地址栏移除 Base URL 和 Key，不会留在浏览历史里。",
 				"不会自动开始检测，必须由用户点击「开始检测」。",
-				"Key 只用于这一次检测，不写入报告；检测记录只出现在发起检测的浏览器里。",
+				"Key 只用于这一次检测，不写入报告；登录后发起的检测会出现在用户自己的检测记录里。",
 			}},
 		},
 	},
