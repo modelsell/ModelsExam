@@ -233,6 +233,30 @@ func mergeUsage(dst *Usage, src Usage) {
 	if src.CacheRead != nil {
 		dst.CacheRead = src.CacheRead
 	}
+	if src.ServiceTier != nil {
+		dst.ServiceTier = src.ServiceTier
+	}
+	if src.InferenceGeo != nil {
+		dst.InferenceGeo = src.InferenceGeo
+	}
+	if src.OutputDetails != nil {
+		dst.OutputDetails = src.OutputDetails
+	}
+}
+
+// streamBedrockMetrics returns the invocation metrics from the final stream
+// event, when the upstream (or a relay forwarding it) supplied them.
+func streamBedrockMetrics(events [][]byte) *BedrockMetrics {
+	for i := len(events) - 1; i >= 0; i-- {
+		var e struct {
+			Type    string          `json:"type"`
+			Metrics *BedrockMetrics `json:"amazon-bedrock-invocationMetrics"`
+		}
+		if common.Unmarshal(events[i], &e) == nil && e.Metrics != nil {
+			return e.Metrics
+		}
+	}
+	return nil
 }
 
 func totalInput(u Usage) (int64, bool) {

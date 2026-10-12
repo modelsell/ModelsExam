@@ -17,6 +17,14 @@ func ReportScore(report Report) *int {
 			identity = reportScoreValue(100)
 		}
 	}
+	if report.Version >= 21 {
+		// Direct evidence that another model answered overrides a matching echo.
+		for _, id := range []string{"signature_model", "prefill", "signature_forgery"} {
+			if check := reportScoreCheck(report.Checks, id); check != nil && check.Status == "fail" {
+				identity = reportScoreValue(0)
+			}
+		}
+	}
 
 	var capabilityScores []*int
 	if report.Benchmark != nil && report.Benchmark.Version == 1 {
@@ -77,6 +85,18 @@ func ReportScore(report Report) *int {
 				protocolScores = append(protocolScores, reportScoreValue(100))
 			case "fail":
 				protocolScores = append(protocolScores, reportScoreValue(0))
+			}
+		}
+	}
+	if report.Version >= 21 {
+		for _, id := range []string{"thinking", "invocation_metrics"} {
+			if check := reportScoreCheck(report.Checks, id); check != nil {
+				switch check.Status {
+				case "pass":
+					protocolScores = append(protocolScores, reportScoreValue(100))
+				case "fail":
+					protocolScores = append(protocolScores, reportScoreValue(0))
+				}
 			}
 		}
 	}

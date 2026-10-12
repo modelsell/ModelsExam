@@ -107,8 +107,9 @@ const sample = (
 
 test('focused scope and budget exclude legacy probes and retain optional audits', () => {
   const r = report()
-  assert.equal(requestBudget(r.options!), 23)
-  assert.equal(requestBudget({ ...r.options!, fingerprint: false }), 23)
+  assert.equal(requestBudget(r.options!), 24)
+  assert.equal(requestBudget({ ...r.options!, fingerprint: false }), 24)
+  assert.equal(requestBudget({ ...r.options!, thinking: true }), 26)
   assert.equal(
     requestBudget({
       ...r.options!,
@@ -116,7 +117,7 @@ test('focused scope and budget exclude legacy probes and retain optional audits'
       vision: true,
       pdf: true,
     }),
-    28
+    29
   )
   const ids = createCheckPlan(r.options).map((item) => item.id)
   assert.deepEqual(ids, [
@@ -125,6 +126,9 @@ test('focused scope and budget exclude legacy probes and retain optional audits'
     'performance_sampling',
     'usage_token_integrity',
     'capability_benchmark',
+    'prefill',
+    'signature_model',
+    'invocation_metrics',
     'cache_token_audit',
   ])
 })

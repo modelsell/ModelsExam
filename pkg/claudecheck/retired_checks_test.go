@@ -29,8 +29,8 @@ func TestNewRunsRetirePreferenceButKeepBedrockOptional(t *testing.T) {
 				})
 				expected := 15 // Legacy retains its eight protocol requests.
 				if suite == "focused" {
-					expected = 15
-					require.Equal(t, 20, report.Version)
+					expected = 16
+					require.Equal(t, 21, report.Version)
 					require.NotEmpty(t, resultCheck(t, report, "performance_sampling"))
 				}
 				if options.Bedrock {
@@ -109,9 +109,9 @@ func TestFocusedCoreAndOptionalScoringRequestsStayBounded(t *testing.T) {
 		}
 		return base(ctx, request)
 	})
-	require.Equal(t, 36, MaxRequests(options))
-	require.Equal(t, 36, report.Limits.MaxRequests)
-	require.Len(t, report.Samples, 36)
+	require.Equal(t, 39, MaxRequests(options))
+	require.Equal(t, 39, report.Limits.MaxRequests)
+	require.Len(t, report.Samples, 39)
 	require.Len(t, report.TokenAudit.Cache, 6)
 	require.Len(t, report.TokenAudit.Prompt, 3)
 	require.NotNil(t, report.TokenAudit.PromptAssessment.Score)
@@ -133,8 +133,8 @@ func TestFocusedCoreAndOptionalScoringRequestsStayBounded(t *testing.T) {
 	}
 	require.Equal(t, []string{"cache_token_audit"}, cachePlanIDs)
 	require.NotEmpty(t, resultCheck(t, report, "cache"), "raw cache evidence remains available")
-	require.Equal(t, 23, MaxRequests(Options{Suite: "focused", Cache: true}))
-	require.Equal(t, 31, MaxRequests(Options{Suite: "focused", Cache: true, Bedrock: true}))
+	require.Equal(t, 24, MaxRequests(Options{Suite: "focused", Cache: true}))
+	require.Equal(t, 32, MaxRequests(Options{Suite: "focused", Cache: true, Bedrock: true}))
 	options.Suite, options.Benchmark, options.Performance = "", true, true
 	require.Equal(t, 45, MaxRequests(options))
 }

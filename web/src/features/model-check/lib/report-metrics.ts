@@ -43,7 +43,13 @@ export function reportMetrics(samples: ClaudeCheckSample[]) {
   const reads = warm.filter(
     (sample) => sample.usage.cache_read_input_tokens != null
   )
-  const sumUsage = (field: keyof ClaudeCheckSample['usage']) => {
+  const sumUsage = (
+    field:
+      | 'input_tokens'
+      | 'output_tokens'
+      | 'cache_creation_input_tokens'
+      | 'cache_read_input_tokens'
+  ) => {
     const inference = samples.filter(
       (sample) => !isCountProbe(sample.probe) && sample.http_status === 200
     )

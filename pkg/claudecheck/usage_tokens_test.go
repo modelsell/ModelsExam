@@ -299,9 +299,9 @@ func TestUsageTokenVersionAndPlanGate(t *testing.T) {
 func TestUsageTokenCollectionOrderBudgetAndAccessStops(t *testing.T) {
 	base := focusedTransport(t)
 	report := Run(context.Background(), Options{Suite: "focused", Model: "claude-opus-5"}, base)
-	require.Equal(t, 20, report.Version)
-	require.Len(t, report.Samples, 15)
-	require.Equal(t, 15, report.Limits.MaxRequests)
+	require.Equal(t, 21, report.Version)
+	require.Len(t, report.Samples, 16)
+	require.Equal(t, 16, report.Limits.MaxRequests)
 	for i, task := range usageTokenTasks {
 		require.Equal(t, task.probe, report.Samples[4+i].Probe)
 	}

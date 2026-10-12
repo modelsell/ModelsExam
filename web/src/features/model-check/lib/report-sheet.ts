@@ -162,6 +162,7 @@ export function sheetAssessment(report: ClaudeCheckReport, running = false) {
     'pdf',
     'max_tokens',
     'stop_sequence',
+    ...(report.version >= 21 ? ['thinking', 'invocation_metrics'] : []),
   ])
   let modelScore: number | null = null
   if (identity === 'consistent') modelScore = 100

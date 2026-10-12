@@ -87,7 +87,7 @@ export function modelCheckOptions(
     suite: 'focused',
     model: values.model,
     cache: values.cache,
-    thinking: false,
+    thinking: values.thinking,
     benchmark: true,
     performance: true,
     vision: values.vision,

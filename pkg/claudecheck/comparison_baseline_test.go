@@ -41,7 +41,7 @@ func TestFocusedBaselineRetainsBoundedTokenLedger(t *testing.T) {
 		}
 		return base(ctx, request)
 	})
-	require.Len(t, report.Samples, 36)
+	require.Len(t, report.Samples, 37)
 	for i := range report.Samples {
 		report.Samples[i].Headers = map[string]string{"request-id": "private-evidence"}
 		report.Samples[i].Error, report.Samples[i].MessageID = "private-error", "private-message"
@@ -54,7 +54,7 @@ func TestFocusedBaselineRetainsBoundedTokenLedger(t *testing.T) {
 	require.Empty(t, snapshot.Options.BaselineType)
 	require.False(t, snapshot.Options.CompareBaselines)
 	require.Equal(t, "prior-reference", report.Options.BaselineID)
-	require.Len(t, snapshot.Samples, 36)
+	require.Len(t, snapshot.Samples, 37)
 	require.Equal(t, 3, snapshot.Benchmark.Version)
 	require.Len(t, snapshot.Benchmark.Items, 6)
 	for i, item := range snapshot.Benchmark.Items {
@@ -91,13 +91,13 @@ func TestFocusedBaselineRetainsBoundedTokenLedger(t *testing.T) {
 	report.Version = 16
 	report.Options.Fingerprint, report.Options.Bedrock = true, true
 	historical := SnapshotBaseline(report, "historical-reference", "ccmax", 123)
-	require.Len(t, historical.Samples, 37)
+	require.Len(t, historical.Samples, 38)
 	require.True(t, historical.Options.Fingerprint)
 	require.True(t, historical.Options.Bedrock)
 	report.Version = 13
-	require.Len(t, SnapshotBaseline(report, "old-reference", "ccmax", 123).Samples, 36)
+	require.Len(t, SnapshotBaseline(report, "old-reference", "ccmax", 123).Samples, 37)
 	report.Version, report.Options.Suite = 14, ""
-	require.Len(t, SnapshotBaseline(report, "other-suite", "ccmax", 123).Samples, 36)
+	require.Len(t, SnapshotBaseline(report, "other-suite", "ccmax", 123).Samples, 37)
 }
 
 func TestRestoreBaselineFingerprintUsageBoundedAndExactSource(t *testing.T) {

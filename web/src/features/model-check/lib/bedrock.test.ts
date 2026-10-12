@@ -47,7 +47,7 @@ test('current Bedrock diagnostics include an optional signature rejection probe'
   )
   assert.equal(plan.filter((item) => item.stage === 'bedrock').length, 8)
   assert.equal(requestBudget(options) - requestBudget(base), 8)
-  assert.equal(requestBudget(options), 31)
+  assert.equal(requestBudget(options), 32)
   assert.ok(
     !createCheckPlan(base).some((item) => item.id === 'bedrock_signature')
   )

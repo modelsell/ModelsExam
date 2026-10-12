@@ -24,6 +24,11 @@ func ValidOptions(o Options) bool {
 func focusedPlan(o Options) []PlanItem {
 	plan := []PlanItem{{"basic", "identity", "assertion", true}, {"model_consistency", "identity", "observation", true},
 		{"performance_sampling", "performance", "boundary", true}, {"usage_token_integrity", "integrity", "boundary", true}, {"capability_benchmark", "identity", "boundary", true}}
+	plan = append(plan, PlanItem{"prefill", "identity", "assertion", true}, PlanItem{"signature_model", "identity", "assertion", true},
+		PlanItem{"invocation_metrics", "integrity", "observation", true})
+	if o.Thinking {
+		plan = append(plan, PlanItem{"thinking", "identity", "assertion", true}, PlanItem{"signature_forgery", "identity", "assertion", true})
+	}
 	if o.Cache {
 		plan = append(plan, PlanItem{"cache_token_audit", "integrity", "boundary", true})
 	}
@@ -46,7 +51,7 @@ func runFocused(ctx context.Context, options Options, call Transport, observe fu
 	ctx, cancel := context.WithTimeout(ctx, RunTimeout)
 	defer cancel()
 	start := time.Now()
-	r := &runner{ctx: ctx, call: call, observe: observe, report: Report{Version: 20, ID: uuid.NewString(), Model: options.Model,
+	r := &runner{ctx: ctx, call: call, observe: observe, report: Report{Version: 21, ID: uuid.NewString(), Model: options.Model,
 		StartedAt: start.UTC().Format(time.RFC3339), Options: &options, Plan: focusedPlan(options), Checks: []Check{}, Samples: []Sample{}, Summary: map[string]int{},
 		Limits: &RunLimits{int(ProbeTimeout / time.Second), int(RunTimeout / time.Second), MaxRequests(options)}}}
 	r.report.Benchmark = newCapabilityBenchmark(options.Model)
@@ -83,7 +88,7 @@ func runFocused(ctx context.Context, options Options, call Transport, observe fu
 		steps := []struct {
 			enabled bool
 			run     func()
-		}{{true, r.performance}, {true, r.usageTokens}, {true, r.benchmark},
+		}{{true, r.performance}, {true, r.usageTokens}, {true, r.benchmark}, {true, r.prefill}, {options.Thinking, r.focusedThinking},
 			{options.Cache, r.cache}, {options.PromptAudit, r.promptTokenAudit}, {options.Vision, r.vision}, {options.PDF, r.document}, {options.Bedrock, r.bedrock}}
 		for _, step := range steps {
 			if ctx.Err() != nil {
@@ -97,6 +102,9 @@ func runFocused(ctx context.Context, options Options, call Transport, observe fu
 			}
 		}
 		r.focusedStop()
+		// Aggregate evidence from every collected response, including partial runs.
+		r.signatureModelCheck()
+		r.bedrockMetricsCheck()
 	} else {
 		r.report.StopReason = response.ErrorCode
 		if r.report.StopReason == "" {

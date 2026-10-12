@@ -28,11 +28,11 @@ func focusedTransport(t *testing.T) Transport {
 func TestFocusedScopeBudgetAndBaselineCompatibility(t *testing.T) {
 	options := Options{Suite: "focused", Model: "claude-opus-5", Cache: true, Fingerprint: true, Bedrock: true, Thinking: true, Repeat: true, StreamComparison: true}
 	r := Run(context.Background(), options, focusedTransport(t))
-	require.Equal(t, 20, r.Version)
-	require.Len(t, r.Samples, 31)
-	require.Equal(t, 31, r.Limits.MaxRequests)
+	require.Equal(t, 21, r.Version)
+	require.Len(t, r.Samples, 34)
+	require.Equal(t, 34, r.Limits.MaxRequests)
 	require.Equal(t, float64(25), *r.Options.PerformanceTolerance)
-	require.False(t, r.Options.Thinking)
+	require.True(t, r.Options.Thinking)
 	require.False(t, r.Options.Repeat)
 	require.False(t, r.Options.StreamComparison)
 	require.False(t, r.Options.Fingerprint)
@@ -40,7 +40,7 @@ func TestFocusedScopeBudgetAndBaselineCompatibility(t *testing.T) {
 	require.Len(t, r.Benchmark.Items, 6)
 	require.Nil(t, r.Fingerprint)
 	require.Len(t, r.TokenAudit.Cache, 6)
-	for _, id := range []string{"token_count", "zero_output", "aws_usage", "source", "billing", "system", "stop_sequence", "repeatability", "thinking", "prompt_integrity"} {
+	for _, id := range []string{"token_count", "zero_output", "aws_usage", "source", "billing", "system", "stop_sequence", "repeatability", "signature_replay", "prompt_integrity"} {
 		for _, check := range r.Checks {
 			require.NotEqual(t, id, check.ID)
 		}
@@ -48,11 +48,11 @@ func TestFocusedScopeBudgetAndBaselineCompatibility(t *testing.T) {
 	snapshot := SnapshotBaseline(r, "reference", "aws", 1)
 	require.Nil(t, snapshot.Fingerprint)
 	options.Fingerprint, options.Bedrock = false, false
-	require.Len(t, Run(context.Background(), options, focusedTransport(t)).Samples, 23)
+	require.Len(t, Run(context.Background(), options, focusedTransport(t)).Samples, 26)
 	options.Fingerprint, options.PromptAudit, options.PDF, options.Vision = true, true, true, true
-	require.Equal(t, 28, MaxRequests(options))
+	require.Equal(t, 31, MaxRequests(options))
 	options.Bedrock = true
-	require.Equal(t, 36, MaxRequests(options))
+	require.Equal(t, 39, MaxRequests(options))
 }
 
 func TestFocusedRecoveryReusesPlannedPerformanceRequest(t *testing.T) {
@@ -65,7 +65,7 @@ func TestFocusedRecoveryReusesPlannedPerformanceRequest(t *testing.T) {
 		}
 		return base(ctx, request)
 	})
-	require.Equal(t, 15, calls)
+	require.Equal(t, 16, calls)
 	require.Equal(t, "performance_1", r.BaselineProbe)
 	require.Empty(t, r.StopReason)
 }
@@ -109,7 +109,7 @@ func TestFocusedPromptUsesThreeRequestsWithoutCountEndpoint(t *testing.T) {
 	require.Equal(t, 100, r.TokenAudit.PromptAssessment.Coverage)
 	require.Equal(t, 100, *r.TokenAudit.PromptAssessment.Score)
 	require.Equal(t, "budget_no_obvious_injection", r.TokenAudit.Injection.Code)
-	require.Len(t, r.Samples, 18)
+	require.Len(t, r.Samples, 19)
 	require.Empty(t, r.StopReason)
 	for _, item := range r.TokenAudit.Prompt {
 		require.Equal(t, "budget_within_allowance", item.Code)

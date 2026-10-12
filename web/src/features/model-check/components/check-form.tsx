@@ -108,7 +108,7 @@ export function CheckForm(props: {
         models.find((model) => model.includes('claude')) ||
         '',
       cache: true,
-      thinking: false,
+      thinking: true,
       repeat: false,
       vision: false,
       pdf: false,
@@ -195,6 +195,7 @@ export function CheckForm(props: {
     clearErrors,
   ])
   const cache = form.watch('cache')
+  const thinking = form.watch('thinking')
   const vision = form.watch('vision')
   const pdf = form.watch('pdf')
   const promptAudit = !!form.watch('prompt_audit')
@@ -203,7 +204,7 @@ export function CheckForm(props: {
     suite: 'focused',
     model: '',
     cache,
-    thinking: false,
+    thinking,
     vision,
     pdf,
     prompt_audit: promptAudit,

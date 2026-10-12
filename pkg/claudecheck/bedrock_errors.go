@@ -158,12 +158,22 @@ func DiagnoseBedrock(response Response, err error) *BedrockDiagnostic {
 	return &BedrockDiagnostic{Code: code, Exception: exception, Source: source, Retryable: rule.retry, ExpectedStatus: rule.status, OriginalStatus: original}
 }
 
+// AWS appends "Please consult our documentation" to many validation errors;
+// only the document input itself identifies a document rejection.
+var documentWord = regexp.MustCompile(`\bdocuments?\b`)
+
+// Newer Bedrock models report an unknown beta as
+// "Unexpected value(s) `x` for the `anthropic-beta` header".
+func unexpectedBetaHeader(text string) bool {
+	return strings.Contains(text, "unexpected value") && strings.Contains(text, "anthropic-beta")
+}
+
 func bedrockValidationCode(message string) string {
 	text := strings.ToLower(message)
 	switch {
 	case strings.Contains(text, "on-demand throughput") && strings.Contains(text, "inference profile"):
 		return "inference_profile"
-	case strings.Contains(text, "invalid beta") || (strings.Contains(text, "beta") && strings.Contains(text, "not supported")):
+	case strings.Contains(text, "invalid beta") || (strings.Contains(text, "beta") && strings.Contains(text, "not supported")) || unexpectedBetaHeader(text):
 		return "beta"
 	case strings.Contains(text, "temperature") || strings.Contains(text, "top_p") || strings.Contains(text, "top_k"):
 		return "sampling"
@@ -179,7 +189,7 @@ func bedrockValidationCode(message string) string {
 		return "message_role"
 	case strings.Contains(text, "counttokens") || strings.Contains(text, "count_tokens") || strings.Contains(text, "count tokens"):
 		return "count_tokens"
-	case strings.Contains(text, "pdf") || strings.Contains(text, "document"):
+	case strings.Contains(text, "pdf") || documentWord.MatchString(text):
 		return "document"
 	case strings.Contains(text, "image"):
 		return "image"

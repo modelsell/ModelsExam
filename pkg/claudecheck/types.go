@@ -39,7 +39,7 @@ func (o Options) normalized() Options {
 	// schedule samples in a new run, including requests from old clients.
 	o.Fingerprint = false
 	if o.Suite == "focused" {
-		o.Thinking, o.Repeat, o.StreamComparison, o.LegacySuite = false, false, false, false
+		o.Repeat, o.StreamComparison, o.LegacySuite = false, false, false
 		o.Benchmark, o.Performance = true, true
 		if o.PerformanceTolerance == nil {
 			value := float64(25)
@@ -96,6 +96,25 @@ type Usage struct {
 	Output     *int64 `json:"output_tokens"`
 	CacheWrite *int64 `json:"cache_creation_input_tokens"`
 	CacheRead  *int64 `json:"cache_read_input_tokens"`
+	// Newer upstreams add these fields; they are generation/source observations.
+	ServiceTier   *string        `json:"service_tier,omitempty"`
+	InferenceGeo  *string        `json:"inference_geo,omitempty"`
+	OutputDetails *OutputDetails `json:"output_tokens_details,omitempty"`
+}
+
+type OutputDetails struct {
+	ThinkingTokens *int64 `json:"thinking_tokens,omitempty"`
+}
+
+// BedrockMetrics is the `amazon-bedrock-invocationMetrics` object that Bedrock
+// InvokeModel appends to the final stream event. Relays usually forward it.
+type BedrockMetrics struct {
+	Input       *int64 `json:"inputTokenCount,omitempty"`
+	Output      *int64 `json:"outputTokenCount,omitempty"`
+	CacheRead   *int64 `json:"cacheReadInputTokenCount,omitempty"`
+	CacheWrite  *int64 `json:"cacheWriteInputTokenCount,omitempty"`
+	LatencyMS   *int64 `json:"invocationLatency,omitempty"`
+	FirstByteMS *int64 `json:"firstByteLatency,omitempty"`
 }
 
 type Sample struct {
@@ -118,8 +137,12 @@ type Sample struct {
 	RequestID          string             `json:"request_id,omitempty"`
 	StopReason         string             `json:"stop_reason,omitempty"`
 	Usage              Usage              `json:"usage"`
-	Headers            map[string]string  `json:"headers,omitempty"`
-	Error              string             `json:"error,omitempty"`
+	BedrockMetrics     *BedrockMetrics    `json:"bedrock_metrics,omitempty"`
+	// SignatureModel is the model name embedded in a returned thinking
+	// signature. The signature itself is never stored.
+	SignatureModel string            `json:"signature_model,omitempty"`
+	Headers        map[string]string `json:"headers,omitempty"`
+	Error          string            `json:"error,omitempty"`
 }
 
 type Check struct {

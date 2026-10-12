@@ -228,7 +228,7 @@ func explicitBedrockRejection(message string) bool {
 	for _, generic := range []string{"invalid request", "invalid_request_error", "model_check_invalid_role"} {
 		text = strings.ReplaceAll(text, generic, "")
 	}
-	for _, marker := range []string{"invalid", "unsupported", "not supported", "not available", "does not support", "unknown beta", "unrecognized beta", "not permitted", "not allowed", "cannot both", "cannot be specified", "must be", "expected tags", "should be", "only supports"} {
+	for _, marker := range []string{"invalid", "unsupported", "not supported", "not available", "does not support", "unknown beta", "unrecognized beta", "not permitted", "not allowed", "cannot both", "cannot be specified", "unexpected value", "must be", "expected tags", "should be", "only supports"} {
 		if strings.Contains(text, marker) {
 			return true
 		}

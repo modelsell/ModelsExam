@@ -65,7 +65,7 @@ export function CheckAdvancedOptions(props: {
         <FieldLegend>{t('Detection scope')}</FieldLegend>
         <FieldDescription>
           {t(
-            'Always included: model-name consistency, 4 token-usage checks, 6 capability questions across 4 domains (7 requests), and 3 fixed performance samples.'
+            'Always included: model-name consistency, 4 token-usage checks, 6 capability questions across 4 domains (7 requests), 3 fixed performance samples and 1 prefill boundary request. Every thinking signature and Bedrock invocation metric returned is also checked.'
           )}
         </FieldDescription>
         <FieldGroup>
@@ -75,6 +75,11 @@ export function CheckAdvancedOptions(props: {
                 'cache',
                 'Cache consistency',
                 '8 requests: two fresh prefixes, each written once and read three times. Score all six reads.',
+              ],
+              [
+                'thinking',
+                'Thinking and signature authenticity',
+                '2 requests: one streamed answer with a signed thinking block, then a forged signature that a genuine upstream must reject.',
               ],
             ] as const
           ).map(([name, label, description]) => (

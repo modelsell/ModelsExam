@@ -18,6 +18,9 @@ func FailureCode(status int, err error) string {
 		return "cancelled"
 	case status == 401 || status == 402 || status == 403:
 		return "access_denied"
+	case modelUnavailable(err):
+		// A relay without this model is a final answer, not a transient fault.
+		return "model_unavailable"
 	case status == 404:
 		return "endpoint_not_found"
 	case err != nil && strings.Contains(strings.ToLower(err.Error()), "no available channel for model"):
@@ -35,6 +38,16 @@ func FailureCode(status int, err error) string {
 	}
 }
 
+// new-api style relays report a missing model as `model_not_found` (often with
+// HTTP 503); a retry or a fallback probe cannot change that outcome.
+func modelUnavailable(err error) bool {
+	if err == nil {
+		return false
+	}
+	text := strings.ToLower(err.Error())
+	return strings.Contains(text, "model_not_found") || strings.Contains(text, "model is currently unavailable") || strings.Contains(text, "model not found")
+}
+
 func baselineRecoverable(code string) bool {
 	switch code {
 	case "probe_timeout", "transport_error", "upstream_unavailable", "rate_limited", "invalid_response":
@@ -47,7 +60,10 @@ func baselineRecoverable(code string) bool {
 func MaxRequests(options Options) int {
 	options = options.normalized()
 	if options.Suite == "focused" {
-		n := 1 + PerformanceRequests + UsageTokenRequests + CapabilityRequests
+		n := 1 + PerformanceRequests + UsageTokenRequests + CapabilityRequests + IdentityRequests
+		if options.Thinking {
+			n += ThinkingRequests
+		}
 		if options.Cache {
 			n += RepeatedCacheRequests
 		}

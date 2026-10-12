@@ -80,6 +80,10 @@ export function useClaudeCheckLabels() {
     billing: t('Billing verification'),
     prompt_integrity: t('Prompt integrity'),
     error_validation: t('Invalid parameter rejection'),
+    prefill: t('Prefill boundary'),
+    signature_model: t('Model name in thinking signature'),
+    signature_forgery: t('Forged thinking signature rejection'),
+    invocation_metrics: t('Bedrock invocation metrics'),
   }
   for (const [id, name] of Object.entries(suiteNames))
     names[`benchmark_${id}`] = name
@@ -313,6 +317,63 @@ export function useClaudeCheckLabels() {
       'Observed a cache write followed by a cache read. TTL expiry was not tested.'
     ),
     unexpected_usage: t('The upstream returned invalid token counts.'),
+    prefill_as_expected: t(
+      'The prefill response matches this model generation: newer models reject an assistant prefill, older models accept it.'
+    ),
+    prefill_accepted: t(
+      'This model generation rejects assistant prefill, but the request was accepted. Another model or a protocol conversion likely answered.'
+    ),
+    prefill_rejected: t(
+      'This model generation supports assistant prefill, but the request was rejected as a prefill. A newer model may be answering.'
+    ),
+    prefill_rule_unknown: t(
+      'No recorded prefill rule for this model ID. The result is recorded but not scored.'
+    ),
+    prefill_unresolved: t(
+      'The response neither accepted the prefill nor rejected it as a prefill. No score is assigned.'
+    ),
+    signature_model_match: t(
+      'Every thinking signature names the requested model.'
+    ),
+    signature_model_mismatch: t(
+      'At least one thinking signature names a different model. Some requests were answered by another model.'
+    ),
+    signature_model_unknown: t(
+      'Signatures carry a model name that is not in the known list yet. No score is assigned.'
+    ),
+    requested_model_unknown: t(
+      'The requested model ID is an alias that cannot be resolved, so signature names cannot be compared.'
+    ),
+    no_signature: t(
+      'No response in this run returned a thinking signature.'
+    ),
+    signature_missing: t(
+      'Thinking blocks were returned without a signature. Genuine upstreams sign every thinking block.'
+    ),
+    thinking_not_returned: t(
+      'The request succeeded but no thinking block was returned. No score is assigned.'
+    ),
+    forged_signature_rejected: t(
+      'The upstream rejected a forged thinking signature, as Anthropic, Bedrock and Vertex do.'
+    ),
+    forged_signature_accepted: t(
+      'A forged thinking signature was accepted. Genuine Claude upstreams reject it, so this request did not reach one intact.'
+    ),
+    forgery_unresolved: t(
+      'The response does not establish whether forged signatures are rejected. No score is assigned.'
+    ),
+    metrics_consistent: t(
+      'Bedrock invocation metrics match the reported usage.'
+    ),
+    metrics_mismatch: t(
+      'Bedrock invocation metrics differ from the reported usage. The usage block may have been rewritten.'
+    ),
+    metrics_absent: t(
+      'No Bedrock invocation metrics were returned. This is normal for non-Bedrock upstreams or relays that drop them.'
+    ),
+    model_unavailable: t(
+      'The upstream does not offer this model (model_not_found). The run stopped without retrying.'
+    ),
     cancelled: t('Skipped because the run was cancelled or timed out.'),
     interrupted: t('Skipped because the connection was interrupted.'),
   }

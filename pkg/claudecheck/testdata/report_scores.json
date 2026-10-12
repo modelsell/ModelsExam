@@ -2210,5 +2210,115 @@
       ]
     },
     "score": 100
+  },
+  {
+    "name": "v21 signature model mismatch overrides a matching echo",
+    "report": {
+      "version": 21,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "signature_model",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 50
+  },
+  {
+    "name": "v20 reports do not gain signature identity evidence",
+    "report": {
+      "version": 20,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "signature_model",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 100
+  },
+  {
+    "name": "v21 accepted prefill or forged signature fails identity",
+    "report": {
+      "version": 21,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "prefill",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "signature_forgery",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 50
+  },
+  {
+    "name": "v21 thinking and invocation metrics count as protocol",
+    "report": {
+      "version": 21,
+      "checks": [
+        {
+          "id": "model_consistency",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "thinking",
+          "status": "pass",
+          "code": "fixture"
+        },
+        {
+          "id": "invocation_metrics",
+          "status": "fail",
+          "code": "fixture"
+        },
+        {
+          "id": "basic",
+          "status": "pass",
+          "code": "fixture"
+        }
+      ],
+      "samples": []
+    },
+    "score": 84
   }
 ]

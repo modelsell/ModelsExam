@@ -22,7 +22,7 @@ export const DEFAULT_CHECK_OPTIONS: ClaudeCheckOptions = {
   suite: 'focused',
   model: '',
   cache: true,
-  thinking: false,
+  thinking: true,
   bedrock: false,
   benchmark: true,
   performance: true,

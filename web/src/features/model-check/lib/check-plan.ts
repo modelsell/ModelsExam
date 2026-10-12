@@ -51,7 +51,7 @@ export const STAGES = [
 
 export function createCheckPlan(
   options?: ClaudeCheckOptions,
-  version = 20
+  version = 21
 ): CheckPlanItem[] {
   if (options?.suite === 'focused') {
     const plan: CheckPlanItem[] = [
@@ -85,6 +85,38 @@ export function createCheckPlan(
         selected: true,
       },
     ]
+    if (version >= 21) {
+      plan.push(
+        { id: 'prefill', stage: 'identity', kind: 'assertion', selected: true },
+        {
+          id: 'signature_model',
+          stage: 'identity',
+          kind: 'assertion',
+          selected: true,
+        },
+        {
+          id: 'invocation_metrics',
+          stage: 'integrity',
+          kind: 'observation',
+          selected: true,
+        }
+      )
+      if (options.thinking)
+        plan.push(
+          {
+            id: 'thinking',
+            stage: 'identity',
+            kind: 'assertion',
+            selected: true,
+          },
+          {
+            id: 'signature_forgery',
+            stage: 'identity',
+            kind: 'assertion',
+            selected: true,
+          }
+        )
+    }
     if (version < 17 && options.fingerprint)
       plan.push({
         id: 'behavior_fingerprint',
@@ -202,7 +234,7 @@ export function getCheckPlan(
   if (report?.plan?.length) return report.plan.map(presentPlanItem)
   const plan = createCheckPlan(
     report?.options ?? preview,
-    report?.version ?? 20
+    report?.version ?? 21
   )
   if (!report || report.version >= 2) return plan
   const legacy = new Set<string>(CHECK_IDS)
@@ -254,6 +286,8 @@ export function samplesForCheck(report: ClaudeCheckReport | null, id: string) {
       if (['usage_fields', 'aws_usage', 'model_consistency'].includes(id))
         return sample.http_status === 200 && !isCountProbe(sample.probe)
       if (id === 'cache_token_audit') return sample.probe.startsWith('cache_')
+      if (id === 'signature_model') return !!sample.signature_model
+      if (id === 'invocation_metrics') return !!sample.bedrock_metrics
       if (id === 'stream_stop_reason')
         return probeCheckID(sample.probe) === 'stream_comparison'
       return probeCheckID(sample.probe) === id
@@ -263,7 +297,7 @@ export function samplesForCheck(report: ClaudeCheckReport | null, id: string) {
 
 export function requestBudget(
   options: ClaudeCheckOptions,
-  version = 20
+  version = 21
 ): number {
   const cacheRequests = version >= 10 ? 8 : 3
   let promptRequests = version >= 10 ? 18 : 6
@@ -272,6 +306,7 @@ export function requestBudget(
     return (
       (version >= 16 ? 11 : version >= 15 ? 17 : 10) +
       (version >= 19 ? 4 : 0) +
+      (version >= 21 ? 1 + (options.thinking ? 2 : 0) : 0) +
       (version < 17 && options.fingerprint ? 20 : 0) +
       (options.cache ? cacheRequests : 0) +
       (options.prompt_audit ? promptRequests : 0) +
@@ -334,4 +369,9 @@ export const SCORED_CHECK_IDS = new Set([
   'usage_token_integrity',
   'cache_token_audit',
   'prompt_integrity',
+  'prefill',
+  'signature_model',
+  'signature_forgery',
+  'thinking',
+  'invocation_metrics',
 ])

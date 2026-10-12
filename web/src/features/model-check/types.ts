@@ -202,7 +202,19 @@ export type ClaudeCheckReport = {
       output_tokens: number | null
       cache_creation_input_tokens: number | null
       cache_read_input_tokens: number | null
+      service_tier?: string
+      inference_geo?: string
+      output_tokens_details?: { thinking_tokens?: number }
     }
+    bedrock_metrics?: {
+      inputTokenCount?: number
+      outputTokenCount?: number
+      cacheReadInputTokenCount?: number
+      cacheWriteInputTokenCount?: number
+      invocationLatency?: number
+      firstByteLatency?: number
+    }
+    signature_model?: string
   }>
 }
 

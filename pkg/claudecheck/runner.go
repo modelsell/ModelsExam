@@ -246,6 +246,10 @@ func (r *runner) probe(id string, request Request) (message, Response, bool) {
 		valid = valid && len(sample.ValidationErrors) == 0
 	}
 	sample.ResponseModel, sample.MessageID, sample.StopReason, sample.Usage = m.Model, m.ID, m.StopReason, m.Usage
+	if stream, _ := request.Body["stream"].(bool); stream && !request.Count {
+		sample.BedrockMetrics = streamBedrockMetrics(response.Events)
+	}
+	sample.SignatureModel = messageSignatureModel(m)
 	if err != nil {
 		sample.Error = err.Error()
 	} // Transport returns only sanitized errors.

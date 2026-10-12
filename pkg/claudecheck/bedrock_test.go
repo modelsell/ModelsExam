@@ -105,8 +105,8 @@ func TestBedrockDiagnosticsBudgetAndExpectedRejections(t *testing.T) {
 		}
 		return base(ctx, request)
 	})
-	require.Equal(t, 23, calls)
-	require.Equal(t, 23, r.Limits.MaxRequests)
+	require.Equal(t, 24, calls)
+	require.Equal(t, 24, r.Limits.MaxRequests)
 	require.True(t, r.Options.Bedrock)
 	require.Empty(t, r.StopReason)
 	for _, c := range r.Checks {
@@ -146,7 +146,7 @@ func TestBedrockSamplingUnknownModelsSkip(t *testing.T) {
 		response.Model = "claude-opus-4-6"
 		return response, err
 	})
-	require.Len(t, r.Samples, 22)
+	require.Len(t, r.Samples, 23)
 	for _, c := range r.Checks {
 		if c.ID == "bedrock_sampling" {
 			require.Equal(t, "bedrock_rule_unknown", c.Code)
@@ -183,7 +183,7 @@ func TestBedrockUnknown503KeepsAvailabilityRecovery(t *testing.T) {
 		}
 		return base(ctx, request)
 	})
-	require.Equal(t, 15, calls)
+	require.Equal(t, 16, calls)
 	require.Equal(t, "upstream_unavailable", r.Samples[0].ErrorCode)
 	require.Empty(t, r.StopReason)
 }

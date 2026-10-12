@@ -35,6 +35,16 @@ export function modelIdentityState(
   const check = report.checks.find((check) => check.id === 'model_consistency')
   const baseline = report.checks.find((check) => check.id === 'model_echo')
   if (check?.status === 'fail' || baseline?.status === 'fail') return 'mismatch'
+  // Version 21 adds direct evidence that a different model answered.
+  if (
+    report.version >= 21 &&
+    report.checks.some(
+      (c) =>
+        ['signature_model', 'prefill', 'signature_forgery'].includes(c.id) &&
+        c.status === 'fail'
+    )
+  )
+    return 'mismatch'
   if (check?.status === 'pass') return 'consistent'
   if (!check && running) return 'pending'
   return 'unresolved'
