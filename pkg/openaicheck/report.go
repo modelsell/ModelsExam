@@ -54,6 +54,7 @@ var specs = map[string]Spec{
 	"responses_previous_id":    {"previous_response_id", "store=true, previous_response_id", "第二轮能引用第一轮口令", srcTester + " (responses.memory.prev_id)"},
 	"error_shape":              {"错误响应形状", "缺少 messages 的非法请求", "4xx 且 error.message/type/code/param 键齐全", srcTester + " (error shape) / " + srcAPI7},
 	"usage_fields":             {"usage 一致性", "全部成功样本", "input/output/total 齐全、非负、total=input+output", srcAPI7 + " (usage)"},
+	"prompt_injection":         {"提示词注入", "同一最小请求 (单条 user 消息) ×3, 首个复用 chat_basic", "usage 输入 token (含缓存) 不超过 64 的余量; 超出说明中转可能注入了隐藏提示词或虚报 usage", "本项目自研 (沿用 Claude 检测的输入余量设计)"},
 	"model_consistency":        {"模型回显一致", "全部成功样本", "响应 model 与请求一致 (允许日期快照后缀), system_fingerprint 记录", srcSelf},
 	"performance":              {"延迟观测", "全部成功样本", "中位/最大耗时, 流式首帧耗时", srcAPI7 + " (timeouts)"},
 }
@@ -85,6 +86,7 @@ var codeNotes = map[string]string{
 	"unsupported_model_family": "该模型系列不支持", "dependency_unavailable": "依赖的前置请求不可用",
 	"single_tool_call": "只返回了一个工具调用", "limit_not_enforced": "token 上限未被遵守",
 	"missing_usage_chunk": "流式未返回 usage 帧", "streamed_function_call_invalid": "流式函数调用事件不合规 (见 issues, 如 tool_delta_missing_item_id)", "usage_missing": "部分响应缺少 usage", "usage_inconsistent": "usage 数值不自洽",
+	"extra_input_tokens": "最小请求的输入 token 超出余量, 中转可能注入了隐藏提示词 (或虚报了 usage)", "no_usable_usage": "没有可用的输入 usage 样本",
 }
 
 // Markdown renders a human-readable report. It states what was observed and, at

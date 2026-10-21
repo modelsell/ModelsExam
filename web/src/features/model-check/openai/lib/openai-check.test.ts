@@ -77,11 +77,11 @@ test('request budget matches the Go planner', () => {
       logprobs: false,
       ...extra,
     })
-  assert.equal(budget('basic'), 4)
-  assert.equal(budget('standard'), 15)
-  assert.equal(budget('full'), 30)
-  assert.equal(budget('full', { vision: true }), 31)
-  assert.equal(budget('basic', { responses: true }), 12)
+  assert.equal(budget('basic'), 6)
+  assert.equal(budget('standard'), 17)
+  assert.equal(budget('full'), 32)
+  assert.equal(budget('full', { vision: true }), 33)
+  assert.equal(budget('basic', { responses: true }), 14)
 })
 
 test('full suite forces responses and logprobs in the request', () => {
@@ -202,6 +202,7 @@ test('catalog covers every stage and probe suffix', () => {
     'chat_tool_roundtrip'
   )
   assert.equal(checkIdForProbe('chat_basic'), 'chat_basic')
+  assert.equal(checkIdForProbe('prompt_injection_r2'), 'prompt_injection')
   assert.equal(
     new Set(OPENAI_STAGES.map((s) => s.id)).size,
     OPENAI_STAGES.length

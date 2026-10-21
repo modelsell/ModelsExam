@@ -40,7 +40,7 @@ func Plan(options Options) []PlanItem {
 	add(StageChatVision, "assertion", options.Vision, "chat_vision")
 	add(StageResponses, "assertion", options.Responses, "responses_basic", "responses_max_output", "responses_stream", "responses_tool_call", "responses_tool_stream", "responses_tool_roundtrip", "responses_structured")
 	add(StageResponses, "assertion", options.Responses && full, "responses_previous_id")
-	add(StageProtocol, "assertion", true, "error_shape", "usage_fields")
+	add(StageProtocol, "assertion", true, "error_shape", "usage_fields", "prompt_injection")
 	add(StageReliable, "observation", true, "model_consistency", "performance")
 	return plan
 }
@@ -57,6 +57,8 @@ func MaxRequests(options Options) int {
 			// derived from earlier samples
 		case "chat_tool_roundtrip", "responses_tool_roundtrip", "responses_previous_id":
 			total += 2
+		case "prompt_injection":
+			total += PromptInjectionRequests - 1 // chat_basic is the first sample
 		default:
 			total++
 		}

@@ -71,6 +71,7 @@ export const OPENAI_CHECK_TITLES: Record<string, string> = {
   responses_previous_id: 'previous_response_id',
   error_shape: 'Error response shape',
   usage_fields: 'Usage consistency',
+  prompt_injection: 'Prompt injection',
   gemini_model_get: 'Model resource',
   gemini_basic: 'generateContent envelope',
   gemini_system: 'System instruction',
@@ -149,6 +150,8 @@ export const OPENAI_CHECK_DETAILS: Record<string, string> = {
     'An invalid request must return a 4xx with error message, type, code and param.',
   usage_fields:
     'Usage must be present, non-negative and total = input + output.',
+  prompt_injection:
+    'Three identical minimal requests must report at most 64 input tokens (cached tokens included); more suggests an injected hidden prompt or inflated usage.',
   model_consistency:
     'The reported model must match the request, allowing dated snapshot suffixes.',
   gemini_model_get:
@@ -221,6 +224,9 @@ export const OPENAI_CODE_NOTES: Record<string, string> = {
   usage_chunk_invalid: 'The streamed usage chunk is invalid.',
   usage_missing: 'Some responses have no usage.',
   usage_inconsistent: 'Usage numbers are inconsistent.',
+  extra_input_tokens:
+    'The minimal request reported more input than was sent: a hidden prompt may have been injected, or usage is inflated.',
+  no_usable_usage: 'No usable input usage was reported.',
   streamed_function_call_invalid: 'Streamed function-call events are invalid.',
   streamed_tool_call_invalid: 'The streamed tool call is invalid.',
   tool_call_invalid: 'The tool call does not match the request.',
@@ -255,7 +261,8 @@ export const OPENAI_CODE_NOTES: Record<string, string> = {
 
 export const OPENAI_CODE_CHIPS_LIMIT = 6
 
-// Probes named "<check>_result" are the second request of a two-step check.
+// Probes named "<check>_result" are the second request of a two-step check;
+// "<check>_r<n>" are repeated samples (prompt_injection).
 export function checkIdForProbe(probe: string): string {
-  return probe.replace(/_result$/, '')
+  return probe.replace(/_(result|r\d+)$/, '')
 }

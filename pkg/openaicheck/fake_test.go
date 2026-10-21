@@ -27,7 +27,13 @@ type fakeOpenAI struct {
 	noToolItemID   bool // function_call_arguments events omit item_id
 	wrongToolItem  bool // function_call_arguments events name an unknown item
 	statusOverride int
-	requests       atomic.Int64
+	// chatInput, when set, reports prompt_tokens and cached_tokens for the nth
+	// non-streaming chat request (from 1), simulating a relay that adds input.
+	chatInput func(n int64) (prompt, cached int)
+	// failAfterChat answers 429 to every chat request after the first n.
+	failAfterChat int64
+	requests      atomic.Int64
+	chats         atomic.Int64
 }
 
 func (f *fakeOpenAI) handler() http.Handler {
@@ -175,11 +181,20 @@ func (f *fakeOpenAI) chat(w http.ResponseWriter, r *http.Request) {
 	if !f.validateInput(w, body) {
 		return
 	}
+	stream, _ := body["stream"].(bool)
+	var n int64
+	if !stream {
+		n = f.chats.Add(1)
+	}
+	if f.failAfterChat > 0 && n > f.failAfterChat {
+		writeJSON(w, 429, object{"error": object{"message": "Rate limit reached", "type": "requests", "param": nil, "code": "rate_limit_exceeded"}})
+		return
+	}
 	s := f.script(body)
 	if f.toolsAsText && len(s.calls) > 0 {
 		s = scripted{text: "I would call " + str(s.calls[0], "name"), finish: "stop", outToken: 8}
 	}
-	if stream, _ := body["stream"].(bool); stream {
+	if stream {
 		f.chatStream(w, body, s)
 		return
 	}
@@ -203,7 +218,13 @@ func (f *fakeOpenAI) chat(w http.ResponseWriter, r *http.Request) {
 	}
 	resp := object{"id": "chatcmpl-1", "object": "chat.completion", "created": 1, "model": f.model + "-2024-08-06", "system_fingerprint": "fp_test", "choices": choices}
 	if !f.noUsage {
-		resp["usage"] = usageOf(12, s.outToken)
+		usage := usageOf(12, s.outToken)
+		if f.chatInput != nil {
+			prompt, cached := f.chatInput(n)
+			usage = usageOf(prompt, s.outToken)
+			usage["prompt_tokens_details"] = object{"cached_tokens": cached}
+		}
+		resp["usage"] = usage
 	}
 	writeJSON(w, 200, resp)
 }

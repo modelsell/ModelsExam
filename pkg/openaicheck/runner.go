@@ -107,7 +107,7 @@ func RunWithObserver(ctx context.Context, options Options, transport Transport, 
 			code = "cancelled"
 		case r.report.StopReason != "":
 			code = "run_stopped"
-		case strings.HasPrefix(item.ID, "chat_") && item.ID != "chat_basic":
+		case (strings.HasPrefix(item.ID, "chat_") && item.ID != "chat_basic") || item.ID == "prompt_injection":
 			code = "baseline_failed"
 		}
 		r.check(item.ID, "skipped", code, nil)
@@ -311,7 +311,7 @@ func (r *runner) chatBasic() bool {
 	if !r.selected("chat_basic") || r.ctx.Err() != nil {
 		return false
 	}
-	res := r.probe("chat_basic", KindChat, r.chatRequest(r.chatBody(r.budget(256), user("Reply with exactly PONG."))))
+	res := r.probe("chat_basic", KindChat, r.chatRequest(r.promptInjectionBody()))
 	evidence := map[string]any{"finish_reason": res.v.Finish, "text_length": len(res.v.Text)}
 	if !res.ok {
 		if msg := res.sample.Error; strings.Contains(msg, "max_completion_tokens") || strings.Contains(msg, "max_tokens") {

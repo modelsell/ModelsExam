@@ -121,6 +121,8 @@ type Usage struct {
 	Input  *int64 `json:"input_tokens"`
 	Output *int64 `json:"output_tokens"`
 	Total  *int64 `json:"total_tokens"`
+	// Cached is prompt_tokens_details.cached_tokens / input_tokens_details.cached_tokens.
+	Cached *int64 `json:"cached_tokens,omitempty"`
 }
 
 type Sample struct {

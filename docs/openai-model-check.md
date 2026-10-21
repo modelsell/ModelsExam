@@ -62,12 +62,23 @@
 | `responses_previous_id` previous_response_id | 断言 | `responses` + full | store=true, previous_response_id | 第二轮能引用第一轮口令 | avelrl/openai-compatible-tester (responses.memory.prev_id) |
 | `error_shape` 错误响应形状 | 断言 | basic | 缺少 messages 的非法请求 | 4xx 且 error.message/type/code/param 键齐全 | avelrl/openai-compatible-tester (error shape) / API7 AI 网关契约测试清单 |
 | `usage_fields` usage 一致性 | 断言 | basic | 全部成功样本 | input/output/total 齐全、非负、total=input+output | API7 AI 网关契约测试清单 (usage) |
+| `prompt_injection` 提示词注入 | 断言 | basic | 同一最小请求（单条 user 消息「Reply with exactly PONG.」）共 3 次，首次复用 `chat_basic` | 每次 usage 输入 token（`prompt_tokens`，缓存若被单独上报则一并计入）≤ 64；任一超出即失败，证据含各次输入、估计/最大额外 token 与 0–100 余量分 | 本项目自研（沿用 Claude 检测 `prompt_integrity` 的最小请求输入余量设计） |
 | `model_consistency` 模型回显一致 | 观测 | basic | 全部成功样本 | 响应 model 与请求一致 (允许日期快照后缀), system_fingerprint 记录 | 本项目自研 |
 | `performance` 延迟观测 | 观测 | basic | 全部成功样本 | 中位/最大耗时, 流式首帧耗时 | API7 AI 网关契约测试清单 (timeouts) |
 
-请求数上限：basic=4，standard=15，full=30（full 已含 responses 与 logprobs），再加 vision=31
+请求数上限：basic=6，standard=17，full=32（full 已含 responses 与 logprobs），再加 vision=33
 
 `usage_fields`、`model_consistency`、`performance`、`chat_stream_usage` 由已有样本推导，不额外发请求。
+
+### 提示词注入（`prompt_injection`）
+
+中转站常在用户请求前拼接隐藏的 system 提示词，用户看不到，却要为这些输入付费。检测办法与 Claude 侧当前版本一致：不依赖任何保存的基线，只看一个固定最小请求被上报了多少输入。
+
+- 请求：只有一条 user 消息「Reply with exactly PONG.」，OpenAI 原生约 13 个 prompt token。`chat_basic` 即第 1 次，另发 `prompt_injection_r2`、`prompt_injection_r3` 两次，遇到 401/403/429/5xx/网络错误不再继续。
+- 余量：64 token（`PromptInputAllowance`），足以容纳其他模型系列在兼容接口后的聊天模板；更小的注入可能漏判。
+- 计数：取 `usage.prompt_tokens`；按 OpenAI 契约缓存命中已包含在内，若 `prompt_tokens_details.cached_tokens` 大于 `prompt_tokens`（转换来的上游把缓存单独上报），两者相加，避免被缓存的隐藏提示词漏算。
+- 结论：全部样本都在余量内 → 通过 `no_obvious_injection`；任一超出 → 失败 `extra_input_tokens`；没有可用 usage → 无法判定 `no_usable_usage`。证据：`input_tokens`、`estimated_extra_tokens`（平均超出）、`max_extra_tokens`、`extra_rounds`、`score`（≤64 为 100，超出为 round(100×64/输入)，有超出时最高 99）。
+- 局限：usage 由端点自报。通过不能证明没有注入（中转可同时改写计数），失败也可能是 usage 被虚报，两者都值得关注。
 
 ## API
 
@@ -112,7 +123,7 @@
 
 入口：模型检测页（`web/default/src/features/model-check`）表单上方的 **Claude / OpenAI** 切换；代码在 `openai/` 子目录，仅小幅改动了 `components/new-check.tsx`（切换）和 `components/check-model-select.tsx`（可按厂商过滤模型建议）。
 
-- **表单**：Base URL、API Key、模型、套件（基础 / 标准 / 完整）；高级设置里可勾选 Responses API、对数概率、图片输入，以及 Token 上限参数（`max_completion_tokens` / `max_tokens`）。完整套件固定包含 Responses 与 logprobs（开关置灰），图片输入不属于完整套件。表单下方实时显示请求数上限（基础 4 / 标准 15 / 完整 30 / 完整+图片 31）。
+- **表单**：Base URL、API Key、模型、套件（基础 / 标准 / 完整）；高级设置里可勾选 Responses API、对数概率、图片输入，以及 Token 上限参数（`max_completion_tokens` / `max_tokens`）。完整套件固定包含 Responses 与 logprobs（开关置灰），图片输入不属于完整套件。表单下方实时显示请求数上限（基础 6 / 标准 17 / 完整 32 / 完整+图片 33）。
 - **实时进度**：通过 SSE 逐项更新；报告抽屉按阶段分组，正在执行的探测高亮，实时得分按已判定断言计算（与服务端算法一致，结束后以服务端报告为准）。
 - **报告**（参照 Claude 检测的报告纸，复用同一套 `.mc-report` 样式）：
   - 顶部状态卡：模型、状态、请求进度条（已用 / 上限）、耗时、当前探测、中止原因。

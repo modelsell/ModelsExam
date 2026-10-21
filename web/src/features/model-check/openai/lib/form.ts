@@ -85,7 +85,7 @@ export function openAIRequestBudget(
 ): number {
   const full = options.suite === 'full'
   const standard = options.suite !== 'basic'
-  let total = 4 // models_list, chat_basic, chat_stream, error_shape
+  let total = 6 // models_list, chat_basic, chat_stream, error_shape, prompt_injection x2
   if (standard) total += 11 // system, 4 inputs, 2 tools, tool round trip x2, 2 formats
   if (full) total += 4 // n, tool_choice none, tool stream, parallel tools
   if (full || options.logprobs) total += 1

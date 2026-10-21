@@ -113,7 +113,7 @@ func readUsage(doc object, inKey, outKey string, issues *[]string) Usage {
 		}
 		return &n
 	}
-	detail(inKey+"_details", "cached_tokens")
+	usage.Cached = detail(inKey+"_details", "cached_tokens")
 	if reasoning := detail(outKey+"_details", "reasoning_tokens"); reasoning != nil && usage.Output != nil && *reasoning > *usage.Output {
 		*issues = append(*issues, "reasoning_tokens_exceed_output")
 	}

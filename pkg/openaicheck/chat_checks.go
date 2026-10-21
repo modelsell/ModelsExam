@@ -6,6 +6,7 @@ import (
 )
 
 func (r *runner) chatSuite() {
+	r.promptInjection()
 	r.chatSystem()
 	r.chatMaxTokens()
 	r.chatStop()
