@@ -1,5 +1,11 @@
 package server
 
+import (
+	"net"
+	"net/http"
+	"strings"
+)
+
 // cloudflareNets are Cloudflare's published edge ranges
 // (https://www.cloudflare.com/ips/). A request whose proxy-reported address is
 // in them came through Cloudflare, which sets CF-Connecting-IP.
@@ -10,3 +16,35 @@ var cloudflareNets = parseNets([]string{
 	"2400:cb00::/32", "2606:4700::/32", "2803:f800::/32", "2405:b500::/32", "2405:8100::/32",
 	"2a06:98c0::/29", "2c0f:f248::/32",
 })
+
+func (s *Server) cloudflareOrigin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !s.isCloudflareOrigin(r) {
+			w.Header().Set("Cache-Control", "no-store")
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (s *Server) isCloudflareOrigin(r *http.Request) bool {
+	peer := remoteIP(r)
+	if !peer.IsLoopback() || !inNets(peer, s.trusted) {
+		return false
+	}
+	forwarded := r.Header.Values("X-Forwarded-For")
+	if len(forwarded) == 0 {
+		// The local service probe connects to the loopback listener directly.
+		host, _, _ := net.SplitHostPort(r.Host)
+		return net.ParseIP(host).IsLoopback() && r.Method == http.MethodGet && r.URL.Path == "/api/status"
+	}
+	if len(forwarded) != 1 {
+		return false
+	}
+	// Caddy folds X-Forwarded-For into one header and appends its socket peer
+	// last. Earlier hops and CF-Connecting-IP may describe the visitor.
+	chain := forwarded[0]
+	last := strings.TrimSpace(chain[strings.LastIndexByte(chain, ',')+1:])
+	return inNets(net.ParseIP(last), cloudflareNets)
+}

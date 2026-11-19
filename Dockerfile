@@ -5,7 +5,7 @@ RUN bun install
 COPY web ./
 RUN bun run build
 
-FROM golang:1.25 AS build
+FROM golang:1.26.11 AS build
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download

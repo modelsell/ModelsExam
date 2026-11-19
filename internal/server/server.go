@@ -37,6 +37,9 @@ type Config struct {
 	// Cloudflare believes CF-Connecting-IP when the trusted proxy reports a
 	// Cloudflare edge address as the client.
 	Cloudflare bool
+	// CloudflareOriginOnly requires a Cloudflare peer on requests from the
+	// local reverse proxy. It expects the proxy to append its actual peer IP.
+	CloudflareOriginOnly bool
 }
 
 type Server struct {
@@ -171,6 +174,9 @@ func (s *Server) Handler() http.Handler {
 			c.Header("Cache-Control", "no-cache")
 			c.Data(status, "text/html; charset=utf-8", seo.Render(indexHTML, seo.SiteURL(s.cfg.SiteURL, c.Request), page))
 		})
+	}
+	if s.cfg.CloudflareOriginOnly {
+		return s.cloudflareOrigin(r)
 	}
 	return r
 }

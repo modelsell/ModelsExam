@@ -56,8 +56,9 @@ func main() {
 		SiteURL:       os.Getenv("MODEL_CHECK_SITE_URL"),
 		// Logins and saved keys never travel over plain HTTP unless this is
 		// explicitly turned off (local development only).
-		RequireHTTPS: os.Getenv("AUTH_REQUIRE_HTTPS") != "false",
-		Cloudflare:   os.Getenv("MODEL_CHECK_CLOUDFLARE") == "true",
+		RequireHTTPS:         os.Getenv("AUTH_REQUIRE_HTTPS") != "false",
+		Cloudflare:           os.Getenv("MODEL_CHECK_CLOUDFLARE") == "true",
+		CloudflareOriginOnly: os.Getenv("MODEL_CHECK_CLOUDFLARE_ORIGIN_ONLY") == "true",
 	})
 	srv.Start()
 	addr := os.Getenv("LISTEN_ADDR")

@@ -18,7 +18,7 @@ unchanged, the platform glue (users, channels, relay adaptors) is gone.
 
 ## Run
 
-Requires Go 1.25.1 or newer and Bun 1.3.14 or newer. Frontend tests also require Node.js 24.
+Requires Go 1.26.11 or newer and Bun 1.3.14 or newer. Frontend tests also require Node.js 24.
 
 ```bash
 git clone https://github.com/modelsell/ModelsExam.git
@@ -53,6 +53,7 @@ Validate a source checkout with `make build && make test && go vet ./...`.
 | `AUTH_REQUIRE_HTTPS` | `true` | refuse sign-in, registration and saving keys over plain HTTP. Set `false` only for local development |
 | `MODEL_CHECK_SECRET_KEY_FILE` / `MODEL_CHECK_SECRET_KEY` | required | master key (32 random bytes, base64: `openssl rand -base64 32`) that encrypts saved API keys at rest. The server refuses to start without it. Keep it outside the database and its backups |
 | `MODEL_CHECK_CLOUDFLARE` | `false` | behind Cloudflare: believe `CF-Connecting-IP` when the trusted proxy reports a Cloudflare edge address |
+| `MODEL_CHECK_CLOUDFLARE_ORIGIN_ONLY` | `false` | accept requests from Cloudflare edge IPs behind a trusted loopback Caddy proxy that appends its actual peer to `X-Forwarded-For`. Bind ModelsExam to loopback and set `TRUSTED_PROXIES` to the loopback proxy address |
 
 Optional accounts, saved test keys, one-click retests and scheduled checks are described in
 [docs/account-and-server-key.md](docs/account-and-server-key.md). Operator commands:
